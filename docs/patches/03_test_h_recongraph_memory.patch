@@ -1,0 +1,14 @@
+diff --git a/tests/test_h_recongraph_memory.py b/tests/test_h_recongraph_memory.py
+index 667ba03..271b61a 100644
+--- a/tests/test_h_recongraph_memory.py
++++ b/tests/test_h_recongraph_memory.py
+@@ -131,7 +131,8 @@ def test_semantic_state_requires_evidence_bound_fields():
+ @pytest.mark.asyncio
+ async def test_maintain_expires_m0_buffer_items():
+     memory = HReConGraphMemory(policy=MemoryPolicy(m0_ttl=timedelta(microseconds=1)))
+-    await memory.add_interaction('好的', user_id='u1', session_id='s1')
++    instant = await memory.add_interaction('好的', user_id='u1', session_id='s1')
++    instant.created_at -= timedelta(seconds=1)
+ 
+     result = await memory.maintain(user_id='u1')
+ 

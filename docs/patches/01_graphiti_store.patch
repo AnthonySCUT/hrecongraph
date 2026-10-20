@@ -1,0 +1,42 @@
+diff --git a/h_recongraph/memory/graphiti_store.py b/h_recongraph/memory/graphiti_store.py
+index 6cfbf96..f04a7e5 100644
+--- a/h_recongraph/memory/graphiti_store.py
++++ b/h_recongraph/memory/graphiti_store.py
+@@ -17,7 +17,7 @@ class GraphitiMemoryStore:
+     async def add_memory(self, memory: UnifiedMemoryUnit) -> Any:
+         source_description = self._source_description(memory)
+         episode_body = self._episode_body(memory)
+-        return await self.graphiti.add_episode(
++        result = await self.graphiti.add_episode(
+             name=f'{memory.layer.lower()}_{memory.memory_id}',
+             episode_body=episode_body,
+             source_description=source_description,
+@@ -25,6 +25,28 @@ class GraphitiMemoryStore:
+             source=EpisodeType.text,
+             group_id=self.group_id(memory.user_id),
+         )
++        episode = getattr(result, 'episode', None)
++        memory.graph_binding.nodes = list(
++            dict.fromkeys(
++                [*memory.graph_binding.nodes, *(node.uuid for node in getattr(result, 'nodes', []))]
++            )
++        )
++        # add_episode also returns old edges invalidated by this episode.
++        memory.graph_binding.edges = list(
++            dict.fromkeys(
++                [
++                    *memory.graph_binding.edges,
++                    *(
++                        edge.uuid
++                        for edge in getattr(result, 'edges', [])
++                        if episode is not None and episode.uuid in edge.episodes
++                    ),
++                ]
++            )
++        )
++        if episode is not None:
++            memory.metadata['graphiti_episode_id'] = episode.uuid
++        return result
+ 
+     async def search_memories(
+         self,

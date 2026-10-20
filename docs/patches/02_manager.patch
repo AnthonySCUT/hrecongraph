@@ -1,0 +1,59 @@
+diff --git a/h_recongraph/memory/manager.py b/h_recongraph/memory/manager.py
+index ea08c32..d06ded9 100644
+--- a/h_recongraph/memory/manager.py
++++ b/h_recongraph/memory/manager.py
+@@ -109,7 +109,7 @@ class HReConGraphMemory:
+         if 'M0' in route.layers:
+             instant_memories = self.ranker.rank_memories(
+                 self._matching_m0(query, user_id, session_id), query
+-            )
++            )[: self.policy.max_retrieval_results]
+             for memory in instant_memories:
+                 memory.touch()
+ 
+@@ -119,23 +119,39 @@ class HReConGraphMemory:
+                 user_id,
+                 num_results=self.policy.max_retrieval_results,
+             )
+-            graph_edges = self.ranker.rank_graph_edges(list(search_results or []), query)
++            graph_edges = self.ranker.rank_graph_edges(list(search_results or []), query)[
++                : self.policy.max_retrieval_results
++            ]
+ 
+         relevant_ids = {memory.memory_id for memory in instant_memories}
+-        relevant_ids.update(self.short_term_memories)
+-        relevant_ids.update(self.long_term_memories)
++        selected_evidence_ids = {
++            evidence_id for memory in instant_memories for evidence_id in memory.evidence_ids
++        }
++        selected_edge_ids = {edge.uuid for edge in graph_edges}
++        selected_episode_ids = {
++            episode_id for edge in graph_edges for episode_id in getattr(edge, 'episodes', [])
++        }
++        for memory in [*self.short_term_memories.values(), *self.long_term_memories.values()]:
++            if memory.user_id != user_id or memory.layer not in route.layers:
++                continue
++            if (
++                selected_evidence_ids.intersection(memory.evidence_ids)
++                or selected_edge_ids.intersection(memory.graph_binding.edges)
++                or memory.metadata.get('graphiti_episode_id') in selected_episode_ids
++                or any(evidence_id in query for evidence_id in memory.evidence_ids)
++            ):
++                relevant_ids.add(memory.memory_id)
+         local_states = [
+             state
+             for state in self.semantic_states.values()
+             if state.edge_or_subgraph_id in relevant_ids
+-            or any(evidence_id in query for evidence_id in state.evidence_ids)
+         ]
+ 
+         return self.relinker.build_context(
+             query=query,
+             selected_layers=route.layers,
+-            instant_memories=instant_memories[: self.policy.max_retrieval_results],
+-            graph_edges=graph_edges[: self.policy.max_retrieval_results],
++            instant_memories=instant_memories,
++            graph_edges=graph_edges,
+             semantic_states=local_states[: self.policy.max_retrieval_results],
+         )
+ 

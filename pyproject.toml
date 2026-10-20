@@ -1,0 +1,37 @@
+[project]
+name = "hrecongraph-lightweight"
+version = "0.5.0"
+description = "Research prototype for layered graph-memory retrieval with staged code review"
+readme = "README.md"
+requires-python = ">=3.10,<4"
+license = "Apache-2.0"
+dependencies = ["graphiti-core==0.29.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.3", "pytest-asyncio>=0.24.0", "ruff>=0.7.1"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["h_recongraph"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["graphiti_core", "h_recongraph"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"

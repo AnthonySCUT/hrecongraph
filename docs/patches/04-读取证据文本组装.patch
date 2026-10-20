@@ -1,0 +1,147 @@
+diff --git a/h_recongraph/memory/relinking.py b/h_recongraph/memory/relinking.py
+--- a/h_recongraph/memory/relinking.py
++++ b/h_recongraph/memory/relinking.py
+@@ -1,5 +1,6 @@
+-"""Query-time cross-layer relinking."""
++"""Query-time cross-layer relinking and context rendering."""
+ 
++import json
+ from typing import Any, Literal
+ 
+ from pydantic import BaseModel, Field
+@@ -21,10 +22,63 @@
+     ephemeral_edges: list[ReConMemoryEdge] = Field(default_factory=list)
+     evidence_trace: list[str] = Field(default_factory=list)
+     source_episodes: list[EpisodicNode] = Field(default_factory=list)
++    context_text: str = ''
+ 
+     model_config = {'arbitrary_types_allowed': True}
+ 
++    def render_text(self) -> str:
++        """Render the selected memory evidence as compact text for a downstream reader."""
++        blocks: list[str] = []
+ 
++        for memory in self.instant_memories:
++            if memory.raw_content:
++                blocks.append(f'[M0] {memory.raw_content}')
++
++        for state in self.semantic_states:
++            fields = [
++                f'{name}={value}'
++                for name in (
++                    'temporal_scope',
++                    'cause',
++                    'effect',
++                    'intent',
++                    'condition',
++                    'state_change',
++                    'validity',
++                )
++                if (value := getattr(state, name))
++            ]
++            if fields:
++                evidence = ','.join(state.evidence_ids)
++                suffix = f' [evidence={evidence}]' if evidence else ''
++                blocks.append(f'[STATE {state.edge_or_subgraph_id}] ' + '; '.join(fields) + suffix)
++
++        for edge in self.graph_edges:
++            fact = getattr(edge, 'fact', None) or getattr(edge, 'name', None)
++            if not fact:
++                continue
++            source = getattr(edge, 'source_node_uuid', '?')
++            target = getattr(edge, 'target_node_uuid', '?')
++            blocks.append(f'[EDGE] {source} -> {target}: {fact}')
++
++        for episode in self.source_episodes:
++            content = self._source_text(episode.content)
++            if content:
++                blocks.append(f'[SOURCE {episode.uuid}] {content}')
++
++        return '\n'.join(dict.fromkeys(blocks))
++
++    @staticmethod
++    def _source_text(content: str) -> str:
++        try:
++            envelope = json.loads(content)
++        except (TypeError, json.JSONDecodeError):
++            return content
++        if isinstance(envelope, dict) and isinstance(envelope.get('content'), str):
++            return envelope['content']
++        return content
++
++
+ class CrossLayerRelinker:
+     """Construct ephemeral edges when M0 evidence can bridge retrieved graph context."""
+ 
+@@ -45,7 +99,7 @@
+         for edge in ephemeral_edges:
+             evidence_trace.extend(edge.evidence_ids)
+ 
+-        return HierarchicalMemoryContext(
++        context = HierarchicalMemoryContext(
+             query=query,
+             selected_layers=selected_layers,
+             instant_memories=instant_memories,
+@@ -54,6 +108,8 @@
+             ephemeral_edges=ephemeral_edges,
+             evidence_trace=list(dict.fromkeys(evidence_trace)),
+         )
++        context.context_text = context.render_text()
++        return context
+ 
+     def _candidate_edges(
+         self, query: str, instant_memories: list[UnifiedMemoryUnit]
+diff --git a/h_recongraph/memory/manager.py b/h_recongraph/memory/manager.py
+--- a/h_recongraph/memory/manager.py
++++ b/h_recongraph/memory/manager.py
+@@ -176,6 +176,7 @@
+             semantic_states=[state for _, state in selected],
+         )
+         context.source_episodes = source_episodes
++        context.context_text = context.render_text()
+         returned_state_ids = {state.state_id for state in context.semantic_states}
+         accessed = {
+             memory.memory_id: memory
+diff --git a/tests/test_h_recongraph_retrieval.py b/tests/test_h_recongraph_retrieval.py
+--- a/tests/test_h_recongraph_retrieval.py
++++ b/tests/test_h_recongraph_retrieval.py
+@@ -1005,3 +1005,39 @@
+         await controller.retrieve('current Redis', user_id='u1')
+ 
+     assert instant.access_count == 0
++
++
++@pytest.mark.asyncio
++async def test_context_text_restores_envelope_content_and_keeps_selected_graph_evidence():
++    written, source = enveloped_source()
++    edge = source_edge(['episode-a'])
++    controller = HReConGraphMemory(SearchGraphiti([edge], [source]))
++
++    context = await controller.retrieve('current Redis', user_id='u1')
++
++    assert context.context_text == context.render_text()
++    assert f'[SOURCE {source.uuid}] {written.raw_content}' in context.context_text
++    assert 'h_recongraph' not in context.context_text
++    assert '[EDGE] node-a -> node-b: Project A uses Redis' in context.context_text
++    assert f'[STATE {written.memory_id}]' in context.context_text
++
++
++@pytest.mark.asyncio
++async def test_context_text_keeps_plain_legacy_source_verbatim():
++    source = source_episode('episode-plain', 'Plain legacy source text.')
++    edge = source_edge(['episode-plain'])
++    controller = HReConGraphMemory(SearchGraphiti([edge], [source]))
++
++    context = await controller.retrieve('Project A', user_id='u1')
++
++    assert context.context_text.endswith('[SOURCE episode-plain] Plain legacy source text.')
++
++
++@pytest.mark.asyncio
++async def test_m0_only_context_text_is_available_without_graph_store():
++    controller = HReConGraphMemory()
++    await controller.add_interaction('current project deadline', user_id='u1', session_id='s1')
++
++    context = await controller.retrieve('current project', user_id='u1', session_id='s1')
++
++    assert context.context_text.startswith('[M0] current project deadline')
