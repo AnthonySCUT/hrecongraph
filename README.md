@@ -1,6 +1,6 @@
 # H-ReConGraph
 
-基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **13 阶段**，包含记忆束更新、四维证据绑定、证据裁剪及读取评测实现。阶段机制与结果见下方阶段页。
+基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **14 阶段**，包含记忆束更新、四维证据绑定、证据裁剪及写入绑定校准实验。阶段机制与结果见下方阶段页。
 
 ## 研究框架
 
@@ -37,8 +37,21 @@
 | 11 | LongMemEval 读取成本配对 | 回归：137 passed；Token 减少 38.46%，历史按题平均召回 75.64% | [11 LongMemEval 配对](docs/stages/11-longmemeval-pairing.md) |
 | 12 | 证据召回、窗口与成本 Pareto 消融 | 回归：142 passed；Oracle 500 题，`w=1` 召回 97.43% | [12 召回成本消融](docs/stages/12-recall-cost-pareto.md) |
 | 13 | 重复渲染修复、依赖作用域消融 | 回归：149 passed；Oracle 500 题，去重 `w=1` 召回 97.43% | [13 重复渲染与依赖消融](docs/stages/13-rendering-dependency-ablation.md) |
+| 14 | 写入词界与事实作用域校准 | 回归：153 passed；Oracle 500 题，作用域 `w=1` 召回 93.75%，较原证据束省 Token 10.99% | [14 写入绑定校准](docs/stages/14-write-binding-calibration.md) |
 
-01–13 阶段说明均可从本仓库 `docs/stages/` 访问。06–13 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
+01–14 阶段说明均可从本仓库 `docs/stages/` 访问。06–14 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
+
+## 第 14 阶段写入绑定校准
+
+固定原词面检索和每 Session 的 Top-1 事实轮次，对照三种写入规则。下表使用相同的证据束 `w=1`；整体召回按 896 条支持轮次汇总。
+
+| 写入规则 | 平均 Token | 支持轮次保留 | 整体证据召回 | 较原证据束减少 Token |
+|---|---:|---:|---:|---:|
+| 原子串 | 6,606.28 | 873 / 896 | 97.43% | 0.00% |
+| 英文词界 | 6,057.00 | 842 / 896 | 93.97% | 8.31% |
+| 词界 + 事实作用域 | 5,880.24 | 840 / 896 | 93.75% | 10.99% |
+
+规则收缩节省上下文，也损失真实支持。默认保留原子串规则，候选通过 `binding_rule` 开放消融。诊断揭示了 `know/now` 子串误触发、`recent/recently` 词形遗漏以及依赖收缩引起的窗口覆盖损失。详见[第 14 阶段说明](docs/stages/14-write-binding-calibration.md)。
 
 ## 第 13 阶段读取结果
 
@@ -77,7 +90,7 @@ print(context.context_text)
 
 ## 验证
 
-当前代码快照（13 阶段）指定回归：**149 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
+当前代码快照（14 阶段）指定回归：**153 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
 
 ```powershell
 python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider

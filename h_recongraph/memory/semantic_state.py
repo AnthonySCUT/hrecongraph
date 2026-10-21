@@ -2,7 +2,9 @@
 
 import re
 from collections.abc import Iterable
+from typing import Literal
 
+from h_recongraph.memory.ranker import MemoryUtilityRanker
 from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
 from h_recongraph.schemas.semantic_state import MemorySemanticState
 
@@ -47,6 +49,11 @@ class SemanticStateConstructor:
     )
     CHANGE_MARKERS = ('开始', '变得', '不再', '最近', 'increase', 'decrease', 'more often')
     TEMPORAL_MARKERS = ('最近', '今天', '昨天', '明天', 'current', 'recent', 'now', '下午')
+
+    def __init__(
+        self, binding_rule: Literal['substring', 'word_boundary', 'fact_scope'] = 'substring'
+    ):
+        self.binding_rule = binding_rule
 
     def construct(
         self,
@@ -99,6 +106,8 @@ class SemanticStateConstructor:
             )
             spans.extend(span.model_copy(update={'field': 'validity'}) for span in validity_sources)
 
+        if self.binding_rule == 'fact_scope':
+            self._bind_fact_scopes(text, memory, spans)
         spans = list(
             {
                 (span.evidence_id, span.field, span.text, span.start, span.end): span
@@ -176,10 +185,43 @@ class SemanticStateConstructor:
             )
         return paragraphs
 
-    @staticmethod
-    def _contains_marker(text: str, markers: Iterable[str]) -> bool:
-        lower = text.lower()
-        return any(marker.lower() in lower for marker in markers)
+    def _marker_index(self, text: str, marker: str) -> int:
+        if self.binding_rule == 'substring' or not marker.isascii():
+            return text.lower().find(marker.lower())
+        match = re.search(r'(?<!\w)' + re.escape(marker) + r'(?!\w)', text, flags=re.I)
+        return match.start() if match else -1
+
+    def _contains_marker(self, text: str, markers: Iterable[str]) -> bool:
+        return any(self._marker_index(text, marker) >= 0 for marker in markers)
+
+    def _bind_fact_scopes(
+        self, text: str, memory: UnifiedMemoryUnit, spans: list[SourceSpan]
+    ) -> None:
+        """Attach automatic dependencies to paragraphs sharing source content words."""
+        paragraphs = self._paragraphs(text, memory.evidence_ids)
+        ranker = MemoryUtilityRanker()
+        tokens = [
+            ranker.tokenize(re.sub(r'^(?:user|assistant|system):\s*', '', span.text, flags=re.I))
+            for span in paragraphs
+        ]
+        explicit = {(span.field, span.start, span.end, span.text) for span in memory.source_spans}
+        for span in spans:
+            if span.field == 'fact' or (span.field, span.start, span.end, span.text) in explicit:
+                continue
+            owner = next(
+                (
+                    i
+                    for i, paragraph in enumerate(paragraphs)
+                    if paragraph.start <= span.start < paragraph.end
+                ),
+                None,
+            )
+            if owner is not None:
+                span.fact_starts = [
+                    paragraph.start
+                    for i, paragraph in enumerate(paragraphs)
+                    if i == owner or tokens[owner] & tokens[i]
+                ]
 
     def _span_for_any(
         self,
@@ -189,9 +231,8 @@ class SemanticStateConstructor:
         field: str,
         spans: list[SourceSpan],
     ) -> str | None:
-        lower = text.lower()
         for marker in markers:
-            index = lower.find(marker.lower())
+            index = self._marker_index(text, marker)
             if index == -1:
                 continue
             end = min(len(text), index + max(len(marker), 12))
@@ -216,9 +257,8 @@ class SemanticStateConstructor:
         field: str,
         spans: list[SourceSpan],
     ) -> str | None:
-        lower = text.lower()
         for marker in markers:
-            index = lower.find(marker.lower())
+            index = self._marker_index(text, marker)
             if index == -1:
                 continue
             start = index + len(marker)

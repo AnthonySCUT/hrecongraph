@@ -31,6 +31,7 @@ class SourceSpan(BaseModel):
     start: int | None = None
     end: int | None = None
     field: str | None = None
+    fact_starts: list[int] | None = None
 
 
 class GraphBinding(BaseModel):

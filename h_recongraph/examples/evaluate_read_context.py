@@ -16,6 +16,7 @@ from graphiti_core.utils.datetime_utils import utc_now
 from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
 from h_recongraph.memory.manager import HReConGraphMemory
 from h_recongraph.memory.relinking import HierarchicalMemoryContext
+from h_recongraph.memory.semantic_state import SemanticStateConstructor
 from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
 from h_recongraph.schemas.semantic_state import MemorySemanticState
 
@@ -96,12 +97,16 @@ async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
     return contexts
 
 
-async def build_naturally_bound_contexts(cases: list[dict]) -> dict:
+async def build_naturally_bound_contexts(
+    cases: list[dict], *, binding_rule: str = 'substring'
+) -> dict:
     """Write source text without external spans and recover automatic bindings."""
     contexts = {}
     for case in cases:
-        context = build_context(case)
-        writer = HReConGraphMemory()
+        context = build_context({**case, 'spans': []})
+        writer = HReConGraphMemory(
+            semantic_state_constructor=SemanticStateConstructor(binding_rule)
+        )
         for source in context.source_episodes:
             memory = UnifiedMemoryUnit(
                 memory_id=f'stm-{source.uuid}',
@@ -439,12 +444,20 @@ def main() -> None:
     parser.add_argument('--write-bindings', type=Path)
     parser.add_argument('--natural-bindings', action='store_true')
     parser.add_argument('--dependency-ablation', action='store_true')
+    parser.add_argument('--binding-calibration', action='store_true')
     parser.add_argument('--output-json', type=Path, required=True)
     args = parser.parse_args()
     cases = json.loads(args.cases.read_text(encoding='utf-8'))
     sizes = (0, 1, 2)
     configs = reading_configurations(sizes, ablation=args.dependency_ablation)
-    if args.write_bindings:
+    if args.binding_calibration:
+        result = {'binding_calibration': {}}
+        for rule in ('substring', 'word_boundary', 'fact_scope'):
+            contexts = asyncio.run(build_naturally_bound_contexts(cases, binding_rule=rule))
+            result['binding_calibration'][rule] = evaluate_cases(
+                cases, args.repeats, contexts, sizes, reading_configs=configs
+            )
+    elif args.write_bindings:
         bindings = json.loads(args.write_bindings.read_text(encoding='utf-8'))
         contexts = asyncio.run(build_written_contexts(cases, bindings))
         result = {
@@ -474,6 +487,10 @@ def main() -> None:
                 name: value['summary']
                 for name, value in result.items()
                 if isinstance(value, dict) and 'summary' in value
+            }
+            or {
+                rule: value['summary']
+                for rule, value in result.get('binding_calibration', {}).items()
             }
             or result['summary'],
             ensure_ascii=False,

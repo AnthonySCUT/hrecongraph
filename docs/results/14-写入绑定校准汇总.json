@@ -1,0 +1,5422 @@
+{
+  "dataset": {
+    "path": "tests\\evals\\data\\longmemeval_data\\longmemeval_oracle.json",
+    "sha256": "821a2034d219ab45846873dd14c14f12cfe7776e73527a483f9dac095d38620c",
+    "offset": 0,
+    "case_count": 500
+  },
+  "fixed_retrieval_equal": true,
+  "stage13_baseline_reproduced": true,
+  "binding_rules": {
+    "substring": "Original substring rules across all semantic fields.",
+    "word_boundary": "English whole-word matching; Chinese markers retain substring matching.",
+    "fact_scope": "Word boundaries plus source-only paragraph ownership: same paragraph or at least one shared content word; explicit spans retain their bindings."
+  },
+  "summary": {
+    "substring": {
+      "full_source": {
+        "case_count": 500,
+        "mean_context_chars": 26815.07,
+        "mean_context_tokens": 6703.392,
+        "total_chars": 13407535,
+        "total_tokens": 3351696,
+        "overall_recall": {
+          "macro": 0.987160751565762,
+          "micro": 0.9821428571428571,
+          "retained": 880,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 880,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 469,
+        "complete_rate": 0.9791231732776617,
+        "answer_visible_rate": 0.466,
+        "median_render_ms": 0.06814999505877495,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 676,
+          "window": 676,
+          "final": 676
+        },
+        "dependency_added_supports": 266,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 3033556,
+          "window": 3033556,
+          "final": 3033556
+        },
+        "token_reduction_vs_full_source": 0.0,
+        "char_reduction_vs_full_source": 0.0,
+        "dependency_added_source_tokens": 2750008,
+        "window_added_source_tokens": 0,
+        "supporting_turn_recall": 0.9821428571428571,
+        "losses": {
+          "affected_cases": 10,
+          "missing_support_count": 16,
+          "by_reason": {
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 16
+          },
+          "cropping_distance": {}
+        }
+      },
+      "evidence_bundle_w0": {
+        "case_count": 500,
+        "mean_context_chars": 24738.678,
+        "mean_context_tokens": 6184.294,
+        "total_chars": 12369339,
+        "total_tokens": 3092147,
+        "overall_recall": {
+          "macro": 0.7720250521920669,
+          "micro": 0.7544642857142857,
+          "retained": 676,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.7814035087719299,
+          "micro": 0.7681818181818182,
+          "retained": 676,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 301,
+        "complete_rate": 0.6283924843423799,
+        "answer_visible_rate": 0.446,
+        "median_render_ms": 3.6136000126134604,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 676,
+          "window": 676,
+          "final": 676
+        },
+        "dependency_added_supports": 266,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 3033556,
+          "window": 3033556,
+          "final": 3033556
+        },
+        "token_reduction_vs_full_source": 0.07743810894544134,
+        "char_reduction_vs_full_source": 0.07743377138303198,
+        "dependency_added_source_tokens": 2750008,
+        "window_added_source_tokens": 0,
+        "supporting_turn_recall": 0.7544642857142857,
+        "losses": {
+          "affected_cases": 178,
+          "missing_support_count": 220,
+          "by_reason": {
+            "outside_evidence_bundle": 204,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 216,
+            "assistant": 4
+          },
+          "cropping_distance": {
+            "1": 197,
+            "3": 2,
+            "2": 4,
+            "4": 1
+          }
+        }
+      },
+      "evidence_bundle_w1": {
+        "case_count": 500,
+        "mean_context_chars": 26426.654,
+        "mean_context_tokens": 6606.278,
+        "total_chars": 13213327,
+        "total_tokens": 3303139,
+        "overall_recall": {
+          "macro": 0.9770702853166319,
+          "micro": 0.9743303571428571,
+          "retained": 873,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.9898245614035087,
+          "micro": 0.9920454545454546,
+          "retained": 873,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 462,
+        "complete_rate": 0.964509394572025,
+        "answer_visible_rate": 0.464,
+        "median_render_ms": 3.5012500011362135,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 676,
+          "window": 873,
+          "final": 873
+        },
+        "dependency_added_supports": 266,
+        "window_added_supports": 197,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 3033556,
+          "window": 3244544,
+          "final": 3244544
+        },
+        "token_reduction_vs_full_source": 0.014487292403607022,
+        "char_reduction_vs_full_source": 0.014484989224342826,
+        "dependency_added_source_tokens": 2750008,
+        "window_added_source_tokens": 210988,
+        "supporting_turn_recall": 0.9743303571428571,
+        "losses": {
+          "affected_cases": 17,
+          "missing_support_count": 23,
+          "by_reason": {
+            "session_not_retrieved": 16,
+            "outside_evidence_bundle": 7
+          },
+          "by_role": {
+            "user": 20,
+            "assistant": 3
+          },
+          "cropping_distance": {
+            "3": 2,
+            "2": 4,
+            "4": 1
+          }
+        }
+      },
+      "evidence_bundle_w2": {
+        "case_count": 500,
+        "mean_context_chars": 26774.67,
+        "mean_context_tokens": 6693.296,
+        "total_chars": 13387335,
+        "total_tokens": 3346648,
+        "overall_recall": {
+          "macro": 0.9829853862212944,
+          "micro": 0.9787946428571429,
+          "retained": 877,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.9957894736842106,
+          "micro": 0.9965909090909091,
+          "retained": 877,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 466,
+        "complete_rate": 0.9728601252609603,
+        "answer_visible_rate": 0.464,
+        "median_render_ms": 3.6627499939640984,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 676,
+          "window": 877,
+          "final": 877
+        },
+        "dependency_added_supports": 266,
+        "window_added_supports": 201,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 3033556,
+          "window": 3288048,
+          "final": 3288048
+        },
+        "token_reduction_vs_full_source": 0.0015061031788086154,
+        "char_reduction_vs_full_source": 0.0015066154964353817,
+        "dependency_added_source_tokens": 2750008,
+        "window_added_source_tokens": 254492,
+        "supporting_turn_recall": 0.9787946428571429,
+        "losses": {
+          "affected_cases": 13,
+          "missing_support_count": 19,
+          "by_reason": {
+            "session_not_retrieved": 16,
+            "outside_evidence_bundle": 3
+          },
+          "by_role": {
+            "user": 18,
+            "assistant": 1
+          },
+          "cropping_distance": {
+            "3": 2,
+            "4": 1
+          }
+        }
+      }
+    },
+    "word_boundary": {
+      "full_source": {
+        "case_count": 500,
+        "mean_context_chars": 26797.904,
+        "mean_context_tokens": 6699.094,
+        "total_chars": 13398952,
+        "total_tokens": 3349547,
+        "overall_recall": {
+          "macro": 0.987160751565762,
+          "micro": 0.9821428571428571,
+          "retained": 880,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 880,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 469,
+        "complete_rate": 0.9791231732776617,
+        "answer_visible_rate": 0.466,
+        "median_render_ms": 0.06754999049007893,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 579,
+          "window": 579,
+          "final": 579
+        },
+        "dependency_added_supports": 169,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2562824,
+          "window": 2562824,
+          "final": 2562824
+        },
+        "token_reduction_vs_full_source": 0.0,
+        "char_reduction_vs_full_source": 0.0,
+        "dependency_added_source_tokens": 2279276,
+        "window_added_source_tokens": 0,
+        "supporting_turn_recall": 0.9821428571428571,
+        "losses": {
+          "affected_cases": 10,
+          "missing_support_count": 16,
+          "by_reason": {
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 16
+          },
+          "cropping_distance": {}
+        }
+      },
+      "evidence_bundle_w0": {
+        "case_count": 500,
+        "mean_context_chars": 20955.78,
+        "mean_context_tokens": 5238.59,
+        "total_chars": 10477890,
+        "total_tokens": 2619295,
+        "overall_recall": {
+          "macro": 0.6721990257480863,
+          "micro": 0.6462053571428571,
+          "retained": 579,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.6796842105263158,
+          "micro": 0.6579545454545455,
+          "retained": 579,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 246,
+        "complete_rate": 0.5135699373695198,
+        "answer_visible_rate": 0.44,
+        "median_render_ms": 3.290799999376759,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 579,
+          "window": 579,
+          "final": 579
+        },
+        "dependency_added_supports": 169,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2562824,
+          "window": 2562824,
+          "final": 2562824
+        },
+        "token_reduction_vs_full_source": 0.21801515249674064,
+        "char_reduction_vs_full_source": 0.21800675157280958,
+        "dependency_added_source_tokens": 2279276,
+        "window_added_source_tokens": 0,
+        "supporting_turn_recall": 0.6462053571428571,
+        "losses": {
+          "affected_cases": 233,
+          "missing_support_count": 317,
+          "by_reason": {
+            "outside_evidence_bundle": 301,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 308,
+            "assistant": 9
+          },
+          "cropping_distance": {
+            "3": 19,
+            "1": 263,
+            "2": 13,
+            "4": 2,
+            "5": 4
+          }
+        }
+      },
+      "evidence_bundle_w1": {
+        "case_count": 500,
+        "mean_context_chars": 24229.502,
+        "mean_context_tokens": 6056.998,
+        "total_chars": 12114751,
+        "total_tokens": 3028499,
+        "overall_recall": {
+          "macro": 0.9462421711899791,
+          "micro": 0.9397321428571429,
+          "retained": 842,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.9584561403508772,
+          "micro": 0.9568181818181818,
+          "retained": 842,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 436,
+        "complete_rate": 0.9102296450939458,
+        "answer_visible_rate": 0.46,
+        "median_render_ms": 3.2755999854998663,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 579,
+          "window": 842,
+          "final": 842
+        },
+        "dependency_added_supports": 169,
+        "window_added_supports": 263,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2562824,
+          "window": 2972046,
+          "final": 2972046
+        },
+        "token_reduction_vs_full_source": 0.09584818484409985,
+        "char_reduction_vs_full_source": 0.09584339133388942,
+        "dependency_added_source_tokens": 2279276,
+        "window_added_source_tokens": 409222,
+        "supporting_turn_recall": 0.9397321428571429,
+        "losses": {
+          "affected_cases": 43,
+          "missing_support_count": 54,
+          "by_reason": {
+            "outside_evidence_bundle": 38,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 48,
+            "assistant": 6
+          },
+          "cropping_distance": {
+            "3": 19,
+            "2": 13,
+            "4": 2,
+            "5": 4
+          }
+        }
+      },
+      "evidence_bundle_w2": {
+        "case_count": 500,
+        "mean_context_chars": 26255.336,
+        "mean_context_tokens": 6563.448,
+        "total_chars": 13127668,
+        "total_tokens": 3281724,
+        "overall_recall": {
+          "macro": 0.9649269311064718,
+          "micro": 0.9542410714285714,
+          "retained": 855,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.9774035087719298,
+          "micro": 0.9715909090909091,
+          "retained": 855,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 448,
+        "complete_rate": 0.9352818371607515,
+        "answer_visible_rate": 0.464,
+        "median_render_ms": 3.3217000018339604,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 579,
+          "window": 855,
+          "final": 855
+        },
+        "dependency_added_supports": 169,
+        "window_added_supports": 276,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2562824,
+          "window": 3225277,
+          "final": 3225277
+        },
+        "token_reduction_vs_full_source": 0.02024840971032804,
+        "char_reduction_vs_full_source": 0.02024665809684223,
+        "dependency_added_source_tokens": 2279276,
+        "window_added_source_tokens": 662453,
+        "supporting_turn_recall": 0.9542410714285714,
+        "losses": {
+          "affected_cases": 31,
+          "missing_support_count": 41,
+          "by_reason": {
+            "outside_evidence_bundle": 25,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 40,
+            "assistant": 1
+          },
+          "cropping_distance": {
+            "3": 19,
+            "4": 2,
+            "5": 4
+          }
+        }
+      }
+    },
+    "fact_scope": {
+      "full_source": {
+        "case_count": 500,
+        "mean_context_chars": 26797.904,
+        "mean_context_tokens": 6699.094,
+        "total_chars": 13398952,
+        "total_tokens": 3349547,
+        "overall_recall": {
+          "macro": 0.987160751565762,
+          "micro": 0.9821428571428571,
+          "retained": 880,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 880,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 469,
+        "complete_rate": 0.9791231732776617,
+        "answer_visible_rate": 0.466,
+        "median_render_ms": 0.06895000115036964,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 576,
+          "window": 576,
+          "final": 576
+        },
+        "dependency_added_supports": 166,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2449477,
+          "window": 2449477,
+          "final": 2449477
+        },
+        "token_reduction_vs_full_source": 0.0,
+        "char_reduction_vs_full_source": 0.0,
+        "dependency_added_source_tokens": 2165929,
+        "window_added_source_tokens": 0,
+        "supporting_turn_recall": 0.9821428571428571,
+        "losses": {
+          "affected_cases": 10,
+          "missing_support_count": 16,
+          "by_reason": {
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 16
+          },
+          "cropping_distance": {}
+        }
+      },
+      "evidence_bundle_w0": {
+        "case_count": 500,
+        "mean_context_chars": 20048.974,
+        "mean_context_tokens": 5011.88,
+        "total_chars": 10024487,
+        "total_tokens": 2505940,
+        "overall_recall": {
+          "macro": 0.6694154488517745,
+          "micro": 0.6428571428571429,
+          "retained": 576,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.6768771929824562,
+          "micro": 0.6545454545454545,
+          "retained": 576,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 244,
+        "complete_rate": 0.5093945720250522,
+        "answer_visible_rate": 0.438,
+        "median_render_ms": 3.782799991313368,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 576,
+          "window": 576,
+          "final": 576
+        },
+        "dependency_added_supports": 166,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2449477,
+          "window": 2449477,
+          "final": 2449477
+        },
+        "token_reduction_vs_full_source": 0.2518570421612236,
+        "char_reduction_vs_full_source": 0.2518454428376189,
+        "dependency_added_source_tokens": 2165929,
+        "window_added_source_tokens": 0,
+        "supporting_turn_recall": 0.6428571428571429,
+        "losses": {
+          "affected_cases": 235,
+          "missing_support_count": 320,
+          "by_reason": {
+            "outside_evidence_bundle": 304,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 311,
+            "assistant": 9
+          },
+          "cropping_distance": {
+            "3": 21,
+            "1": 264,
+            "2": 13,
+            "4": 2,
+            "5": 4
+          }
+        }
+      },
+      "evidence_bundle_w1": {
+        "case_count": 500,
+        "mean_context_chars": 23522.504,
+        "mean_context_tokens": 5880.244,
+        "total_chars": 11761252,
+        "total_tokens": 2940122,
+        "overall_recall": {
+          "macro": 0.9446764091858038,
+          "micro": 0.9375,
+          "retained": 840,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.9568771929824561,
+          "micro": 0.9545454545454546,
+          "retained": 840,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 434,
+        "complete_rate": 0.906054279749478,
+        "answer_visible_rate": 0.458,
+        "median_render_ms": 3.815000003669411,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 576,
+          "window": 840,
+          "final": 840
+        },
+        "dependency_added_supports": 166,
+        "window_added_supports": 264,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2449477,
+          "window": 2883674,
+          "final": 2883674
+        },
+        "token_reduction_vs_full_source": 0.12223294672384055,
+        "char_reduction_vs_full_source": 0.12222597707641614,
+        "dependency_added_source_tokens": 2165929,
+        "window_added_source_tokens": 434197,
+        "supporting_turn_recall": 0.9375,
+        "losses": {
+          "affected_cases": 45,
+          "missing_support_count": 56,
+          "by_reason": {
+            "outside_evidence_bundle": 40,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 50,
+            "assistant": 6
+          },
+          "cropping_distance": {
+            "3": 21,
+            "2": 13,
+            "4": 2,
+            "5": 4
+          }
+        }
+      },
+      "evidence_bundle_w2": {
+        "case_count": 500,
+        "mean_context_chars": 26008.964,
+        "mean_context_tokens": 6501.866,
+        "total_chars": 13004482,
+        "total_tokens": 3250933,
+        "overall_recall": {
+          "macro": 0.9633611691022964,
+          "micro": 0.9520089285714286,
+          "retained": 853,
+          "total": 896,
+          "valid_cases": 479
+        },
+        "conditional_recall": {
+          "macro": 0.9758245614035088,
+          "micro": 0.9693181818181819,
+          "retained": 853,
+          "total": 880,
+          "valid_cases": 475
+        },
+        "complete_cases": 446,
+        "complete_rate": 0.9311064718162839,
+        "answer_visible_rate": 0.462,
+        "median_render_ms": 3.787449997616932,
+        "stage_counts": {
+          "fact": 410,
+          "dependencies": 576,
+          "window": 853,
+          "final": 853
+        },
+        "dependency_added_supports": 166,
+        "window_added_supports": 277,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 283548,
+          "dependencies": 2449477,
+          "window": 3194479,
+          "final": 3194479
+        },
+        "token_reduction_vs_full_source": 0.029440996051107837,
+        "char_reduction_vs_full_source": 0.029440362201461734,
+        "dependency_added_source_tokens": 2165929,
+        "window_added_source_tokens": 745002,
+        "supporting_turn_recall": 0.9520089285714286,
+        "losses": {
+          "affected_cases": 33,
+          "missing_support_count": 43,
+          "by_reason": {
+            "outside_evidence_bundle": 27,
+            "session_not_retrieved": 16
+          },
+          "by_role": {
+            "user": 42,
+            "assistant": 1
+          },
+          "cropping_distance": {
+            "3": 21,
+            "4": 2,
+            "5": 4
+          }
+        }
+      }
+    }
+  },
+  "by_question_type": {
+    "substring": {
+      "knowledge-update": {
+        "full_source": {
+          "case_count": 78,
+          "mean_context_chars": 28611.166666666668,
+          "mean_context_tokens": 7152.4358974358975,
+          "total_chars": 2231671,
+          "total_tokens": 557890,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 72,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 0.07504998939111829,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 113,
+            "window": 113,
+            "final": 113
+          },
+          "dependency_added_supports": 22,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 501569,
+            "window": 501569,
+            "final": 501569
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 474627,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 78,
+          "mean_context_chars": 26215.82051282051,
+          "mean_context_tokens": 6553.589743589743,
+          "total_chars": 2044834,
+          "total_tokens": 511180,
+          "overall_recall": {
+            "macro": 0.7731481481481481,
+            "micro": 0.7847222222222222,
+            "retained": 113,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.7731481481481481,
+            "micro": 0.7847222222222222,
+            "retained": 113,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 45,
+          "complete_rate": 0.625,
+          "answer_visible_rate": 0.7051282051282052,
+          "median_render_ms": 4.266750009264797,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 113,
+            "window": 113,
+            "final": 113
+          },
+          "dependency_added_supports": 22,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 501569,
+            "window": 501569,
+            "final": 501569
+          },
+          "token_reduction_vs_full_source": 0.08372618258079545,
+          "char_reduction_vs_full_source": 0.08372067388069304,
+          "dependency_added_source_tokens": 474627,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 27,
+            "missing_support_count": 31,
+            "by_reason": {
+              "outside_evidence_bundle": 31
+            },
+            "by_role": {
+              "user": 31
+            },
+            "cropping_distance": {
+              "1": 31
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 78,
+          "mean_context_chars": 28112.384615384617,
+          "mean_context_tokens": 7027.74358974359,
+          "total_chars": 2192766,
+          "total_tokens": 548164,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 72,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 4.184949997579679,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 113,
+            "window": 144,
+            "final": 144
+          },
+          "dependency_added_supports": 22,
+          "window_added_supports": 31,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 501569,
+            "window": 538554,
+            "final": 538554
+          },
+          "token_reduction_vs_full_source": 0.017433544247073773,
+          "char_reduction_vs_full_source": 0.01743312522320717,
+          "dependency_added_source_tokens": 474627,
+          "window_added_source_tokens": 36985,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 78,
+          "mean_context_chars": 28608.75641025641,
+          "mean_context_tokens": 7151.833333333333,
+          "total_chars": 2231483,
+          "total_tokens": 557843,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 72,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 4.205600009299815,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 113,
+            "window": 144,
+            "final": 144
+          },
+          "dependency_added_supports": 22,
+          "window_added_supports": 31,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 501569,
+            "window": 548237,
+            "final": 548237
+          },
+          "token_reduction_vs_full_source": 8.424599831502455e-05,
+          "char_reduction_vs_full_source": 8.424180804433856e-05,
+          "dependency_added_source_tokens": 474627,
+          "window_added_source_tokens": 46668,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        }
+      },
+      "multi-session": {
+        "full_source": {
+          "case_count": 133,
+          "mean_context_chars": 37083.87218045113,
+          "mean_context_tokens": 9270.586466165414,
+          "total_chars": 4932155,
+          "total_tokens": 1232988,
+          "overall_recall": {
+            "macro": 0.9764,
+            "micro": 0.963302752293578,
+            "retained": 315,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 315,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 119,
+          "complete_rate": 0.952,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 0.1044000091496855,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 240,
+            "window": 240,
+            "final": 240
+          },
+          "dependency_added_supports": 124,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 1118929,
+            "window": 1118929,
+            "final": 1118929
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 1002136,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 6,
+            "missing_support_count": 12,
+            "by_reason": {
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 12
+            },
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 133,
+          "mean_context_chars": 34283.624060150374,
+          "mean_context_tokens": 8570.533834586466,
+          "total_chars": 4559722,
+          "total_tokens": 1139881,
+          "overall_recall": {
+            "macro": 0.7546666666666667,
+            "micro": 0.7339449541284404,
+            "retained": 240,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.7709677419354839,
+            "micro": 0.7619047619047619,
+            "retained": 240,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 60,
+          "complete_rate": 0.48,
+          "answer_visible_rate": 0.3684210526315789,
+          "median_render_ms": 5.07300000754185,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 240,
+            "window": 240,
+            "final": 240
+          },
+          "dependency_added_supports": 124,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 1118929,
+            "window": 1118929,
+            "final": 1118929
+          },
+          "token_reduction_vs_full_source": 0.0755133058878108,
+          "char_reduction_vs_full_source": 0.0755112116306158,
+          "dependency_added_source_tokens": 1002136,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 65,
+            "missing_support_count": 87,
+            "by_reason": {
+              "outside_evidence_bundle": 75,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 87
+            },
+            "cropping_distance": {
+              "1": 73,
+              "3": 1,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 133,
+          "mean_context_chars": 36533.67669172932,
+          "mean_context_tokens": 9133.015037593985,
+          "total_chars": 4858979,
+          "total_tokens": 1214691,
+          "overall_recall": {
+            "macro": 0.9697333333333333,
+            "micro": 0.9571865443425076,
+            "retained": 313,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.9932795698924731,
+            "micro": 0.9936507936507937,
+            "retained": 313,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 117,
+          "complete_rate": 0.936,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 4.873300000326708,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 240,
+            "window": 313,
+            "final": 313
+          },
+          "dependency_added_supports": 124,
+          "window_added_supports": 73,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 1118929,
+            "window": 1193739,
+            "final": 1193739
+          },
+          "token_reduction_vs_full_source": 0.014839560482340475,
+          "char_reduction_vs_full_source": 0.01483651669503494,
+          "dependency_added_source_tokens": 1002136,
+          "window_added_source_tokens": 74810,
+          "losses": {
+            "affected_cases": 8,
+            "missing_support_count": 14,
+            "by_reason": {
+              "session_not_retrieved": 12,
+              "outside_evidence_bundle": 2
+            },
+            "by_role": {
+              "user": 14
+            },
+            "cropping_distance": {
+              "3": 1,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 133,
+          "mean_context_chars": 37049.12781954887,
+          "mean_context_tokens": 9261.902255639097,
+          "total_chars": 4927534,
+          "total_tokens": 1231833,
+          "overall_recall": {
+            "macro": 0.9724,
+            "micro": 0.9602446483180428,
+            "retained": 314,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.9959677419354839,
+            "micro": 0.9968253968253968,
+            "retained": 314,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 118,
+          "complete_rate": 0.944,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 4.9903000181075186,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 240,
+            "window": 314,
+            "final": 314
+          },
+          "dependency_added_supports": 124,
+          "window_added_supports": 74,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 1118929,
+            "window": 1210880,
+            "final": 1210880
+          },
+          "token_reduction_vs_full_source": 0.0009367487761438031,
+          "char_reduction_vs_full_source": 0.0009369129721187308,
+          "dependency_added_source_tokens": 1002136,
+          "window_added_source_tokens": 91951,
+          "losses": {
+            "affected_cases": 7,
+            "missing_support_count": 13,
+            "by_reason": {
+              "session_not_retrieved": 12,
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 13
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "single-session-assistant": {
+        "full_source": {
+          "case_count": 56,
+          "mean_context_chars": 5773.321428571428,
+          "mean_context_tokens": 1442.9464285714287,
+          "total_chars": 323306,
+          "total_tokens": 80805,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 56,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 56,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 56,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.5535714285714286,
+          "median_render_ms": 0.028350012144073844,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 51,
+            "window": 51,
+            "final": 51
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 65167,
+            "window": 65167,
+            "final": 65167
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 47096,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 56,
+          "mean_context_chars": 4881.892857142857,
+          "mean_context_tokens": 1220.107142857143,
+          "total_chars": 273386,
+          "total_tokens": 68326,
+          "overall_recall": {
+            "macro": 0.9107142857142857,
+            "micro": 0.9107142857142857,
+            "retained": 51,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.9107142857142857,
+            "micro": 0.9107142857142857,
+            "retained": 51,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 51,
+          "complete_rate": 0.9107142857142857,
+          "answer_visible_rate": 0.5178571428571429,
+          "median_render_ms": 0.43759999971371144,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 51,
+            "window": 51,
+            "final": 51
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 65167,
+            "window": 65167,
+            "final": 65167
+          },
+          "token_reduction_vs_full_source": 0.1544335127776747,
+          "char_reduction_vs_full_source": 0.1544048053546795,
+          "dependency_added_source_tokens": 47096,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 5,
+            "missing_support_count": 5,
+            "by_reason": {
+              "outside_evidence_bundle": 5
+            },
+            "by_role": {
+              "assistant": 4,
+              "user": 1
+            },
+            "cropping_distance": {
+              "2": 2,
+              "1": 2,
+              "4": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 56,
+          "mean_context_chars": 5456.035714285715,
+          "mean_context_tokens": 1363.625,
+          "total_chars": 305538,
+          "total_tokens": 76363,
+          "overall_recall": {
+            "macro": 0.9464285714285714,
+            "micro": 0.9464285714285714,
+            "retained": 53,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.9464285714285714,
+            "micro": 0.9464285714285714,
+            "retained": 53,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 53,
+          "complete_rate": 0.9464285714285714,
+          "answer_visible_rate": 0.5357142857142857,
+          "median_render_ms": 0.47384999925270677,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 51,
+            "window": 53,
+            "final": 53
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 2,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 65167,
+            "window": 73206,
+            "final": 73206
+          },
+          "token_reduction_vs_full_source": 0.05497184580162118,
+          "char_reduction_vs_full_source": 0.05495722318793961,
+          "dependency_added_source_tokens": 47096,
+          "window_added_source_tokens": 8039,
+          "losses": {
+            "affected_cases": 3,
+            "missing_support_count": 3,
+            "by_reason": {
+              "outside_evidence_bundle": 3
+            },
+            "by_role": {
+              "assistant": 3
+            },
+            "cropping_distance": {
+              "2": 2,
+              "4": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 56,
+          "mean_context_chars": 5681.625,
+          "mean_context_tokens": 1420.0535714285713,
+          "total_chars": 318171,
+          "total_tokens": 79523,
+          "overall_recall": {
+            "macro": 0.9821428571428571,
+            "micro": 0.9821428571428571,
+            "retained": 55,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.9821428571428571,
+            "micro": 0.9821428571428571,
+            "retained": 55,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 55,
+          "complete_rate": 0.9821428571428571,
+          "answer_visible_rate": 0.5357142857142857,
+          "median_render_ms": 0.4348499933257699,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 51,
+            "window": 55,
+            "final": 55
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 4,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 65167,
+            "window": 76363,
+            "final": 76363
+          },
+          "token_reduction_vs_full_source": 0.015865354866654302,
+          "char_reduction_vs_full_source": 0.0158827859674735,
+          "dependency_added_source_tokens": 47096,
+          "window_added_source_tokens": 11196,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "assistant": 1
+            },
+            "cropping_distance": {
+              "4": 1
+            }
+          }
+        }
+      },
+      "single-session-preference": {
+        "full_source": {
+          "case_count": 30,
+          "mean_context_chars": 18656.333333333332,
+          "mean_context_tokens": 4663.666666666667,
+          "total_chars": 559690,
+          "total_tokens": 139910,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 30,
+          "complete_rate": 1,
+          "answer_visible_rate": 0,
+          "median_render_ms": 0.052050003432668746,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 23,
+            "window": 23,
+            "final": 23
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 125161,
+            "window": 125161,
+            "final": 125161
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 113811,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 30,
+          "mean_context_chars": 16941.266666666666,
+          "mean_context_tokens": 4234.9,
+          "total_chars": 508238,
+          "total_tokens": 127047,
+          "overall_recall": {
+            "macro": 0.5666666666666667,
+            "micro": 0.5227272727272727,
+            "retained": 23,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.5666666666666667,
+            "micro": 0.5227272727272727,
+            "retained": 23,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 14,
+          "complete_rate": 0.4666666666666667,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.9438999879639596,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 23,
+            "window": 23,
+            "final": 23
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 125161,
+            "window": 125161,
+            "final": 125161
+          },
+          "token_reduction_vs_full_source": 0.0919376742191409,
+          "char_reduction_vs_full_source": 0.09192946095159815,
+          "dependency_added_source_tokens": 113811,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 16,
+            "missing_support_count": 21,
+            "by_reason": {
+              "outside_evidence_bundle": 21
+            },
+            "by_role": {
+              "user": 21
+            },
+            "cropping_distance": {
+              "1": 20,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 30,
+          "mean_context_chars": 18159.2,
+          "mean_context_tokens": 4539.366666666667,
+          "total_chars": 544776,
+          "total_tokens": 136181,
+          "overall_recall": {
+            "macro": 0.9833333333333333,
+            "micro": 0.9772727272727273,
+            "retained": 43,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.9833333333333333,
+            "micro": 0.9772727272727273,
+            "retained": 43,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 29,
+          "complete_rate": 0.9666666666666667,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.8467500049155205,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 23,
+            "window": 43,
+            "final": 43
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 20,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 125161,
+            "window": 134295,
+            "final": 134295
+          },
+          "token_reduction_vs_full_source": 0.026652848259595463,
+          "char_reduction_vs_full_source": 0.026646893816219652,
+          "dependency_added_source_tokens": 113811,
+          "window_added_source_tokens": 9134,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 30,
+          "mean_context_chars": 18656.333333333332,
+          "mean_context_tokens": 4663.666666666667,
+          "total_chars": 559690,
+          "total_tokens": 139910,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 30,
+          "complete_rate": 1,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.6230000037467107,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 23,
+            "window": 44,
+            "final": 44
+          },
+          "dependency_added_supports": 13,
+          "window_added_supports": 21,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 125161,
+            "window": 138023,
+            "final": 138023
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 113811,
+          "window_added_source_tokens": 12862,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        }
+      },
+      "single-session-user": {
+        "full_source": {
+          "case_count": 70,
+          "mean_context_chars": 14725.485714285714,
+          "mean_context_tokens": 3681.057142857143,
+          "total_chars": 1030784,
+          "total_tokens": 257674,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 64,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 0.03600001218728721,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 54,
+            "window": 54,
+            "final": 54
+          },
+          "dependency_added_supports": 15,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 234235,
+            "window": 234235,
+            "final": 234235
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 217763,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 70,
+          "mean_context_chars": 13636.785714285714,
+          "mean_context_tokens": 3408.785714285714,
+          "total_chars": 954575,
+          "total_tokens": 238615,
+          "overall_recall": {
+            "macro": 0.8125,
+            "micro": 0.8181818181818182,
+            "retained": 54,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.8125,
+            "micro": 0.8181818181818182,
+            "retained": 54,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 52,
+          "complete_rate": 0.8125,
+          "answer_visible_rate": 0.7857142857142857,
+          "median_render_ms": 1.5094499831320718,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 54,
+            "window": 54,
+            "final": 54
+          },
+          "dependency_added_supports": 15,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 234235,
+            "window": 234235,
+            "final": 234235
+          },
+          "token_reduction_vs_full_source": 0.07396555337364263,
+          "char_reduction_vs_full_source": 0.07393304513845766,
+          "dependency_added_source_tokens": 217763,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 12,
+            "missing_support_count": 12,
+            "by_reason": {
+              "outside_evidence_bundle": 12
+            },
+            "by_role": {
+              "user": 12
+            },
+            "cropping_distance": {
+              "1": 12
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 70,
+          "mean_context_chars": 14651.414285714285,
+          "mean_context_tokens": 3662.5285714285715,
+          "total_chars": 1025599,
+          "total_tokens": 256377,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 64,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 1.508450019173324,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 54,
+            "window": 66,
+            "final": 66
+          },
+          "dependency_added_supports": 15,
+          "window_added_supports": 12,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 234235,
+            "window": 251988,
+            "final": 251988
+          },
+          "token_reduction_vs_full_source": 0.005033491931665579,
+          "char_reduction_vs_full_source": 0.005030151806780125,
+          "dependency_added_source_tokens": 217763,
+          "window_added_source_tokens": 17753,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 70,
+          "mean_context_chars": 14725.485714285714,
+          "mean_context_tokens": 3681.057142857143,
+          "total_chars": 1030784,
+          "total_tokens": 257674,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 64,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 1.5517499996349216,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 54,
+            "window": 66,
+            "final": 66
+          },
+          "dependency_added_supports": 15,
+          "window_added_supports": 12,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 234235,
+            "window": 253283,
+            "final": 253283
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 217763,
+          "window_added_source_tokens": 19048,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        }
+      },
+      "temporal-reasoning": {
+        "full_source": {
+          "case_count": 133,
+          "mean_context_chars": 32555.85714285714,
+          "mean_context_tokens": 8138.563909774436,
+          "total_chars": 4329929,
+          "total_tokens": 1082429,
+          "overall_recall": {
+            "macro": 0.9757575757575757,
+            "micro": 0.9845559845559846,
+            "retained": 255,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 255,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 128,
+          "complete_rate": 0.9696969696969697,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 0.08819997310638428,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 195,
+            "window": 195,
+            "final": 195
+          },
+          "dependency_added_supports": 79,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 988495,
+            "window": 988495,
+            "final": 988495
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 894575,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 4,
+            "missing_support_count": 4,
+            "by_reason": {
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 4
+            },
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 133,
+          "mean_context_chars": 30290.105263157893,
+          "mean_context_tokens": 7572.165413533835,
+          "total_chars": 4028584,
+          "total_tokens": 1007098,
+          "overall_recall": {
+            "macro": 0.7560606060606061,
+            "micro": 0.752895752895753,
+            "retained": 195,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.7744186046511627,
+            "micro": 0.7647058823529411,
+            "retained": 195,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 79,
+          "complete_rate": 0.5984848484848485,
+          "answer_visible_rate": 0.2631578947368421,
+          "median_render_ms": 4.659500002162531,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 195,
+            "window": 195,
+            "final": 195
+          },
+          "dependency_added_supports": 79,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 988495,
+            "window": 988495,
+            "final": 988495
+          },
+          "token_reduction_vs_full_source": 0.06959440295853125,
+          "char_reduction_vs_full_source": 0.06959582940043585,
+          "dependency_added_source_tokens": 894575,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 53,
+            "missing_support_count": 64,
+            "by_reason": {
+              "outside_evidence_bundle": 60,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 64
+            },
+            "cropping_distance": {
+              "1": 59,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 133,
+          "mean_context_chars": 32223.075187969924,
+          "mean_context_tokens": 8055.360902255639,
+          "total_chars": 4285669,
+          "total_tokens": 1071363,
+          "overall_recall": {
+            "macro": 0.9719696969696969,
+            "micro": 0.9806949806949807,
+            "retained": 254,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.9961240310077519,
+            "micro": 0.996078431372549,
+            "retained": 254,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 127,
+          "complete_rate": 0.9621212121212122,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 4.927600006340072,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 195,
+            "window": 254,
+            "final": 254
+          },
+          "dependency_added_supports": 79,
+          "window_added_supports": 59,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 988495,
+            "window": 1052762,
+            "final": 1052762
+          },
+          "token_reduction_vs_full_source": 0.010223303329825795,
+          "char_reduction_vs_full_source": 0.01022187661737639,
+          "dependency_added_source_tokens": 894575,
+          "window_added_source_tokens": 64267,
+          "losses": {
+            "affected_cases": 5,
+            "missing_support_count": 5,
+            "by_reason": {
+              "session_not_retrieved": 4,
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 5
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 133,
+          "mean_context_chars": 32478.744360902256,
+          "mean_context_tokens": 8119.285714285715,
+          "total_chars": 4319673,
+          "total_tokens": 1079865,
+          "overall_recall": {
+            "macro": 0.9719696969696969,
+            "micro": 0.9806949806949807,
+            "retained": 254,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.9961240310077519,
+            "micro": 0.996078431372549,
+            "retained": 254,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 127,
+          "complete_rate": 0.9621212121212122,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 4.829399986192584,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 195,
+            "window": 254,
+            "final": 254
+          },
+          "dependency_added_supports": 79,
+          "window_added_supports": 59,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 988495,
+            "window": 1061262,
+            "final": 1061262
+          },
+          "token_reduction_vs_full_source": 0.0023687465875359415,
+          "char_reduction_vs_full_source": 0.0023686300629871537,
+          "dependency_added_source_tokens": 894575,
+          "window_added_source_tokens": 72767,
+          "losses": {
+            "affected_cases": 5,
+            "missing_support_count": 5,
+            "by_reason": {
+              "session_not_retrieved": 4,
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 5
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      }
+    },
+    "word_boundary": {
+      "knowledge-update": {
+        "full_source": {
+          "case_count": 78,
+          "mean_context_chars": 28596.17948717949,
+          "mean_context_tokens": 7148.653846153846,
+          "total_chars": 2230502,
+          "total_tokens": 557595,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 72,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 0.07374999404419214,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 109,
+            "window": 109,
+            "final": 109
+          },
+          "dependency_added_supports": 18,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 429427,
+            "window": 429427,
+            "final": 429427
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 402485,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 78,
+          "mean_context_chars": 22501.115384615383,
+          "mean_context_tokens": 5624.923076923077,
+          "total_chars": 1755087,
+          "total_tokens": 438744,
+          "overall_recall": {
+            "macro": 0.7523148148148148,
+            "micro": 0.7569444444444444,
+            "retained": 109,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.7523148148148148,
+            "micro": 0.7569444444444444,
+            "retained": 109,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 43,
+          "complete_rate": 0.5972222222222222,
+          "answer_visible_rate": 0.717948717948718,
+          "median_render_ms": 3.7671000027330592,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 109,
+            "window": 109,
+            "final": 109
+          },
+          "dependency_added_supports": 18,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 429427,
+            "window": 429427,
+            "final": 429427
+          },
+          "token_reduction_vs_full_source": 0.21314932881392412,
+          "char_reduction_vs_full_source": 0.21314260197928536,
+          "dependency_added_source_tokens": 402485,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 29,
+            "missing_support_count": 35,
+            "by_reason": {
+              "outside_evidence_bundle": 35
+            },
+            "by_role": {
+              "user": 35
+            },
+            "cropping_distance": {
+              "1": 34,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 78,
+          "mean_context_chars": 25896.52564102564,
+          "mean_context_tokens": 6473.794871794872,
+          "total_chars": 2019929,
+          "total_tokens": 504956,
+          "overall_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 71,
+          "complete_rate": 0.9861111111111112,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 3.969400000642054,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 109,
+            "window": 143,
+            "final": 143
+          },
+          "dependency_added_supports": 18,
+          "window_added_supports": 34,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 429427,
+            "window": 495636,
+            "final": 495636
+          },
+          "token_reduction_vs_full_source": 0.09440364422206082,
+          "char_reduction_vs_full_source": 0.09440610230342761,
+          "dependency_added_source_tokens": 402485,
+          "window_added_source_tokens": 66209,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 78,
+          "mean_context_chars": 27957.076923076922,
+          "mean_context_tokens": 6988.858974358975,
+          "total_chars": 2180652,
+          "total_tokens": 545131,
+          "overall_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 71,
+          "complete_rate": 0.9861111111111112,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 4.00705001084134,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 109,
+            "window": 143,
+            "final": 143
+          },
+          "dependency_added_supports": 18,
+          "window_added_supports": 34,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 429427,
+            "window": 535823,
+            "final": 535823
+          },
+          "token_reduction_vs_full_source": 0.02235314161712354,
+          "char_reduction_vs_full_source": 0.02234922900764047,
+          "dependency_added_source_tokens": 402485,
+          "window_added_source_tokens": 106396,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "multi-session": {
+        "full_source": {
+          "case_count": 133,
+          "mean_context_chars": 37062.84210526316,
+          "mean_context_tokens": 9265.375939849624,
+          "total_chars": 4929358,
+          "total_tokens": 1232295,
+          "overall_recall": {
+            "macro": 0.9764,
+            "micro": 0.963302752293578,
+            "retained": 315,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 315,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 119,
+          "complete_rate": 0.952,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 0.11019999510608613,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 194,
+            "final": 194
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 946042,
+            "window": 946042,
+            "final": 946042
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 829249,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 6,
+            "missing_support_count": 12,
+            "by_reason": {
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 12
+            },
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 133,
+          "mean_context_chars": 29063.120300751878,
+          "mean_context_tokens": 7265.451127819549,
+          "total_chars": 3865395,
+          "total_tokens": 966305,
+          "overall_recall": {
+            "macro": 0.6244,
+            "micro": 0.5932721712538226,
+            "retained": 194,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.6356182795698925,
+            "micro": 0.6158730158730159,
+            "retained": 194,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 41,
+          "complete_rate": 0.328,
+          "answer_visible_rate": 0.3684210526315789,
+          "median_render_ms": 4.581999994115904,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 194,
+            "final": 194
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 946042,
+            "window": 946042,
+            "final": 946042
+          },
+          "token_reduction_vs_full_source": 0.2158492893341286,
+          "char_reduction_vs_full_source": 0.2158421035761655,
+          "dependency_added_source_tokens": 829249,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 84,
+            "missing_support_count": 133,
+            "by_reason": {
+              "outside_evidence_bundle": 121,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 133
+            },
+            "cropping_distance": {
+              "1": 104,
+              "4": 1,
+              "3": 9,
+              "5": 3,
+              "2": 4
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 133,
+          "mean_context_chars": 33379.60902255639,
+          "mean_context_tokens": 8344.503759398496,
+          "total_chars": 4439488,
+          "total_tokens": 1109819,
+          "overall_recall": {
+            "macro": 0.9305333333333333,
+            "micro": 0.9113149847094801,
+            "retained": 298,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.9526881720430107,
+            "micro": 0.946031746031746,
+            "retained": 298,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 107,
+          "complete_rate": 0.856,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 4.936200013617054,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 298,
+            "final": 298
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 104,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 946042,
+            "window": 1089572,
+            "final": 1089572
+          },
+          "token_reduction_vs_full_source": 0.0993885392702234,
+          "char_reduction_vs_full_source": 0.09937805288234292,
+          "dependency_added_source_tokens": 829249,
+          "window_added_source_tokens": 143530,
+          "losses": {
+            "affected_cases": 18,
+            "missing_support_count": 29,
+            "by_reason": {
+              "outside_evidence_bundle": 17,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 29
+            },
+            "cropping_distance": {
+              "4": 1,
+              "3": 9,
+              "5": 3,
+              "2": 4
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 133,
+          "mean_context_chars": 36173.63909774436,
+          "mean_context_tokens": 9043.060150375939,
+          "total_chars": 4811094,
+          "total_tokens": 1202727,
+          "overall_recall": {
+            "macro": 0.9421333333333334,
+            "micro": 0.9235474006116208,
+            "retained": 302,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.9647849462365592,
+            "micro": 0.9587301587301588,
+            "retained": 302,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 110,
+          "complete_rate": 0.88,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 4.809200007002801,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 302,
+            "final": 302
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 108,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 946042,
+            "window": 1182470,
+            "final": 1182470
+          },
+          "token_reduction_vs_full_source": 0.023994254622472733,
+          "char_reduction_vs_full_source": 0.023991765256246356,
+          "dependency_added_source_tokens": 829249,
+          "window_added_source_tokens": 236428,
+          "losses": {
+            "affected_cases": 15,
+            "missing_support_count": 25,
+            "by_reason": {
+              "outside_evidence_bundle": 13,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 25
+            },
+            "cropping_distance": {
+              "4": 1,
+              "3": 9,
+              "5": 3
+            }
+          }
+        }
+      },
+      "single-session-assistant": {
+        "full_source": {
+          "case_count": 56,
+          "mean_context_chars": 5753.375,
+          "mean_context_tokens": 1437.9642857142858,
+          "total_chars": 322189,
+          "total_tokens": 80526,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 56,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 56,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 56,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.5535714285714286,
+          "median_render_ms": 0.0244499824475497,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 46,
+            "final": 46
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47969,
+            "window": 47969,
+            "final": 47969
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 29898,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 56,
+          "mean_context_chars": 3633.625,
+          "mean_context_tokens": 908.0714285714286,
+          "total_chars": 203483,
+          "total_tokens": 50852,
+          "overall_recall": {
+            "macro": 0.8214285714285714,
+            "micro": 0.8214285714285714,
+            "retained": 46,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.8214285714285714,
+            "micro": 0.8214285714285714,
+            "retained": 46,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 46,
+          "complete_rate": 0.8214285714285714,
+          "answer_visible_rate": 0.5,
+          "median_render_ms": 0.3534499992383644,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 46,
+            "final": 46
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47969,
+            "window": 47969,
+            "final": 47969
+          },
+          "token_reduction_vs_full_source": 0.36850209870104067,
+          "char_reduction_vs_full_source": 0.36843591804810216,
+          "dependency_added_source_tokens": 29898,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 10,
+            "missing_support_count": 10,
+            "by_reason": {
+              "outside_evidence_bundle": 10
+            },
+            "by_role": {
+              "assistant": 9,
+              "user": 1
+            },
+            "cropping_distance": {
+              "2": 5,
+              "1": 4,
+              "4": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 56,
+          "mean_context_chars": 4378.767857142857,
+          "mean_context_tokens": 1094.3035714285713,
+          "total_chars": 245211,
+          "total_tokens": 61281,
+          "overall_recall": {
+            "macro": 0.8928571428571429,
+            "micro": 0.8928571428571429,
+            "retained": 50,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.8928571428571429,
+            "micro": 0.8928571428571429,
+            "retained": 50,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 50,
+          "complete_rate": 0.8928571428571429,
+          "answer_visible_rate": 0.5178571428571429,
+          "median_render_ms": 0.3656000044429675,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 50,
+            "final": 50
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 4,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47969,
+            "window": 58401,
+            "final": 58401
+          },
+          "token_reduction_vs_full_source": 0.23899113329856192,
+          "char_reduction_vs_full_source": 0.23892187504849638,
+          "dependency_added_source_tokens": 29898,
+          "window_added_source_tokens": 10432,
+          "losses": {
+            "affected_cases": 6,
+            "missing_support_count": 6,
+            "by_reason": {
+              "outside_evidence_bundle": 6
+            },
+            "by_role": {
+              "assistant": 6
+            },
+            "cropping_distance": {
+              "2": 5,
+              "4": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 56,
+          "mean_context_chars": 5336.589285714285,
+          "mean_context_tokens": 1333.767857142857,
+          "total_chars": 298849,
+          "total_tokens": 74691,
+          "overall_recall": {
+            "macro": 0.9821428571428571,
+            "micro": 0.9821428571428571,
+            "retained": 55,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.9821428571428571,
+            "micro": 0.9821428571428571,
+            "retained": 55,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 55,
+          "complete_rate": 0.9821428571428571,
+          "answer_visible_rate": 0.5357142857142857,
+          "median_render_ms": 0.3896000125678256,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 55,
+            "final": 55
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 9,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47969,
+            "window": 71811,
+            "final": 71811
+          },
+          "token_reduction_vs_full_source": 0.07246106847477829,
+          "char_reduction_vs_full_source": 0.07244195177364843,
+          "dependency_added_source_tokens": 29898,
+          "window_added_source_tokens": 23842,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "assistant": 1
+            },
+            "cropping_distance": {
+              "4": 1
+            }
+          }
+        }
+      },
+      "single-session-preference": {
+        "full_source": {
+          "case_count": 30,
+          "mean_context_chars": 18641.566666666666,
+          "mean_context_tokens": 4659.933333333333,
+          "total_chars": 559247,
+          "total_tokens": 139798,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 30,
+          "complete_rate": 1,
+          "answer_visible_rate": 0,
+          "median_render_ms": 0.0433000095654279,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 17,
+            "final": 17
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 102507,
+            "window": 102507,
+            "final": 102507
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 91157,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 30,
+          "mean_context_chars": 13906.4,
+          "mean_context_tokens": 3476.266666666667,
+          "total_chars": 417192,
+          "total_tokens": 104288,
+          "overall_recall": {
+            "macro": 0.4111111111111111,
+            "micro": 0.38636363636363635,
+            "retained": 17,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.4111111111111111,
+            "micro": 0.38636363636363635,
+            "retained": 17,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 10,
+          "complete_rate": 0.3333333333333333,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.4946000010240823,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 17,
+            "final": 17
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 102507,
+            "window": 102507,
+            "final": 102507
+          },
+          "token_reduction_vs_full_source": 0.2540093563570295,
+          "char_reduction_vs_full_source": 0.25401119719909093,
+          "dependency_added_source_tokens": 91157,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 20,
+            "missing_support_count": 27,
+            "by_reason": {
+              "outside_evidence_bundle": 27
+            },
+            "by_role": {
+              "user": 27
+            },
+            "cropping_distance": {
+              "1": 25,
+              "2": 1,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 30,
+          "mean_context_chars": 15853.8,
+          "mean_context_tokens": 3963.1,
+          "total_chars": 475614,
+          "total_tokens": 118893,
+          "overall_recall": {
+            "macro": 0.95,
+            "micro": 0.9545454545454546,
+            "retained": 42,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.95,
+            "micro": 0.9545454545454546,
+            "retained": 42,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 28,
+          "complete_rate": 0.9333333333333333,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.7656499985605478,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 42,
+            "final": 42
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 25,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 102507,
+            "window": 117115,
+            "final": 117115
+          },
+          "token_reduction_vs_full_source": 0.14953718937323857,
+          "char_reduction_vs_full_source": 0.14954572845272307,
+          "dependency_added_source_tokens": 91157,
+          "window_added_source_tokens": 14608,
+          "losses": {
+            "affected_cases": 2,
+            "missing_support_count": 2,
+            "by_reason": {
+              "outside_evidence_bundle": 2
+            },
+            "by_role": {
+              "user": 2
+            },
+            "cropping_distance": {
+              "2": 1,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 30,
+          "mean_context_chars": 18128.3,
+          "mean_context_tokens": 4531.633333333333,
+          "total_chars": 543849,
+          "total_tokens": 135949,
+          "overall_recall": {
+            "macro": 0.9833333333333333,
+            "micro": 0.9772727272727273,
+            "retained": 43,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.9833333333333333,
+            "micro": 0.9772727272727273,
+            "retained": 43,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 29,
+          "complete_rate": 0.9666666666666667,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.5314500051317737,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 43,
+            "final": 43
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 26,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 102507,
+            "window": 134174,
+            "final": 134174
+          },
+          "token_reduction_vs_full_source": 0.027532582726505384,
+          "char_reduction_vs_full_source": 0.02753345122995743,
+          "dependency_added_source_tokens": 91157,
+          "window_added_source_tokens": 31667,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "single-session-user": {
+        "full_source": {
+          "case_count": 70,
+          "mean_context_chars": 14718.92857142857,
+          "mean_context_tokens": 3679.4285714285716,
+          "total_chars": 1030325,
+          "total_tokens": 257560,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 64,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 0.035250006476417184,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 49,
+            "final": 49
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 196994,
+            "window": 196994,
+            "final": 196994
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 180522,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 70,
+          "mean_context_chars": 11502.357142857143,
+          "mean_context_tokens": 2875.1857142857143,
+          "total_chars": 805165,
+          "total_tokens": 201263,
+          "overall_recall": {
+            "macro": 0.7421875,
+            "micro": 0.7424242424242424,
+            "retained": 49,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.7421875,
+            "micro": 0.7424242424242424,
+            "retained": 49,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 47,
+          "complete_rate": 0.734375,
+          "answer_visible_rate": 0.7714285714285715,
+          "median_render_ms": 1.183200001833029,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 49,
+            "final": 49
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 196994,
+            "window": 196994,
+            "final": 196994
+          },
+          "token_reduction_vs_full_source": 0.21857819537195222,
+          "char_reduction_vs_full_source": 0.2185329871642443,
+          "dependency_added_source_tokens": 180522,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 17,
+            "missing_support_count": 17,
+            "by_reason": {
+              "outside_evidence_bundle": 17
+            },
+            "by_role": {
+              "user": 17
+            },
+            "cropping_distance": {
+              "1": 15,
+              "3": 1,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 70,
+          "mean_context_chars": 13581.871428571429,
+          "mean_context_tokens": 3395.1714285714284,
+          "total_chars": 950731,
+          "total_tokens": 237662,
+          "overall_recall": {
+            "macro": 0.96875,
+            "micro": 0.9696969696969697,
+            "retained": 64,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.96875,
+            "micro": 0.9696969696969697,
+            "retained": 64,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 62,
+          "complete_rate": 0.96875,
+          "answer_visible_rate": 0.8,
+          "median_render_ms": 1.1737000022549182,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 64,
+            "final": 64
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 15,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 196994,
+            "window": 233384,
+            "final": 233384
+          },
+          "token_reduction_vs_full_source": 0.07725578505979191,
+          "char_reduction_vs_full_source": 0.07725135272850803,
+          "dependency_added_source_tokens": 180522,
+          "window_added_source_tokens": 36390,
+          "losses": {
+            "affected_cases": 2,
+            "missing_support_count": 2,
+            "by_reason": {
+              "outside_evidence_bundle": 2
+            },
+            "by_role": {
+              "user": 2
+            },
+            "cropping_distance": {
+              "3": 1,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 70,
+          "mean_context_chars": 14594,
+          "mean_context_tokens": 3648.2,
+          "total_chars": 1021580,
+          "total_tokens": 255374,
+          "overall_recall": {
+            "macro": 0.984375,
+            "micro": 0.9848484848484849,
+            "retained": 65,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.984375,
+            "micro": 0.9848484848484849,
+            "retained": 65,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 63,
+          "complete_rate": 0.984375,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 1.138749998062849,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 65,
+            "final": 65
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 16,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 196994,
+            "window": 251094,
+            "final": 251094
+          },
+          "token_reduction_vs_full_source": 0.008487342755086225,
+          "char_reduction_vs_full_source": 0.008487613131778815,
+          "dependency_added_source_tokens": 180522,
+          "window_added_source_tokens": 54100,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "temporal-reasoning": {
+        "full_source": {
+          "case_count": 133,
+          "mean_context_chars": 32536.323308270676,
+          "mean_context_tokens": 8133.631578947368,
+          "total_chars": 4327331,
+          "total_tokens": 1081773,
+          "overall_recall": {
+            "macro": 0.9757575757575757,
+            "micro": 0.9845559845559846,
+            "retained": 255,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 255,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 128,
+          "complete_rate": 0.9696969696969697,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 0.07790001109242439,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 164,
+            "window": 164,
+            "final": 164
+          },
+          "dependency_added_supports": 48,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 839885,
+            "window": 839885,
+            "final": 839885
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 745965,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 4,
+            "missing_support_count": 4,
+            "by_reason": {
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 4
+            },
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 133,
+          "mean_context_chars": 25801.263157894737,
+          "mean_context_tokens": 6449.9473684210525,
+          "total_chars": 3431568,
+          "total_tokens": 857843,
+          "overall_recall": {
+            "macro": 0.6358585858585859,
+            "micro": 0.6332046332046332,
+            "retained": 164,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.6514211886304909,
+            "micro": 0.6431372549019608,
+            "retained": 164,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 59,
+          "complete_rate": 0.44696969696969696,
+          "answer_visible_rate": 0.24812030075187969,
+          "median_render_ms": 3.7896999856457114,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 164,
+            "window": 164,
+            "final": 164
+          },
+          "dependency_added_supports": 48,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 839885,
+            "window": 839885,
+            "final": 839885
+          },
+          "token_reduction_vs_full_source": 0.20700276305657472,
+          "char_reduction_vs_full_source": 0.20700126706276922,
+          "dependency_added_source_tokens": 745965,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 73,
+            "missing_support_count": 95,
+            "by_reason": {
+              "outside_evidence_bundle": 91,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 95
+            },
+            "cropping_distance": {
+              "3": 7,
+              "1": 81,
+              "2": 2,
+              "5": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 133,
+          "mean_context_chars": 29953.218045112782,
+          "mean_context_tokens": 7487.87969924812,
+          "total_chars": 3983778,
+          "total_tokens": 995888,
+          "overall_recall": {
+            "macro": 0.9464646464646465,
+            "micro": 0.9459459459459459,
+            "retained": 245,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.9700258397932816,
+            "micro": 0.9607843137254902,
+            "retained": 245,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 118,
+          "complete_rate": 0.8939393939393939,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 3.785200009588152,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 164,
+            "window": 245,
+            "final": 245
+          },
+          "dependency_added_supports": 48,
+          "window_added_supports": 81,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 839885,
+            "window": 977938,
+            "final": 977938
+          },
+          "token_reduction_vs_full_source": 0.07939281161574563,
+          "char_reduction_vs_full_source": 0.07939143088430256,
+          "dependency_added_source_tokens": 745965,
+          "window_added_source_tokens": 138053,
+          "losses": {
+            "affected_cases": 14,
+            "missing_support_count": 14,
+            "by_reason": {
+              "outside_evidence_bundle": 10,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 14
+            },
+            "cropping_distance": {
+              "3": 7,
+              "2": 2,
+              "5": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 133,
+          "mean_context_chars": 32117.624060150374,
+          "mean_context_tokens": 8028.962406015037,
+          "total_chars": 4271644,
+          "total_tokens": 1067852,
+          "overall_recall": {
+            "macro": 0.9502525252525252,
+            "micro": 0.9536679536679536,
+            "retained": 247,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.9739018087855297,
+            "micro": 0.9686274509803922,
+            "retained": 247,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 120,
+          "complete_rate": 0.9090909090909091,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 3.853899979731068,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 164,
+            "window": 247,
+            "final": 247
+          },
+          "dependency_added_supports": 48,
+          "window_added_supports": 83,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 839885,
+            "window": 1049905,
+            "final": 1049905
+          },
+          "token_reduction_vs_full_source": 0.012868688717503574,
+          "char_reduction_vs_full_source": 0.0128686712433137,
+          "dependency_added_source_tokens": 745965,
+          "window_added_source_tokens": 210020,
+          "losses": {
+            "affected_cases": 12,
+            "missing_support_count": 12,
+            "by_reason": {
+              "outside_evidence_bundle": 8,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 12
+            },
+            "cropping_distance": {
+              "3": 7,
+              "5": 1
+            }
+          }
+        }
+      }
+    },
+    "fact_scope": {
+      "knowledge-update": {
+        "full_source": {
+          "case_count": 78,
+          "mean_context_chars": 28596.17948717949,
+          "mean_context_tokens": 7148.653846153846,
+          "total_chars": 2230502,
+          "total_tokens": 557595,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 144,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 72,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 0.07235001248773187,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 108,
+            "window": 108,
+            "final": 108
+          },
+          "dependency_added_supports": 17,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 397710,
+            "window": 397710,
+            "final": 397710
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 370768,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 78,
+          "mean_context_chars": 20874.47435897436,
+          "mean_context_tokens": 5218.2307692307695,
+          "total_chars": 1628209,
+          "total_tokens": 407022,
+          "overall_recall": {
+            "macro": 0.7453703703703703,
+            "micro": 0.75,
+            "retained": 108,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.7453703703703703,
+            "micro": 0.75,
+            "retained": 108,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 42,
+          "complete_rate": 0.5833333333333334,
+          "answer_visible_rate": 0.717948717948718,
+          "median_render_ms": 4.02254999789875,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 108,
+            "window": 108,
+            "final": 108
+          },
+          "dependency_added_supports": 17,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 397710,
+            "window": 397710,
+            "final": 397710
+          },
+          "token_reduction_vs_full_source": 0.27004008285583625,
+          "char_reduction_vs_full_source": 0.2700257610170267,
+          "dependency_added_source_tokens": 370768,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 30,
+            "missing_support_count": 36,
+            "by_reason": {
+              "outside_evidence_bundle": 36
+            },
+            "by_role": {
+              "user": 36
+            },
+            "cropping_distance": {
+              "1": 35,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 78,
+          "mean_context_chars": 24821.55128205128,
+          "mean_context_tokens": 6205.038461538462,
+          "total_chars": 1936081,
+          "total_tokens": 483993,
+          "overall_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 71,
+          "complete_rate": 0.9861111111111112,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 4.2420499958097935,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 108,
+            "window": 143,
+            "final": 143
+          },
+          "dependency_added_supports": 17,
+          "window_added_supports": 35,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 397710,
+            "window": 474676,
+            "final": 474676
+          },
+          "token_reduction_vs_full_source": 0.13199903155516102,
+          "char_reduction_vs_full_source": 0.1319976399931495,
+          "dependency_added_source_tokens": 370768,
+          "window_added_source_tokens": 76966,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 78,
+          "mean_context_chars": 27546.02564102564,
+          "mean_context_tokens": 6886.102564102564,
+          "total_chars": 2148590,
+          "total_tokens": 537116,
+          "overall_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "conditional_recall": {
+            "macro": 0.9930555555555556,
+            "micro": 0.9930555555555556,
+            "retained": 143,
+            "total": 144,
+            "valid_cases": 72
+          },
+          "complete_cases": 71,
+          "complete_rate": 0.9861111111111112,
+          "answer_visible_rate": 0.7435897435897436,
+          "median_render_ms": 4.165250007645227,
+          "stage_counts": {
+            "fact": 91,
+            "dependencies": 108,
+            "window": 143,
+            "final": 143
+          },
+          "dependency_added_supports": 17,
+          "window_added_supports": 35,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 26942,
+            "dependencies": 397710,
+            "window": 527807,
+            "final": 527807
+          },
+          "token_reduction_vs_full_source": 0.03672737381074076,
+          "char_reduction_vs_full_source": 0.03672357164441009,
+          "dependency_added_source_tokens": 370768,
+          "window_added_source_tokens": 130097,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "multi-session": {
+        "full_source": {
+          "case_count": 133,
+          "mean_context_chars": 37062.84210526316,
+          "mean_context_tokens": 9265.375939849624,
+          "total_chars": 4929358,
+          "total_tokens": 1232295,
+          "overall_recall": {
+            "macro": 0.9764,
+            "micro": 0.963302752293578,
+            "retained": 315,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 315,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 119,
+          "complete_rate": 0.952,
+          "answer_visible_rate": 0.37593984962406013,
+          "median_render_ms": 0.11240001185797155,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 194,
+            "final": 194
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 915080,
+            "window": 915080,
+            "final": 915080
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 798287,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 6,
+            "missing_support_count": 12,
+            "by_reason": {
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 12
+            },
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 133,
+          "mean_context_chars": 28131.894736842107,
+          "mean_context_tokens": 7032.631578947368,
+          "total_chars": 3741542,
+          "total_tokens": 935340,
+          "overall_recall": {
+            "macro": 0.6244,
+            "micro": 0.5932721712538226,
+            "retained": 194,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.6356182795698925,
+            "micro": 0.6158730158730159,
+            "retained": 194,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 41,
+          "complete_rate": 0.328,
+          "answer_visible_rate": 0.3684210526315789,
+          "median_render_ms": 5.413999984739348,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 194,
+            "final": 194
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 915080,
+            "window": 915080,
+            "final": 915080
+          },
+          "token_reduction_vs_full_source": 0.24097720107604104,
+          "char_reduction_vs_full_source": 0.2409676878814645,
+          "dependency_added_source_tokens": 798287,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 84,
+            "missing_support_count": 133,
+            "by_reason": {
+              "outside_evidence_bundle": 121,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 133
+            },
+            "cropping_distance": {
+              "1": 102,
+              "4": 1,
+              "3": 11,
+              "5": 3,
+              "2": 4
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 133,
+          "mean_context_chars": 32662.744360902256,
+          "mean_context_tokens": 8165.285714285715,
+          "total_chars": 4344145,
+          "total_tokens": 1085983,
+          "overall_recall": {
+            "macro": 0.9245333333333333,
+            "micro": 0.9051987767584098,
+            "retained": 296,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.9466397849462366,
+            "micro": 0.9396825396825397,
+            "retained": 296,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 105,
+          "complete_rate": 0.84,
+          "answer_visible_rate": 0.3684210526315789,
+          "median_render_ms": 5.558300006669015,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 296,
+            "final": 296
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 102,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 915080,
+            "window": 1065736,
+            "final": 1065736
+          },
+          "token_reduction_vs_full_source": 0.1187313102787888,
+          "char_reduction_vs_full_source": 0.11871992255380925,
+          "dependency_added_source_tokens": 798287,
+          "window_added_source_tokens": 150656,
+          "losses": {
+            "affected_cases": 20,
+            "missing_support_count": 31,
+            "by_reason": {
+              "outside_evidence_bundle": 19,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 31
+            },
+            "cropping_distance": {
+              "4": 1,
+              "3": 11,
+              "5": 3,
+              "2": 4
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 133,
+          "mean_context_chars": 35942.15789473684,
+          "mean_context_tokens": 8985.180451127819,
+          "total_chars": 4780307,
+          "total_tokens": 1195029,
+          "overall_recall": {
+            "macro": 0.9361333333333334,
+            "micro": 0.9174311926605505,
+            "retained": 300,
+            "total": 327,
+            "valid_cases": 125
+          },
+          "conditional_recall": {
+            "macro": 0.958736559139785,
+            "micro": 0.9523809523809523,
+            "retained": 300,
+            "total": 315,
+            "valid_cases": 124
+          },
+          "complete_cases": 108,
+          "complete_rate": 0.864,
+          "answer_visible_rate": 0.3684210526315789,
+          "median_render_ms": 5.35900000249967,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 194,
+            "window": 300,
+            "final": 300
+          },
+          "dependency_added_supports": 78,
+          "window_added_supports": 106,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 116793,
+            "dependencies": 915080,
+            "window": 1174773,
+            "final": 1174773
+          },
+          "token_reduction_vs_full_source": 0.030241135442406253,
+          "char_reduction_vs_full_source": 0.03023740616932269,
+          "dependency_added_source_tokens": 798287,
+          "window_added_source_tokens": 259693,
+          "losses": {
+            "affected_cases": 17,
+            "missing_support_count": 27,
+            "by_reason": {
+              "outside_evidence_bundle": 15,
+              "session_not_retrieved": 12
+            },
+            "by_role": {
+              "user": 27
+            },
+            "cropping_distance": {
+              "4": 1,
+              "3": 11,
+              "5": 3
+            }
+          }
+        }
+      },
+      "single-session-assistant": {
+        "full_source": {
+          "case_count": 56,
+          "mean_context_chars": 5753.375,
+          "mean_context_tokens": 1437.9642857142858,
+          "total_chars": 322189,
+          "total_tokens": 80526,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 56,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 56,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 56,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.5535714285714286,
+          "median_render_ms": 0.028000009479001164,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 46,
+            "final": 46
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47327,
+            "window": 47327,
+            "final": 47327
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 29256,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 56,
+          "mean_context_chars": 3587.7678571428573,
+          "mean_context_tokens": 896.6071428571429,
+          "total_chars": 200915,
+          "total_tokens": 50210,
+          "overall_recall": {
+            "macro": 0.8214285714285714,
+            "micro": 0.8214285714285714,
+            "retained": 46,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.8214285714285714,
+            "micro": 0.8214285714285714,
+            "retained": 46,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 46,
+          "complete_rate": 0.8214285714285714,
+          "answer_visible_rate": 0.5,
+          "median_render_ms": 0.3916500136256218,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 46,
+            "final": 46
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47327,
+            "window": 47327,
+            "final": 47327
+          },
+          "token_reduction_vs_full_source": 0.3764746789856692,
+          "char_reduction_vs_full_source": 0.3764063950041746,
+          "dependency_added_source_tokens": 29256,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 10,
+            "missing_support_count": 10,
+            "by_reason": {
+              "outside_evidence_bundle": 10
+            },
+            "by_role": {
+              "assistant": 9,
+              "user": 1
+            },
+            "cropping_distance": {
+              "2": 5,
+              "1": 4,
+              "4": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 56,
+          "mean_context_chars": 4346.660714285715,
+          "mean_context_tokens": 1086.2857142857142,
+          "total_chars": 243413,
+          "total_tokens": 60832,
+          "overall_recall": {
+            "macro": 0.8928571428571429,
+            "micro": 0.8928571428571429,
+            "retained": 50,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.8928571428571429,
+            "micro": 0.8928571428571429,
+            "retained": 50,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 50,
+          "complete_rate": 0.8928571428571429,
+          "answer_visible_rate": 0.5178571428571429,
+          "median_render_ms": 0.4452499997569248,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 50,
+            "final": 50
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 4,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47327,
+            "window": 57952,
+            "final": 57952
+          },
+          "token_reduction_vs_full_source": 0.24456697215806078,
+          "char_reduction_vs_full_source": 0.24450245042506102,
+          "dependency_added_source_tokens": 29256,
+          "window_added_source_tokens": 10625,
+          "losses": {
+            "affected_cases": 6,
+            "missing_support_count": 6,
+            "by_reason": {
+              "outside_evidence_bundle": 6
+            },
+            "by_role": {
+              "assistant": 6
+            },
+            "cropping_distance": {
+              "2": 5,
+              "4": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 56,
+          "mean_context_chars": 5306.142857142857,
+          "mean_context_tokens": 1326.1607142857142,
+          "total_chars": 297144,
+          "total_tokens": 74265,
+          "overall_recall": {
+            "macro": 0.9821428571428571,
+            "micro": 0.9821428571428571,
+            "retained": 55,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "conditional_recall": {
+            "macro": 0.9821428571428571,
+            "micro": 0.9821428571428571,
+            "retained": 55,
+            "total": 56,
+            "valid_cases": 56
+          },
+          "complete_cases": 55,
+          "complete_rate": 0.9821428571428571,
+          "answer_visible_rate": 0.5357142857142857,
+          "median_render_ms": 0.41390000842511654,
+          "stage_counts": {
+            "fact": 38,
+            "dependencies": 46,
+            "window": 55,
+            "final": 55
+          },
+          "dependency_added_supports": 8,
+          "window_added_supports": 9,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 18071,
+            "dependencies": 47327,
+            "window": 71385,
+            "final": 71385
+          },
+          "token_reduction_vs_full_source": 0.07775128529915809,
+          "char_reduction_vs_full_source": 0.07773387669970111,
+          "dependency_added_source_tokens": 29256,
+          "window_added_source_tokens": 24058,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "assistant": 1
+            },
+            "cropping_distance": {
+              "4": 1
+            }
+          }
+        }
+      },
+      "single-session-preference": {
+        "full_source": {
+          "case_count": 30,
+          "mean_context_chars": 18641.566666666666,
+          "mean_context_tokens": 4659.933333333333,
+          "total_chars": 559247,
+          "total_tokens": 139798,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 44,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 30,
+          "complete_rate": 1,
+          "answer_visible_rate": 0,
+          "median_render_ms": 0.04265000461600721,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 17,
+            "final": 17
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 96514,
+            "window": 96514,
+            "final": 96514
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 85164,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 30,
+          "mean_context_chars": 13107.266666666666,
+          "mean_context_tokens": 3276.5,
+          "total_chars": 393218,
+          "total_tokens": 98295,
+          "overall_recall": {
+            "macro": 0.4111111111111111,
+            "micro": 0.38636363636363635,
+            "retained": 17,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.4111111111111111,
+            "micro": 0.38636363636363635,
+            "retained": 17,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 10,
+          "complete_rate": 0.3333333333333333,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.9382499885978177,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 17,
+            "final": 17
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 96514,
+            "window": 96514,
+            "final": 96514
+          },
+          "token_reduction_vs_full_source": 0.29687835305226107,
+          "char_reduction_vs_full_source": 0.2968795541147292,
+          "dependency_added_source_tokens": 85164,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 20,
+            "missing_support_count": 27,
+            "by_reason": {
+              "outside_evidence_bundle": 27
+            },
+            "by_role": {
+              "user": 27
+            },
+            "cropping_distance": {
+              "1": 25,
+              "2": 1,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 30,
+          "mean_context_chars": 15058.7,
+          "mean_context_tokens": 3764.3,
+          "total_chars": 451761,
+          "total_tokens": 112929,
+          "overall_recall": {
+            "macro": 0.95,
+            "micro": 0.9545454545454546,
+            "retained": 42,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.95,
+            "micro": 0.9545454545454546,
+            "retained": 42,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 28,
+          "complete_rate": 0.9333333333333333,
+          "answer_visible_rate": 0,
+          "median_render_ms": 1.9143000099575147,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 42,
+            "final": 42
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 25,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 96514,
+            "window": 111153,
+            "final": 111153
+          },
+          "token_reduction_vs_full_source": 0.1921987439019156,
+          "char_reduction_vs_full_source": 0.19219772300968985,
+          "dependency_added_source_tokens": 85164,
+          "window_added_source_tokens": 14639,
+          "losses": {
+            "affected_cases": 2,
+            "missing_support_count": 2,
+            "by_reason": {
+              "outside_evidence_bundle": 2
+            },
+            "by_role": {
+              "user": 2
+            },
+            "cropping_distance": {
+              "2": 1,
+              "3": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 30,
+          "mean_context_chars": 18027.7,
+          "mean_context_tokens": 4506.5,
+          "total_chars": 540831,
+          "total_tokens": 135195,
+          "overall_recall": {
+            "macro": 0.9833333333333333,
+            "micro": 0.9772727272727273,
+            "retained": 43,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "conditional_recall": {
+            "macro": 0.9833333333333333,
+            "micro": 0.9772727272727273,
+            "retained": 43,
+            "total": 44,
+            "valid_cases": 30
+          },
+          "complete_cases": 29,
+          "complete_rate": 0.9666666666666667,
+          "answer_visible_rate": 0,
+          "median_render_ms": 2.016350001213141,
+          "stage_counts": {
+            "fact": 10,
+            "dependencies": 17,
+            "window": 43,
+            "final": 43
+          },
+          "dependency_added_supports": 7,
+          "window_added_supports": 26,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 11350,
+            "dependencies": 96514,
+            "window": 133420,
+            "final": 133420
+          },
+          "token_reduction_vs_full_source": 0.03292607905692502,
+          "char_reduction_vs_full_source": 0.03292999336607971,
+          "dependency_added_source_tokens": 85164,
+          "window_added_source_tokens": 36906,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "single-session-user": {
+        "full_source": {
+          "case_count": 70,
+          "mean_context_chars": 14718.92857142857,
+          "mean_context_tokens": 3679.4285714285716,
+          "total_chars": 1030325,
+          "total_tokens": 257560,
+          "overall_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 66,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 64,
+          "complete_rate": 1,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 0.03689998993650079,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 49,
+            "final": 49
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 183374,
+            "window": 183374,
+            "final": 183374
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 166902,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 0,
+            "missing_support_count": 0,
+            "by_reason": {},
+            "by_role": {},
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 70,
+          "mean_context_chars": 10724.228571428572,
+          "mean_context_tokens": 2680.6428571428573,
+          "total_chars": 750696,
+          "total_tokens": 187645,
+          "overall_recall": {
+            "macro": 0.7421875,
+            "micro": 0.7424242424242424,
+            "retained": 49,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.7421875,
+            "micro": 0.7424242424242424,
+            "retained": 49,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 47,
+          "complete_rate": 0.734375,
+          "answer_visible_rate": 0.7571428571428571,
+          "median_render_ms": 1.5061000012792647,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 49,
+            "final": 49
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 183374,
+            "window": 183374,
+            "final": 183374
+          },
+          "token_reduction_vs_full_source": 0.27145131231557695,
+          "char_reduction_vs_full_source": 0.271398830466115,
+          "dependency_added_source_tokens": 166902,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 17,
+            "missing_support_count": 17,
+            "by_reason": {
+              "outside_evidence_bundle": 17
+            },
+            "by_role": {
+              "user": 17
+            },
+            "cropping_distance": {
+              "1": 15,
+              "3": 1,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 70,
+          "mean_context_chars": 12953.1,
+          "mean_context_tokens": 3237.957142857143,
+          "total_chars": 906717,
+          "total_tokens": 226657,
+          "overall_recall": {
+            "macro": 0.96875,
+            "micro": 0.9696969696969697,
+            "retained": 64,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.96875,
+            "micro": 0.9696969696969697,
+            "retained": 64,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 62,
+          "complete_rate": 0.96875,
+          "answer_visible_rate": 0.8,
+          "median_render_ms": 1.5372500056400895,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 64,
+            "final": 64
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 15,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 183374,
+            "window": 222381,
+            "final": 222381
+          },
+          "token_reduction_vs_full_source": 0.11998369312004975,
+          "char_reduction_vs_full_source": 0.11996991240627952,
+          "dependency_added_source_tokens": 166902,
+          "window_added_source_tokens": 39007,
+          "losses": {
+            "affected_cases": 2,
+            "missing_support_count": 2,
+            "by_reason": {
+              "outside_evidence_bundle": 2
+            },
+            "by_role": {
+              "user": 2
+            },
+            "cropping_distance": {
+              "3": 1,
+              "2": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 70,
+          "mean_context_chars": 14504.171428571428,
+          "mean_context_tokens": 3625.7714285714287,
+          "total_chars": 1015292,
+          "total_tokens": 253804,
+          "overall_recall": {
+            "macro": 0.984375,
+            "micro": 0.9848484848484849,
+            "retained": 65,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "conditional_recall": {
+            "macro": 0.984375,
+            "micro": 0.9848484848484849,
+            "retained": 65,
+            "total": 66,
+            "valid_cases": 64
+          },
+          "complete_cases": 63,
+          "complete_rate": 0.984375,
+          "answer_visible_rate": 0.8142857142857143,
+          "median_render_ms": 1.385399984428659,
+          "stage_counts": {
+            "fact": 39,
+            "dependencies": 49,
+            "window": 65,
+            "final": 65
+          },
+          "dependency_added_supports": 10,
+          "window_added_supports": 16,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 16472,
+            "dependencies": 183374,
+            "window": 249521,
+            "final": 249521
+          },
+          "token_reduction_vs_full_source": 0.014583009784127965,
+          "char_reduction_vs_full_source": 0.01459054181932884,
+          "dependency_added_source_tokens": 166902,
+          "window_added_source_tokens": 66147,
+          "losses": {
+            "affected_cases": 1,
+            "missing_support_count": 1,
+            "by_reason": {
+              "outside_evidence_bundle": 1
+            },
+            "by_role": {
+              "user": 1
+            },
+            "cropping_distance": {
+              "3": 1
+            }
+          }
+        }
+      },
+      "temporal-reasoning": {
+        "full_source": {
+          "case_count": 133,
+          "mean_context_chars": 32536.323308270676,
+          "mean_context_tokens": 8133.631578947368,
+          "total_chars": 4327331,
+          "total_tokens": 1081773,
+          "overall_recall": {
+            "macro": 0.9757575757575757,
+            "micro": 0.9845559845559846,
+            "retained": 255,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 1.0,
+            "micro": 1.0,
+            "retained": 255,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 128,
+          "complete_rate": 0.9696969696969697,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 0.08040000102482736,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 162,
+            "window": 162,
+            "final": 162
+          },
+          "dependency_added_supports": 46,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 809472,
+            "window": 809472,
+            "final": 809472
+          },
+          "token_reduction_vs_full_source": 0.0,
+          "char_reduction_vs_full_source": 0.0,
+          "dependency_added_source_tokens": 715552,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 4,
+            "missing_support_count": 4,
+            "by_reason": {
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 4
+            },
+            "cropping_distance": {}
+          }
+        },
+        "evidence_bundle_w0": {
+          "case_count": 133,
+          "mean_context_chars": 24886.51879699248,
+          "mean_context_tokens": 6221.263157894737,
+          "total_chars": 3309907,
+          "total_tokens": 827428,
+          "overall_recall": {
+            "macro": 0.6295454545454545,
+            "micro": 0.6254826254826255,
+            "retained": 162,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.6449612403100775,
+            "micro": 0.6352941176470588,
+            "retained": 162,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 58,
+          "complete_rate": 0.4393939393939394,
+          "answer_visible_rate": 0.24812030075187969,
+          "median_render_ms": 4.75439999718219,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 162,
+            "window": 162,
+            "final": 162
+          },
+          "dependency_added_supports": 46,
+          "window_added_supports": 0,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 809472,
+            "window": 809472,
+            "final": 809472
+          },
+          "token_reduction_vs_full_source": 0.2351186431903921,
+          "char_reduction_vs_full_source": 0.23511582543604825,
+          "dependency_added_source_tokens": 715552,
+          "window_added_source_tokens": 0,
+          "losses": {
+            "affected_cases": 74,
+            "missing_support_count": 97,
+            "by_reason": {
+              "outside_evidence_bundle": 93,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 97
+            },
+            "cropping_distance": {
+              "3": 7,
+              "1": 83,
+              "2": 2,
+              "5": 1
+            }
+          }
+        },
+        "evidence_bundle_w1": {
+          "case_count": 133,
+          "mean_context_chars": 29166.428571428572,
+          "mean_context_tokens": 7291.187969924812,
+          "total_chars": 3879135,
+          "total_tokens": 969728,
+          "overall_recall": {
+            "macro": 0.9464646464646465,
+            "micro": 0.9459459459459459,
+            "retained": 245,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.9700258397932816,
+            "micro": 0.9607843137254902,
+            "retained": 245,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 118,
+          "complete_rate": 0.8939393939393939,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 4.662999999709427,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 162,
+            "window": 245,
+            "final": 245
+          },
+          "dependency_added_supports": 46,
+          "window_added_supports": 83,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 809472,
+            "window": 951776,
+            "final": 951776
+          },
+          "token_reduction_vs_full_source": 0.1035753341967307,
+          "char_reduction_vs_full_source": 0.10357331112410861,
+          "dependency_added_source_tokens": 715552,
+          "window_added_source_tokens": 142304,
+          "losses": {
+            "affected_cases": 14,
+            "missing_support_count": 14,
+            "by_reason": {
+              "outside_evidence_bundle": 10,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 14
+            },
+            "cropping_distance": {
+              "3": 7,
+              "2": 2,
+              "5": 1
+            }
+          }
+        },
+        "evidence_bundle_w2": {
+          "case_count": 133,
+          "mean_context_chars": 31746.751879699248,
+          "mean_context_tokens": 7936.270676691729,
+          "total_chars": 4222318,
+          "total_tokens": 1055524,
+          "overall_recall": {
+            "macro": 0.9502525252525252,
+            "micro": 0.9536679536679536,
+            "retained": 247,
+            "total": 259,
+            "valid_cases": 132
+          },
+          "conditional_recall": {
+            "macro": 0.9739018087855297,
+            "micro": 0.9686274509803922,
+            "retained": 247,
+            "total": 255,
+            "valid_cases": 129
+          },
+          "complete_cases": 120,
+          "complete_rate": 0.9090909090909091,
+          "answer_visible_rate": 0.2781954887218045,
+          "median_render_ms": 4.746799997519702,
+          "stage_counts": {
+            "fact": 116,
+            "dependencies": 162,
+            "window": 247,
+            "final": 247
+          },
+          "dependency_added_supports": 46,
+          "window_added_supports": 85,
+          "fallback_added_supports": 0,
+          "stage_source_tokens": {
+            "fact": 93920,
+            "dependencies": 809472,
+            "window": 1037573,
+            "final": 1037573
+          },
+          "token_reduction_vs_full_source": 0.024264794924628408,
+          "char_reduction_vs_full_source": 0.02426738329006961,
+          "dependency_added_source_tokens": 715552,
+          "window_added_source_tokens": 228101,
+          "losses": {
+            "affected_cases": 12,
+            "missing_support_count": 12,
+            "by_reason": {
+              "outside_evidence_bundle": 8,
+              "session_not_retrieved": 4
+            },
+            "by_role": {
+              "user": 12
+            },
+            "cropping_distance": {
+              "3": 7,
+              "5": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "comparison_w1": {
+    "substring": {
+      "removed_dependency_turns": 0,
+      "removed_annotated_support_turns": 0,
+      "removed_supports_still_retained": 0,
+      "removed_supports_lost": 0,
+      "baseline_retained_supports_lost": 0,
+      "new_supports_gained": 0,
+      "window_supports_lost_after_dependency_removal": 0,
+      "reference_far_supports": 159,
+      "far_supports_retained": 159,
+      "far_support_recall": 1.0,
+      "by_support_distance": {
+        "0": {
+          "total": 410,
+          "retained": 410,
+          "recall": 1.0
+        },
+        "6+": {
+          "total": 106,
+          "retained": 105,
+          "recall": 0.9905660377358491
+        },
+        "3-5": {
+          "total": 137,
+          "retained": 132,
+          "recall": 0.9635036496350365
+        },
+        "1": {
+          "total": 179,
+          "retained": 179,
+          "recall": 1.0
+        },
+        "2": {
+          "total": 48,
+          "retained": 47,
+          "recall": 0.9791666666666666
+        },
+        "unretrieved": {
+          "total": 16,
+          "retained": 0,
+          "recall": 0.0
+        }
+      },
+      "loss_examples": [],
+      "source_envelope_tokens": 17681285
+    },
+    "word_boundary": {
+      "removed_dependency_turns": 1640,
+      "removed_annotated_support_turns": 100,
+      "removed_supports_still_retained": 84,
+      "removed_supports_lost": 16,
+      "baseline_retained_supports_lost": 32,
+      "new_supports_gained": 1,
+      "window_supports_lost_after_dependency_removal": 16,
+      "reference_far_supports": 159,
+      "far_supports_retained": 143,
+      "far_support_recall": 0.89937106918239,
+      "by_support_distance": {
+        "0": {
+          "total": 410,
+          "retained": 410,
+          "recall": 1.0
+        },
+        "6+": {
+          "total": 106,
+          "retained": 91,
+          "recall": 0.8584905660377359
+        },
+        "3-5": {
+          "total": 137,
+          "retained": 122,
+          "recall": 0.8905109489051095
+        },
+        "1": {
+          "total": 179,
+          "retained": 179,
+          "recall": 1.0
+        },
+        "2": {
+          "total": 48,
+          "retained": 40,
+          "recall": 0.8333333333333334
+        },
+        "unretrieved": {
+          "total": 16,
+          "retained": 0,
+          "recall": 0.0
+        }
+      },
+      "loss_examples": [
+        {
+          "question_id": "a3838d2b",
+          "question_type": "temporal-reasoning",
+          "lost_removed_supports": [
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "c4a1ceb8",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              0,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "d23cf73b",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "d682f1a2",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "gpt4_ab202e7f",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              4,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "gpt4_731e37d7",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "10d9b85a",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "cc539528",
+          "question_type": "single-session-assistant",
+          "lost_removed_supports": [
+            [
+              0,
+              7
+            ]
+          ]
+        },
+        {
+          "question_id": "3249768e",
+          "question_type": "single-session-assistant",
+          "lost_removed_supports": [
+            [
+              0,
+              3
+            ]
+          ]
+        },
+        {
+          "question_id": "6222b6eb",
+          "question_type": "single-session-assistant",
+          "lost_removed_supports": [
+            [
+              0,
+              11
+            ]
+          ]
+        },
+        {
+          "question_id": "gpt4_7f6b06db",
+          "question_type": "temporal-reasoning",
+          "lost_removed_supports": [
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "85fa3a3f",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              0,
+              4
+            ]
+          ]
+        }
+      ],
+      "source_envelope_tokens": 15605120
+    },
+    "fact_scope": {
+      "removed_dependency_turns": 1878,
+      "removed_annotated_support_turns": 102,
+      "removed_supports_still_retained": 86,
+      "removed_supports_lost": 16,
+      "baseline_retained_supports_lost": 34,
+      "new_supports_gained": 1,
+      "window_supports_lost_after_dependency_removal": 18,
+      "reference_far_supports": 159,
+      "far_supports_retained": 143,
+      "far_support_recall": 0.89937106918239,
+      "by_support_distance": {
+        "0": {
+          "total": 410,
+          "retained": 410,
+          "recall": 1.0
+        },
+        "6+": {
+          "total": 106,
+          "retained": 90,
+          "recall": 0.8490566037735849
+        },
+        "3-5": {
+          "total": 137,
+          "retained": 121,
+          "recall": 0.8832116788321168
+        },
+        "1": {
+          "total": 179,
+          "retained": 179,
+          "recall": 1.0
+        },
+        "2": {
+          "total": 48,
+          "retained": 40,
+          "recall": 0.8333333333333334
+        },
+        "unretrieved": {
+          "total": 16,
+          "retained": 0,
+          "recall": 0.0
+        }
+      },
+      "loss_examples": [
+        {
+          "question_id": "a3838d2b",
+          "question_type": "temporal-reasoning",
+          "lost_removed_supports": [
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "c4a1ceb8",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              0,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "d23cf73b",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "d682f1a2",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              2,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "gpt4_ab202e7f",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              4,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "gpt4_731e37d7",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "10d9b85a",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "cc539528",
+          "question_type": "single-session-assistant",
+          "lost_removed_supports": [
+            [
+              0,
+              7
+            ]
+          ]
+        },
+        {
+          "question_id": "3249768e",
+          "question_type": "single-session-assistant",
+          "lost_removed_supports": [
+            [
+              0,
+              3
+            ]
+          ]
+        },
+        {
+          "question_id": "6222b6eb",
+          "question_type": "single-session-assistant",
+          "lost_removed_supports": [
+            [
+              0,
+              11
+            ]
+          ]
+        },
+        {
+          "question_id": "gpt4_7f6b06db",
+          "question_type": "temporal-reasoning",
+          "lost_removed_supports": [
+            [
+              1,
+              0
+            ]
+          ]
+        },
+        {
+          "question_id": "85fa3a3f",
+          "question_type": "multi-session",
+          "lost_removed_supports": [
+            [
+              0,
+              4
+            ]
+          ]
+        }
+      ],
+      "source_envelope_tokens": 17023388
+    }
+  },
+  "joint_pareto": {
+    "overall_recall": {
+      "micro": {
+        "frontier": [
+          "substring/evidence_bundle_w1",
+          "substring/evidence_bundle_w2",
+          "word_boundary/full_source",
+          "word_boundary/evidence_bundle_w0",
+          "word_boundary/evidence_bundle_w1",
+          "word_boundary/evidence_bundle_w2",
+          "fact_scope/full_source",
+          "fact_scope/evidence_bundle_w0",
+          "fact_scope/evidence_bundle_w1",
+          "fact_scope/evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/evidence_bundle_w1",
+          "0.95": "fact_scope/evidence_bundle_w2"
+        }
+      },
+      "macro": {
+        "frontier": [
+          "substring/evidence_bundle_w1",
+          "substring/evidence_bundle_w2",
+          "word_boundary/full_source",
+          "word_boundary/evidence_bundle_w0",
+          "word_boundary/evidence_bundle_w1",
+          "word_boundary/evidence_bundle_w2",
+          "fact_scope/full_source",
+          "fact_scope/evidence_bundle_w0",
+          "fact_scope/evidence_bundle_w1",
+          "fact_scope/evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/evidence_bundle_w1",
+          "0.95": "fact_scope/evidence_bundle_w2"
+        }
+      }
+    },
+    "conditional_recall": {
+      "micro": {
+        "frontier": [
+          "substring/evidence_bundle_w1",
+          "substring/evidence_bundle_w2",
+          "word_boundary/full_source",
+          "word_boundary/evidence_bundle_w0",
+          "word_boundary/evidence_bundle_w1",
+          "word_boundary/evidence_bundle_w2",
+          "fact_scope/full_source",
+          "fact_scope/evidence_bundle_w0",
+          "fact_scope/evidence_bundle_w1",
+          "fact_scope/evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/evidence_bundle_w1",
+          "0.95": "fact_scope/evidence_bundle_w1"
+        }
+      },
+      "macro": {
+        "frontier": [
+          "substring/evidence_bundle_w1",
+          "substring/evidence_bundle_w2",
+          "word_boundary/full_source",
+          "word_boundary/evidence_bundle_w0",
+          "word_boundary/evidence_bundle_w1",
+          "word_boundary/evidence_bundle_w2",
+          "fact_scope/full_source",
+          "fact_scope/evidence_bundle_w0",
+          "fact_scope/evidence_bundle_w1",
+          "fact_scope/evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/evidence_bundle_w1",
+          "0.95": "fact_scope/evidence_bundle_w1"
+        }
+      }
+    }
+  },
+  "loss_examples": [
+    {
+      "question_id": "a3838d2b",
+      "question_type": "temporal-reasoning",
+      "question": "How many charity events did I participate in before the 'Run for the Cure' event?",
+      "session_index": 1,
+      "turn_index": 0,
+      "support_excerpt": "I'm looking for some information on local charity events happening in the next few months. I've been really active in the charity scene lately, actually - I just participated in the \"Dance for a Cause\" event on May 1st, which was a blast. Do you know of any upcoming events that I might be interested in?",
+      "overlapping_dependency_spans": {
+        "substring": [
+          {
+            "field": "temporal_scope",
+            "text": "now of any u"
+          },
+          {
+            "field": "validity",
+            "text": "now of any u"
+          }
+        ],
+        "word_boundary": []
+      }
+    },
+    {
+      "question_id": "c4a1ceb8",
+      "question_type": "multi-session",
+      "question": "How many different types of citrus fruits have I used in my cocktail recipes?",
+      "session_index": 0,
+      "turn_index": 0,
+      "support_excerpt": "I'm looking for some new cocktail recipes to try out. I've been experimenting with bitters lately and recently made my own orange bitters using orange peels and vodka. Do you have any Whiskey Sour recipes that use orange bitters?",
+      "overlapping_dependency_spans": {
+        "substring": [
+          {
+            "field": "temporal_scope",
+            "text": "recently mad"
+          },
+          {
+            "field": "validity",
+            "text": "recently mad"
+          }
+        ],
+        "word_boundary": []
+      }
+    },
+    {
+      "question_id": "c4a1ceb8",
+      "question_type": "multi-session",
+      "question": "How many different types of citrus fruits have I used in my cocktail recipes?",
+      "session_index": 3,
+      "turn_index": 0,
+      "support_excerpt": "I'm planning a summer party and I want to serve some refreshing cocktails. Can you give me some ideas for summer-inspired drinks that use fresh lime juice? By the way, I recently learned how to make a classic Daiquiri the right way, using fresh lime juice and simple syrup in a mixology class.",
+      "overlapping_dependency_spans": {
+        "substring": [
+          {
+            "field": "temporal_scope",
+            "text": "recently lea"
+          },
+          {
+            "field": "validity",
+            "text": "recently lea"
+          }
+        ],
+        "word_boundary": []
+      }
+    },
+    {
+      "question_id": "d23cf73b",
+      "question_type": "multi-session",
+      "question": "How many different cuisines have I learned to cook or tried out in the past few months?",
+      "session_index": 2,
+      "turn_index": 0,
+      "support_excerpt": "I'm looking for some healthy meal prep ideas. I've been trying to eat more plant-based lately, and I recently attended a class on vegan cuisine that got me really inspired.",
+      "overlapping_dependency_spans": {
+        "substring": [
+          {
+            "field": "temporal_scope",
+            "text": "recently att"
+          },
+          {
+            "field": "validity",
+            "text": "recently att"
+          }
+        ],
+        "word_boundary": []
+      }
+    }
+  ]
+}

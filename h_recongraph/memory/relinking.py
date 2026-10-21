@@ -169,6 +169,24 @@ class HierarchicalMemoryContext(BaseModel):
                 if any(anchor in paragraph for anchor in fact_anchors)
             )
 
+        offsets, cursor = [], 0
+        for paragraph in paragraphs:
+            start = content.find(paragraph, cursor)
+            offsets.append((start, start + len(paragraph)))
+            cursor = start + len(paragraph)
+        active_fact_starts = {
+            span.start
+            for span in spans
+            if span.field == 'fact'
+            and span.start is not None
+            and any(offsets[index][0] <= span.start < offsets[index][1] for index in fact_indexes)
+        }
+        spans = [
+            span
+            for span in spans
+            if span.fact_starts is None or active_fact_starts.intersection(span.fact_starts)
+        ]
+        explicit_spans = [span for span in spans if span.start is None or span.end is None]
         dependency_indexes = {
             index
             for index, paragraph in enumerate(paragraphs)

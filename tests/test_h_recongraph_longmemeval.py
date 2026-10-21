@@ -4,6 +4,7 @@ import pytest
 
 from h_recongraph.examples.evaluate_longmemeval_read import (
     build_context,
+    evaluate_binding_calibration,
     evaluate_cases,
     fact_turn_indexes,
     hit_session_indexes,
@@ -142,3 +143,38 @@ async def test_dependency_ablation_reports_shared_retrieval_and_support_diagnost
     assert result['dependency_diagnostic']['outside_fact_window_w1'] == 0
     for row in result['rows']:
         assert row['supporting_turn_indices'] == [[1, 0]]
+
+
+@pytest.mark.asyncio
+async def test_binding_calibration_freezes_retrieval_and_ignores_answer_labels():
+    case = _case()
+    result = await evaluate_binding_calibration([case], repeats=1)
+    assert result['fixed_retrieval_equal']
+    assert set(result['binding_calibration']) == {'substring', 'word_boundary', 'fact_scope'}
+    for rule, value in result['binding_calibration'].items():
+        assert value['summary']['evidence_bundle']['overall_recall']['retained'] == 1
+        labeled = await build_context(case, binding_rule=rule)
+        unlabeled_case = {key: value for key, value in case.items() if key != 'answer'}
+        unlabeled_case['haystack_sessions'] = [
+            [{key: value for key, value in turn.items() if key != 'has_answer'} for turn in session]
+            for session in case['haystack_sessions']
+        ]
+        unlabeled = await build_context(unlabeled_case, binding_rule=rule)
+        assert unlabeled.render_text('evidence_bundle') == labeled.render_text('evidence_bundle')
+
+
+@pytest.mark.asyncio
+async def test_binding_calibration_records_distant_support_removed_by_lexical_scope():
+    case = _case()
+    case['haystack_sessions'][1] = [
+        case['haystack_sessions'][1][0],
+        {'role': 'assistant', 'content': 'Tea is ready.'},
+        {'role': 'user', 'content': 'The weather is pleasant.'},
+        {'role': 'user', 'content': 'Only during winter.', 'has_answer': True},
+    ]
+    result = await evaluate_binding_calibration([case], repeats=1)
+    original = result['comparison_w1']['substring']
+    scoped = result['comparison_w1']['fact_scope']
+    assert original['reference_far_supports'] == original['far_supports_retained'] == 1
+    assert scoped['removed_annotated_support_turns'] == scoped['removed_supports_lost'] == 1
+    assert scoped['far_supports_retained'] == 0

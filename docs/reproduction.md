@@ -44,11 +44,20 @@ python -m h_recongraph.examples.evaluate_longmemeval_read --data data/longmemeva
 python -m h_recongraph.examples.evaluate_longmemeval_read --data data/longmemeval_oracle.json --limit 500 --repeats 3 --dependency-ablation --max-fact-anchors 2 --output-json results/top2-ablation.json
 ```
 
+第 14 批写入绑定校准：
+
+```powershell
+python -m h_recongraph.examples.evaluate_read_context --binding-calibration --repeats 3 --output-json results/binding-mechanism.json
+python -m h_recongraph.examples.evaluate_longmemeval_read --data data/longmemeval_oracle.json --limit 500 --repeats 3 --binding-calibration --output-json results/binding-longmemeval.json
+```
+
+该入口比较 `substring`、`word_boundary`、`fact_scope` 三组写入规则，每组运行全文与 `w=0/1/2`。`fact_scope` 在来源文本上建立同段或有效实词重合的依赖归属，将原文事实段落偏移保存为 `SourceSpan.fact_starts`；读取以命中事实偏移选择相应依赖。JSON 中的 `fixed_retrieval_equal` 检查 Session 与事实锚点一致性，`comparison_w1` 记录直接支持损失、窗口覆盖变化和远端证据保留，`joint_pareto` 汇总 12 组配置。
+
 ## 验证结果
 
-- 第 13 批指定回归：149 passed；官方 `graphiti-core==0.29.2` 包下复核通过。
+- 第 14 批指定回归：153 passed；官方 `graphiti-core==0.29.2` 包下复核通过。
 - Token 统一采用 `len(text) // 4` 估算；渲染预热后计时三次，汇总中位数。
 - 整体召回：保留支持轮次 / 全部支持轮次；裁剪条件召回：保留支持轮次 / 命中全文中的支持轮次。
-- Micro 按支持轮次汇总；Macro 对有相应支持标注的题目平均。第 12–13 批整体召回有效题数为 479，共 896 条支持轮次；裁剪条件召回有效题数为 475，命中全文含 880 条支持轮次。
+- Micro 按支持轮次汇总；Macro 对有相应支持标注的题目平均。第 12–14 批整体召回有效题数为 479，共 896 条支持轮次；裁剪条件召回有效题数为 475，命中全文含 880 条支持轮次。
 - 第 11 批历史结果对全部 500 题平均，无支持标注题按 1 计入；该批的 75.64% 为此历史口径。第 12 批起主表采用整体 Micro。
 - [阶段结果与附件索引](results/README.md)汇集逐题记录、题型统计、装配索引和补丁。

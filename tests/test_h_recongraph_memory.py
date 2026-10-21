@@ -447,3 +447,31 @@ async def test_add_memory_persists_automatic_fact_and_path_bindings():
     assert any(span.field == 'fact' for span in written.source_spans)
     assert any(span.field == 'path' for span in written.source_spans)
     assert written.semantic_state['source_spans']
+
+
+def test_word_boundary_binding_separates_markers_from_embedded_substrings():
+    memory = UnifiedMemoryUnit(user_id='u1', layer='M1', raw_content='A specific viable design.')
+    original = SemanticStateConstructor().construct(memory)
+    boundary = SemanticStateConstructor('word_boundary').construct(memory)
+    assert {'constraint', 'path'} <= {span.field for span in original.source_spans}
+    assert not {'constraint', 'path'} & {span.field for span in boundary.source_spans}
+    assert boundary.condition is None
+    memory.raw_content = 'If Atlas runs via Redis, 因为兼容需求。'
+    boundary = SemanticStateConstructor('word_boundary').construct(memory)
+    assert {'constraint', 'path', 'causal'} <= {span.field for span in boundary.source_spans}
+
+
+def test_fact_scope_binds_automatic_dependencies_by_original_paragraph_position():
+    memory = UnifiedMemoryUnit(
+        user_id='u1',
+        layer='M1',
+        raw_content=(
+            'Atlas stores reports.\n\nAtlas works only during October.\n\n'
+            'Weather alerts apply only during storms.'
+        ),
+    )
+    state = SemanticStateConstructor('fact_scope').construct(memory)
+    constraints = [span for span in state.source_spans if span.field == 'constraint']
+    assert 0 in constraints[0].fact_starts
+    assert 0 not in constraints[1].fact_starts
+    assert all(memory.raw_content[span.start : span.end] == span.text for span in constraints)
