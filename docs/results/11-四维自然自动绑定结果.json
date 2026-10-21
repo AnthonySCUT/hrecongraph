@@ -1,0 +1,535 @@
+{
+  "binding_protocol": "SemanticStateConstructor automatic paragraph bindings",
+  "natural_auto_bindings": {
+    "protocol": "fixed-context evidence retention and deterministic extractive probes",
+    "length_unit": "unicode_characters",
+    "latency_scope": "render_text only",
+    "timing_repeats": 3,
+    "summary": {
+      "full_source": {
+        "case_count": 16,
+        "total_chars": 4939,
+        "total_tokens": 1227,
+        "evidence_retention": 1.0,
+        "complete_cases": 16,
+        "extractive_probe_correct": 16,
+        "render_median_ms": 0.020550003682728857,
+        "dimensions": {
+          "fact": {
+            "complete": 4,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 4,
+            "count": 4
+          },
+          "causal": {
+            "complete": 4,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.0
+      },
+      "evidence_bundle": {
+        "case_count": 16,
+        "total_chars": 2591,
+        "total_tokens": 642,
+        "evidence_retention": 0.7428571428571429,
+        "complete_cases": 7,
+        "extractive_probe_correct": 8,
+        "render_median_ms": 0.03565000224625692,
+        "dimensions": {
+          "fact": {
+            "complete": 1,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 1,
+            "count": 4
+          },
+          "causal": {
+            "complete": 1,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.4768
+      }
+    },
+    "rows": [
+      {
+        "case_id": "fact-inline",
+        "dimension": "fact",
+        "mode": "full_source",
+        "chars": 251,
+        "tokens": 62,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "render_median_ms": 0.023899992811493576
+      },
+      {
+        "case_id": "fact-inline",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "chars": 126,
+        "tokens": 31,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "render_median_ms": 0.033899996196851134
+      },
+      {
+        "case_id": "fact-linked",
+        "dimension": "fact",
+        "mode": "full_source",
+        "chars": 258,
+        "tokens": 64,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "render_median_ms": 0.019499988411553204
+      },
+      {
+        "case_id": "fact-linked",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "chars": 99,
+        "tokens": 24,
+        "required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The cache operator is Team Blue."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.031200004741549492
+      },
+      {
+        "case_id": "fact-unanchored",
+        "dimension": "fact",
+        "mode": "full_source",
+        "chars": 262,
+        "tokens": 65,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "render_median_ms": 0.019500002963468432
+      },
+      {
+        "case_id": "fact-unanchored",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "chars": 103,
+        "tokens": 25,
+        "required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The cache operator is Team Blue."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.029300004825927317
+      },
+      {
+        "case_id": "fact-paraphrase",
+        "dimension": "fact",
+        "mode": "full_source",
+        "chars": 273,
+        "tokens": 68,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "render_median_ms": 0.018400009139440954
+      },
+      {
+        "case_id": "fact-paraphrase",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "chars": 120,
+        "tokens": 30,
+        "required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The operator is Team Blue."
+        ],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "render_median_ms": 0.06409999332390726
+      },
+      {
+        "case_id": "constraint-inline",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "chars": 327,
+        "tokens": 81,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.025000001187436283
+      },
+      {
+        "case_id": "constraint-inline",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "chars": 202,
+        "tokens": 50,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.03759999526664615
+      },
+      {
+        "case_id": "constraint-linked",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "chars": 350,
+        "tokens": 87,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.024499997380189598
+      },
+      {
+        "case_id": "constraint-linked",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "chars": 225,
+        "tokens": 56,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.03840000135824084
+      },
+      {
+        "case_id": "constraint-unanchored",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "chars": 358,
+        "tokens": 89,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.02340000355616212
+      },
+      {
+        "case_id": "constraint-unanchored",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "chars": 233,
+        "tokens": 58,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.037699996028095484
+      },
+      {
+        "case_id": "constraint-paraphrase",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "chars": 363,
+        "tokens": 90,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.023200002033263445
+      },
+      {
+        "case_id": "constraint-paraphrase",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "chars": 238,
+        "tokens": 59,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "render_median_ms": 0.05819999205414206
+      },
+      {
+        "case_id": "path-inline",
+        "dimension": "path",
+        "mode": "full_source",
+        "chars": 328,
+        "tokens": 82,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "render_median_ms": 0.01789999078027904
+      },
+      {
+        "case_id": "path-inline",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "chars": 203,
+        "tokens": 50,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "render_median_ms": 0.03189999551977962
+      },
+      {
+        "case_id": "path-linked",
+        "dimension": "path",
+        "mode": "full_source",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "render_median_ms": 0.02130000211764127
+      },
+      {
+        "case_id": "path-linked",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "chars": 172,
+        "tokens": 43,
+        "required_count": 3,
+        "retained_count": 2,
+        "complete": false,
+        "missing": [
+          "The cache serves the dashboard"
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.03609999839682132
+      },
+      {
+        "case_id": "path-unanchored",
+        "dimension": "path",
+        "mode": "full_source",
+        "chars": 334,
+        "tokens": 83,
+        "required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "render_median_ms": 0.020799998310394585
+      },
+      {
+        "case_id": "path-unanchored",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "chars": 176,
+        "tokens": 44,
+        "required_count": 3,
+        "retained_count": 2,
+        "complete": false,
+        "missing": [
+          "The cache serves the dashboard"
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.035200006095692515
+      },
+      {
+        "case_id": "path-paraphrase",
+        "dimension": "path",
+        "mode": "full_source",
+        "chars": 331,
+        "tokens": 82,
+        "required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "render_median_ms": 0.02030000905506313
+      },
+      {
+        "case_id": "path-paraphrase",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "chars": 173,
+        "tokens": 43,
+        "required_count": 3,
+        "retained_count": 2,
+        "complete": false,
+        "missing": [
+          "The cache serves the dashboard"
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.055899989092722535
+      },
+      {
+        "case_id": "causal-inline",
+        "dimension": "causal",
+        "mode": "full_source",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "render_median_ms": 0.021200001356191933
+      },
+      {
+        "case_id": "causal-inline",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "chars": 205,
+        "tokens": 51,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "render_median_ms": 0.03310000465717167
+      },
+      {
+        "case_id": "causal-linked",
+        "dimension": "causal",
+        "mode": "full_source",
+        "chars": 277,
+        "tokens": 69,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "render_median_ms": 0.01930000144056976
+      },
+      {
+        "case_id": "causal-linked",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "chars": 101,
+        "tokens": 25,
+        "required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The reason is that the legacy client requires it."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.030499999411404133
+      },
+      {
+        "case_id": "causal-unanchored",
+        "dimension": "causal",
+        "mode": "full_source",
+        "chars": 281,
+        "tokens": 70,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "render_median_ms": 0.01820000761654228
+      },
+      {
+        "case_id": "causal-unanchored",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "chars": 105,
+        "tokens": 26,
+        "required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The reason is that the legacy client requires it."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.02819999644998461
+      },
+      {
+        "case_id": "causal-paraphrase",
+        "dimension": "causal",
+        "mode": "full_source",
+        "chars": 286,
+        "tokens": 71,
+        "required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "render_median_ms": 0.017700003809295595
+      },
+      {
+        "case_id": "causal-paraphrase",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "chars": 110,
+        "tokens": 27,
+        "required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The reason is that the legacy client requires it."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "render_median_ms": 0.04820000322069973
+      }
+    ]
+  }
+}

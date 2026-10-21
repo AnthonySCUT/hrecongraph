@@ -1,0 +1,219 @@
+diff --git a/h_recongraph/examples/evaluate_longmemeval_read.py b/h_recongraph/examples/evaluate_longmemeval_read.py
+index 5bd7979..3c88815 100644
+--- a/h_recongraph/examples/evaluate_longmemeval_read.py
++++ b/h_recongraph/examples/evaluate_longmemeval_read.py
+@@ -52,13 +52,27 @@ def hit_session_indexes(sessions: list[list[dict]], query: str) -> list[int]:
+     ]
+ 
+ 
+-async def build_context(case: dict) -> HierarchicalMemoryContext:
++def fact_turn_indexes(session: list[dict], query: str, *, max_anchors: int = 1) -> list[int]:
++    """Keep Top-1; admit Top-2 with half its score and two distinct content-word matches."""
++    ranker = MemoryUtilityRanker()
++    query_tokens = ranker.tokenize(query)
++    overlaps = [len(ranker.tokenize(turn_text(turn)) & query_tokens) for turn in session]
++    ranked = sorted(range(len(session)), key=lambda index: -overlaps[index])
++    selected = ranked[:1]
++    if max_anchors == 2 and len(ranked) > 1:
++        first, second = ranked[:2]
++        content_overlap = len(ranker.tokenize(session[second]['content']) & query_tokens)
++        if content_overlap >= 2 and overlaps[second] >= 0.5 * overlaps[first]:
++            selected.append(second)
++    return sorted(selected)
++
++
++async def build_context(case: dict, *, max_fact_anchors: int = 1) -> HierarchicalMemoryContext:
+     """Use only question/source text to build one fixed lexical graph adapter."""
+     now = utc_now()
+     writer = HReConGraphMemory()
+     episodes, edges, states = [], [], []
+     units, fact_indices = {}, {}
+-    ranker = MemoryUtilityRanker()
+     for session_index in hit_session_indexes(case['haystack_sessions'], case['question']):
+         session = case['haystack_sessions'][session_index]
+         memory = UnifiedMemoryUnit(
+@@ -78,24 +92,22 @@ async def build_context(case: dict) -> HierarchicalMemoryContext:
+             content=GraphitiMemoryStore(None)._episode_body(memory),
+             valid_at=now,
+         )
+-        turn_index = max(
+-            range(len(session)),
+-            key=lambda index: ranker.lexical_relevance(turn_text(session[index]), case['question']),
+-        )
++        selected = fact_turn_indexes(session, case['question'], max_anchors=max_fact_anchors)
+         units[episode.uuid] = [turn_text(message) for message in session]
+-        fact_indices[episode.uuid] = [turn_index]
+-        edges.append(
+-            EntityEdge(
+-                uuid=f'{episode.uuid}-edge',
+-                created_at=now,
+-                group_id='user:eval',
+-                source_node_uuid=f'{episode.uuid}-source',
+-                target_node_uuid=f'{episode.uuid}-target',
+-                name='RELEVANT_TURN',
+-                fact=turn_text(session[turn_index]),
+-                episodes=[episode.uuid],
++        fact_indices[episode.uuid] = selected
++        for anchor_index, turn_index in enumerate(selected):
++            edges.append(
++                EntityEdge(
++                    uuid=f'{episode.uuid}-edge' + (f'-{anchor_index}' if anchor_index else ''),
++                    created_at=now,
++                    group_id='user:eval',
++                    source_node_uuid=f'{episode.uuid}-source',
++                    target_node_uuid=f'{episode.uuid}-target',
++                    name='RELEVANT_TURN',
++                    fact=turn_text(session[turn_index]),
++                    episodes=[episode.uuid],
++                )
+             )
+-        )
+         episodes.append(episode)
+         states.append(writer.semantic_states[memory.semantic_state_id])
+     return HierarchicalMemoryContext(
+@@ -201,13 +213,17 @@ def loss_summary(rows: list[dict]) -> dict:
+ 
+ 
+ async def evaluate_cases(
+-    cases: list[dict[str, Any]], *, repeats: int = 3, window_sizes: tuple[int, ...] = (0,)
++    cases: list[dict[str, Any]],
++    *,
++    repeats: int = 3,
++    window_sizes: tuple[int, ...] = (0,),
++    max_fact_anchors: int = 1,
+ ) -> dict:
+     rows, fixed_retrieval = [], []
+     configs = [('full_source', 0)] + [('evidence_bundle', size) for size in window_sizes]
+     names = ['full_source'] + [f'evidence_bundle_w{size}' for size in window_sizes]
+     for case in cases:
+-        context = await build_context(case)
++        context = await build_context(case, max_fact_anchors=max_fact_anchors)
+         hit_indexes = hit_session_indexes(case['haystack_sessions'], case['question'])
+         # All four assemblies finish before answer/has_answer labels are read.
+         rendered = {
+@@ -227,7 +243,16 @@ async def evaluate_cases(
+                         'episode_id': episode.uuid,
+                         'turn_count': len(context.source_units[episode.uuid]),
+                         'graph_fact_turn_indices': context.source_fact_indices[episode.uuid],
+-                        'graph_fact': edge.fact,
++                        'graph_fact': next(
++                            edge.fact
++                            for edge in context.graph_edges
++                            if episode.uuid in edge.episodes
++                        ),
++                        'graph_facts': [
++                            edge.fact
++                            for edge in context.graph_edges
++                            if episode.uuid in edge.episodes
++                        ],
+                         'source_span_fields': dict(
+                             Counter(span.field for span in state.source_spans)
+                         ),
+@@ -237,10 +262,9 @@ async def evaluate_cases(
+                             ).encode()
+                         ).hexdigest(),
+                     }
+-                    for session_index, episode, edge, state in zip(
++                    for session_index, episode, state in zip(
+                         hit_indexes,
+                         context.source_episodes,
+-                        context.graph_edges,
+                         context.semantic_states,
+                         strict=True,
+                     )
+@@ -320,7 +344,12 @@ async def evaluate_cases(
+     return {
+         'protocol': 'fixed retrieval; original message-index evidence/window ablation',
+         'experiment_role': 'configuration exploration on oracle 500',
+-        'selection': 'all positive lexical-overlap sessions; one maximum-overlap turn per session; ties use earliest turn',
++        'selection': 'all positive lexical-overlap sessions; Top-1 per session; optional Top-2 with relative score >= 0.5 and >= 2 distinct content-word matches; ties use earliest turn',
++        'anchor_policy': {
++            'max_fact_anchors': max_fact_anchors,
++            'second_min_score_ratio': 0.5,
++            'second_min_overlap_words': 2,
++        },
+         'labels': 'answer and has_answer used after all configurations have been assembled',
+         'index_unit': 'zero-based original session and message indices; internal newlines stay in the same turn',
+         'stage_scope': 'assembly_indexes and stage costs describe evidence assembly; rendered_source_indices describe the selected configuration',
+@@ -345,12 +374,14 @@ async def main() -> None:
+     parser.add_argument('--offset', type=int, default=0)
+     parser.add_argument('--limit', type=int)
+     parser.add_argument('--repeats', type=int, default=3)
++    parser.add_argument('--max-fact-anchors', type=int, choices=(1, 2), default=1)
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     result = await evaluate_cases(
+         load_cases(args.data, offset=args.offset, limit=args.limit),
+         repeats=args.repeats,
+         window_sizes=(0, 1, 2),
++        max_fact_anchors=args.max_fact_anchors,
+     )
+     result['dataset'] = {
+         'path': str(args.data),
+diff --git a/tests/test_h_recongraph_longmemeval.py b/tests/test_h_recongraph_longmemeval.py
+index 592ca9d..25f6f18 100644
+--- a/tests/test_h_recongraph_longmemeval.py
++++ b/tests/test_h_recongraph_longmemeval.py
+@@ -5,6 +5,7 @@ import pytest
+ from h_recongraph.examples.evaluate_longmemeval_read import (
+     build_context,
+     evaluate_cases,
++    fact_turn_indexes,
+     hit_session_indexes,
+     load_cases,
+ )
+@@ -72,3 +73,54 @@ def test_load_cases_supports_offset_and_limit(tmp_path):
+     path = tmp_path / 'cases.json'
+     path.write_text(json.dumps([{'id': i} for i in range(4)]), encoding='utf-8')
+     assert load_cases(path, offset=1, limit=2) == [{'id': 1}, {'id': 2}]
++
++
++def test_conditional_second_anchor_requires_ratio_and_two_distinct_matches():
++    query = 'Atlas launch date location budget weather organizer'
++    session = [
++        {'role': 'user', 'content': 'Atlas launch date location.'},
++        {'role': 'user', 'content': 'Budget and weather.'},
++        {'role': 'user', 'content': 'Tea and coffee.'},
++    ]
++    assert fact_turn_indexes(session, query) == [0]
++    assert fact_turn_indexes(session, query, max_anchors=2) == [0, 1]
++    session[0]['content'] += ' Budget weather.'
++    assert fact_turn_indexes(session, query, max_anchors=2) == [0]
++    session[0]['content'] = 'Atlas launch.'
++    session[1]['content'] = 'Budget budget budget.'
++    assert fact_turn_indexes(session, query, max_anchors=2) == [0]
++    session[1]['content'] = 'Atlas.'
++    assert fact_turn_indexes(session, 'user Atlas launch', max_anchors=2) == [0]
++
++
++def test_second_anchor_ties_use_earliest_turn_and_render_in_source_order():
++    session = [
++        {'role': 'user', 'content': 'Atlas location.'},
++        {'role': 'user', 'content': 'Atlas launch location.'},
++        {'role': 'user', 'content': 'Atlas location.'},
++    ]
++    assert fact_turn_indexes(session, 'Atlas launch location', max_anchors=2) == [0, 1]
++
++
++@pytest.mark.asyncio
++async def test_conditional_anchors_keep_session_bindings_and_ignore_answer_labels():
++    case = _case()
++    case['question'] = 'Where is the telescope stored at the observatory?'
++    case['haystack_sessions'][1][1]['content'] = 'Telescope observatory mounts are available.'
++    context = await build_context(case, max_fact_anchors=2)
++    assert list(context.source_fact_indices.values()) == [[0, 1]]
++    assert len(context.graph_edges) == 2
++    result = await evaluate_cases([case], repeats=1, window_sizes=(0, 1, 2), max_fact_anchors=2)
++    binding = result['fixed_retrieval'][0]['source_bindings'][0]
++    assert binding['session_index'] == 1
++    assert len(binding['graph_facts']) == 2
++    assert result['rows'][1]['assembly_indexes'][0]['fact'] == [0, 1]
++    del case['answer']
++    for session in case['haystack_sessions']:
++        for turn in session:
++            del turn['has_answer']
++    unlabeled = await build_context(case, max_fact_anchors=2)
++    assert [edge.fact for edge in unlabeled.graph_edges] == [
++        edge.fact for edge in context.graph_edges
++    ]
++    assert unlabeled.source_fact_indices == context.source_fact_indices

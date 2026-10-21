@@ -10,6 +10,8 @@
 - `evaluate_read_context.py`：逐题运行两种读取模式并汇总必要证据保留、完整样本、答案探针、字符数和渲染时间。
 - `test_h_recongraph_retrieval.py`：验证对照统计与增加跨段来源锚点后的变化。
 
+[完整逐文件报告](../details/07-忠实性与读取成本对照逐文件交付.md)，含代码对比、示例与实验分析。
+
 ## 验证结果
 
 | 指标 | `full_source` | `evidence_bundle` |

@@ -1,0 +1,525 @@
+{
+  "dataset_sha256": "821a2034d219ab45846873dd14c14f12cfe7776e73527a483f9dac095d38620c",
+  "case_count": 500,
+  "row_count": 7500,
+  "verification": "all 7500 rows checked against rendered source indices; legacy rows reproduce Batch 12; source bindings match across anchor conditions",
+  "conditions": {
+    "top1_full_source": {
+      "mean_context_chars": 28987.04,
+      "mean_context_tokens": 7246.394,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1.0,
+        "micro": 1.0,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.031049989047460258,
+      "token_reduction_vs_clean_top1_full_source": -0.08100406480778677
+    },
+    "top1_evidence_bundle_w0": {
+      "mean_context_chars": 24738.678,
+      "mean_context_tokens": 6184.294,
+      "overall_recall": {
+        "macro": 0.7720250521920669,
+        "micro": 0.7544642857142857,
+        "retained": 676,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.7814035087719299,
+        "micro": 0.7681818181818182,
+        "retained": 676,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 301,
+      "complete_rate": 0.6283924843423799,
+      "answer_visible_rate": 0.446,
+      "median_render_ms": 1.4433000033022836,
+      "token_reduction_vs_clean_top1_full_source": 0.07743810894544134
+    },
+    "top1_evidence_bundle_w1": {
+      "mean_context_chars": 26426.654,
+      "mean_context_tokens": 6606.278,
+      "overall_recall": {
+        "macro": 0.9770702853166319,
+        "micro": 0.9743303571428571,
+        "retained": 873,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9898245614035087,
+        "micro": 0.9920454545454546,
+        "retained": 873,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 462,
+      "complete_rate": 0.964509394572025,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 1.4374000020325184,
+      "token_reduction_vs_clean_top1_full_source": 0.014487292403607022
+    },
+    "top1_evidence_bundle_w2": {
+      "mean_context_chars": 26774.67,
+      "mean_context_tokens": 6693.296,
+      "overall_recall": {
+        "macro": 0.9829853862212944,
+        "micro": 0.9787946428571429,
+        "retained": 877,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9957894736842106,
+        "micro": 0.9965909090909091,
+        "retained": 877,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 466,
+      "complete_rate": 0.9728601252609603,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 1.4295000000856817,
+      "token_reduction_vs_clean_top1_full_source": 0.0015061031788086154
+    },
+    "top1_full_source_dedup": {
+      "mean_context_chars": 26815.07,
+      "mean_context_tokens": 6703.392,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1.0,
+        "micro": 1.0,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.02915000368375331,
+      "token_reduction_vs_clean_top1_full_source": 0.0
+    },
+    "top1_legacy_w1": {
+      "mean_context_chars": 28598.624,
+      "mean_context_tokens": 7149.284,
+      "overall_recall": {
+        "macro": 0.9770702853166319,
+        "micro": 0.9743303571428571,
+        "retained": 873,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9898245614035087,
+        "micro": 0.9920454545454546,
+        "retained": 873,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 462,
+      "complete_rate": 0.964509394572025,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 1.4406499976757914,
+      "token_reduction_vs_clean_top1_full_source": -0.06651736911700823
+    },
+    "top1_fact_window_w1": {
+      "mean_context_chars": 6247.07,
+      "mean_context_tokens": 1561.394,
+      "overall_recall": {
+        "macro": 0.6900487125956855,
+        "micro": 0.6573660714285714,
+        "retained": 589,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.6983859649122807,
+        "micro": 0.6693181818181818,
+        "retained": 589,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 262,
+      "complete_rate": 0.5469728601252609,
+      "answer_visible_rate": 0.388,
+      "median_render_ms": 1.3554499892052263,
+      "token_reduction_vs_clean_top1_full_source": 0.7670740425145957
+    },
+    "top1_all_dependencies_fact_window_w1": {
+      "mean_context_chars": 25027.012,
+      "mean_context_tokens": 6256.366,
+      "overall_recall": {
+        "macro": 0.8516005567153793,
+        "micro": 0.8348214285714286,
+        "retained": 748,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.8616491228070176,
+        "micro": 0.85,
+        "retained": 748,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 360,
+      "complete_rate": 0.7515657620041754,
+      "answer_visible_rate": 0.45,
+      "median_render_ms": 1.361000002361834,
+      "token_reduction_vs_clean_top1_full_source": 0.06668653720385143
+    },
+    "top1_lexical_fact_window_w0": {
+      "mean_context_chars": 24644.762,
+      "mean_context_tokens": 6160.816,
+      "overall_recall": {
+        "macro": 0.7713291579679888,
+        "micro": 0.7533482142857143,
+        "retained": 675,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.7807017543859649,
+        "micro": 0.7670454545454546,
+        "retained": 675,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 301,
+      "complete_rate": 0.6283924843423799,
+      "answer_visible_rate": 0.446,
+      "median_render_ms": 2.792550003505312,
+      "token_reduction_vs_clean_top1_full_source": 0.0809405148915654
+    },
+    "top1_lexical_fact_window_w1": {
+      "mean_context_chars": 24936.274,
+      "mean_context_tokens": 6233.678,
+      "overall_recall": {
+        "macro": 0.8509046624913014,
+        "micro": 0.8337053571428571,
+        "retained": 747,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.8609473684210527,
+        "micro": 0.8488636363636364,
+        "retained": 747,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 359,
+      "complete_rate": 0.7494780793319415,
+      "answer_visible_rate": 0.45,
+      "median_render_ms": 2.824700000928715,
+      "token_reduction_vs_clean_top1_full_source": 0.0700710923663721
+    },
+    "top1_lexical_fact_window_w2": {
+      "mean_context_chars": 25255.726,
+      "mean_context_tokens": 6313.552,
+      "overall_recall": {
+        "macro": 0.8755045233124565,
+        "micro": 0.8582589285714286,
+        "retained": 769,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.8869122807017544,
+        "micro": 0.8738636363636364,
+        "retained": 769,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 376,
+      "complete_rate": 0.7849686847599165,
+      "answer_visible_rate": 0.45,
+      "median_render_ms": 2.758399990852922,
+      "token_reduction_vs_clean_top1_full_source": 0.05815563225304443
+    },
+    "conditional_top2_full_source": {
+      "mean_context_chars": 26815.266,
+      "mean_context_tokens": 6703.442,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1.0,
+        "micro": 1.0,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.04075001925230026,
+      "token_reduction_vs_clean_top1_full_source": -7.458910354696258e-06
+    },
+    "conditional_top2_evidence_bundle_w0": {
+      "mean_context_chars": 24865.796,
+      "mean_context_tokens": 6216.07,
+      "overall_recall": {
+        "macro": 0.8320459290187892,
+        "micro": 0.8147321428571429,
+        "retained": 730,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.8419298245614035,
+        "micro": 0.8295454545454546,
+        "retained": 730,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 347,
+      "complete_rate": 0.7244258872651357,
+      "answer_visible_rate": 0.458,
+      "median_render_ms": 1.3692499924218282,
+      "token_reduction_vs_clean_top1_full_source": 0.07269782223686161
+    },
+    "conditional_top2_evidence_bundle_w1": {
+      "mean_context_chars": 26474.164,
+      "mean_context_tokens": 6618.168,
+      "overall_recall": {
+        "macro": 0.9822894919972164,
+        "micro": 0.9787946428571429,
+        "retained": 877,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9950877192982456,
+        "micro": 0.9965909090909091,
+        "retained": 877,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 466,
+      "complete_rate": 0.9728601252609603,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 1.3379500014707446,
+      "token_reduction_vs_clean_top1_full_source": 0.012713563521273952
+    },
+    "conditional_top2_evidence_bundle_w2": {
+      "mean_context_chars": 26779.566,
+      "mean_context_tokens": 6694.522,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1.0,
+        "micro": 1.0,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 1.3482999929692596,
+      "token_reduction_vs_clean_top1_full_source": 0.0013232106969128798
+    }
+  },
+  "joint_pareto": {
+    "overall_recall": {
+      "micro": {
+        "frontier": [
+          "top1_evidence_bundle_w0",
+          "top1_evidence_bundle_w1",
+          "top1_fact_window_w1",
+          "top1_all_dependencies_fact_window_w1",
+          "top1_lexical_fact_window_w0",
+          "top1_lexical_fact_window_w1",
+          "top1_lexical_fact_window_w2",
+          "conditional_top2_evidence_bundle_w0",
+          "conditional_top2_evidence_bundle_w1",
+          "conditional_top2_evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "top1_evidence_bundle_w1",
+          "0.95": "top1_evidence_bundle_w1"
+        }
+      },
+      "macro": {
+        "frontier": [
+          "top1_evidence_bundle_w0",
+          "top1_evidence_bundle_w1",
+          "top1_evidence_bundle_w2",
+          "top1_fact_window_w1",
+          "top1_all_dependencies_fact_window_w1",
+          "top1_lexical_fact_window_w0",
+          "top1_lexical_fact_window_w1",
+          "top1_lexical_fact_window_w2",
+          "conditional_top2_evidence_bundle_w0",
+          "conditional_top2_evidence_bundle_w1",
+          "conditional_top2_evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "top1_evidence_bundle_w1",
+          "0.95": "top1_evidence_bundle_w1"
+        }
+      }
+    },
+    "conditional_recall": {
+      "micro": {
+        "frontier": [
+          "top1_evidence_bundle_w0",
+          "top1_evidence_bundle_w1",
+          "top1_fact_window_w1",
+          "top1_all_dependencies_fact_window_w1",
+          "top1_lexical_fact_window_w0",
+          "top1_lexical_fact_window_w1",
+          "top1_lexical_fact_window_w2",
+          "conditional_top2_evidence_bundle_w0",
+          "conditional_top2_evidence_bundle_w1",
+          "conditional_top2_evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "top1_evidence_bundle_w1",
+          "0.95": "top1_evidence_bundle_w1"
+        }
+      },
+      "macro": {
+        "frontier": [
+          "top1_evidence_bundle_w0",
+          "top1_evidence_bundle_w1",
+          "top1_evidence_bundle_w2",
+          "top1_fact_window_w1",
+          "top1_all_dependencies_fact_window_w1",
+          "top1_lexical_fact_window_w0",
+          "top1_lexical_fact_window_w1",
+          "top1_lexical_fact_window_w2",
+          "conditional_top2_evidence_bundle_w0",
+          "conditional_top2_evidence_bundle_w1",
+          "conditional_top2_evidence_bundle_w2"
+        ],
+        "reference_lines": {
+          "0.9": "top1_evidence_bundle_w1",
+          "0.95": "top1_evidence_bundle_w1"
+        }
+      }
+    }
+  },
+  "source_loss_decomposition": {
+    "legacy_w1_retained": 873,
+    "fact_window_w1_retained": 589,
+    "lost_without_dependencies": 284,
+    "dependency_supports_outside_fact_window": 159,
+    "supports_reached_only_by_windows_around_dependencies": 125
+  },
+  "edge_reuse": {
+    "top1_w1_tokens_before": 7149.284,
+    "top1_w1_tokens_after": 6606.278,
+    "supports_before_and_after": 873,
+    "top2_w1_tokens_before": 7718.474,
+    "top2_w1_tokens_after": 6618.168,
+    "deduplicated_top2_extra_tokens_per_case": 11.889999999999418
+  },
+  "write_binding_marker_diagnostic": {
+    "constraint": {
+      "substring_bound_paragraphs": 16284,
+      "word_boundary_bound_paragraphs": 8573,
+      "substring_only_examples": [
+        {
+          "question_id": "gpt4_2655b836",
+          "session_index": 0,
+          "markers": [
+            "if"
+          ],
+          "text_excerpt": "assistant: I'm happy to help you with your question! However, I'm a large language model, I don't have personal experiences or knowledge of specific locations or businesses. I can provide some general advice and suggestions on how to find a good detailer in your area."
+        },
+        {
+          "question_id": "gpt4_2655b836",
+          "session_index": 0,
+          "markers": [
+            "if"
+          ],
+          "text_excerpt": "1. Online Reviews: Check review websites such as Yelp, Google Reviews, or Facebook Reviews to see what other customers have to say about their experiences with local detailers.\n2. Ask for Referrals: Ask friends, family, or coworkers who have had their cars detailed recently for recommendations.\n3. C"
+        },
+        {
+          "question_id": "gpt4_2655b836",
+          "session_index": 0,
+          "markers": [
+            "if"
+          ],
+          "text_excerpt": "Remember to also consider your car's specific needs, such as any special paint finishes or requirements."
+        }
+      ]
+    },
+    "path": {
+      "substring_bound_paragraphs": 1998,
+      "word_boundary_bound_paragraphs": 1459,
+      "substring_only_examples": [
+        {
+          "question_id": "gpt4_2487a7cb",
+          "session_index": 0,
+          "markers": [
+            "through"
+          ],
+          "text_excerpt": "1. **Remove social media apps from your work desk**:\n\t* Consider deleting social media apps from your phone or moving them to a folder on your home screen where they're harder to access.\n\t* Use a browser extension like uBlock Origin or News Feed Eradicator to remove social media feeds from your brow"
+        },
+        {
+          "question_id": "gpt4_2487a7cb",
+          "session_index": 1,
+          "markers": [
+            "via"
+          ],
+          "text_excerpt": "Given your Python background and focus on ease of use and customization, I think both Tableau and Power BI are viable options. If you're already familiar with Python, you might find Tableau's Python API more intuitive and easier to use. However, Power BI's Python API is also well-documented and wide"
+        },
+        {
+          "question_id": "gpt4_2312f94c",
+          "session_index": 0,
+          "markers": [
+            "through"
+          ],
+          "text_excerpt": "But first, congratulations on your new Samsung Galaxy S22! It's great to hear you're loving it so far. To ensure your phone stays charged throughout your trip, consider packing a portable power bank, a car charger (if you plan to rent a car), and a waterproof phone case to protect your device from w"
+        }
+      ]
+    },
+    "causal": {
+      "substring_bound_paragraphs": 128,
+      "word_boundary_bound_paragraphs": 128,
+      "substring_only_examples": []
+    }
+  },
+  "lexical_gate_far_loss_examples": [
+    {
+      "question_id": "gpt4_e061b84f",
+      "session_index": 0,
+      "turn_index": 0,
+      "question": "What is the order of the three sports events I participated in during the past month, from earliest to latest?",
+      "selected_fact": "user: That's helpful, thanks! I've been thinking of exploring the waterfront path, but I was wondering if you know if it's open to cyclists during the week, or is it more of a weekend thing?",
+      "support_turn": "I'm looking for some new bike routes to try out. Do you have any suggestions for trails around the city? By the way, I just completed the Spring Sprint Triathlon today, which included a 20K bike ride, and I'm itching to get back on my bike."
+    }
+  ]
+}

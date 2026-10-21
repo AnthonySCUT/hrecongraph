@@ -1,0 +1,211 @@
+diff --git a/h_recongraph/memory/relinking.py b/h_recongraph/memory/relinking.py
+--- a/h_recongraph/memory/relinking.py
++++ b/h_recongraph/memory/relinking.py
+@@ -1,6 +1,7 @@
+ """Query-time cross-layer relinking and context rendering."""
+ 
+ import json
++import re
+ from typing import Any, Literal
+ 
+ from pydantic import BaseModel, Field
+@@ -23,15 +24,32 @@
+     evidence_trace: list[str] = Field(default_factory=list)
+     source_episodes: list[EpisodicNode] = Field(default_factory=list)
+     context_text: str = ''
++    source_mode: Literal['full_source', 'evidence_bundle'] = 'full_source'
+ 
+     model_config = {'arbitrary_types_allowed': True}
+ 
++    def render_text(
++        self, source_mode: Literal['full_source', 'evidence_bundle'] | None = None
++    ) -> str:
+-    def render_text(self) -> str:
+         """Render the selected memory evidence as compact text for a downstream reader."""
++        source_mode = source_mode or self.source_mode
++        sources = [
++            (
++                episode.uuid,
++                self._source_bundle(episode)
++                if source_mode == 'evidence_bundle'
++                else self._source_text(episode.content),
++            )
++            for episode in self.source_episodes
++        ]
+         blocks: list[str] = []
+ 
+         for memory in self.instant_memories:
+             if memory.raw_content:
++                if source_mode == 'evidence_bundle' and any(
++                    memory.raw_content == text for _, text in sources
++                ):
++                    continue
+                 blocks.append(f'[M0] {memory.raw_content}')
+ 
+         for state in self.semantic_states:
+@@ -61,13 +79,33 @@
+             target = getattr(edge, 'target_node_uuid', '?')
+             blocks.append(f'[EDGE] {source} -> {target}: {fact}')
+ 
++        for episode_id, content in sources:
+-        for episode in self.source_episodes:
+-            content = self._source_text(episode.content)
+             if content:
++                blocks.append(f'[SOURCE {episode_id}] {content}')
+-                blocks.append(f'[SOURCE {episode.uuid}] {content}')
+ 
+         return '\n'.join(dict.fromkeys(blocks))
+ 
++    def _source_bundle(self, episode: EpisodicNode) -> str:
++        """Keep complete paragraphs anchored by retrieved facts and semantic evidence."""
++        content = self._source_text(episode.content)
++        facts = [edge.fact for edge in self.graph_edges if episode.uuid in edge.episodes]
++        if not facts or any(fact not in content for fact in facts):
++            return content
++        anchors = [
++            *facts,
++            *(
++                span.text
++                for state in self.semantic_states
++                for span in state.source_spans
++                if span.text and span.text in content
++            ),
++        ]
++        return '\n\n'.join(
++            paragraph
++            for paragraph in re.split(r'\n\s*\n', content)
++            if any(anchor in paragraph for anchor in anchors)
++        )
++
+     @staticmethod
+     def _source_text(content: str) -> str:
+         try:
+diff --git a/h_recongraph/memory/manager.py b/h_recongraph/memory/manager.py
+--- a/h_recongraph/memory/manager.py
++++ b/h_recongraph/memory/manager.py
+@@ -2,7 +2,7 @@
+ 
+ import json
+ import re
++from typing import Any, Literal
+-from typing import Any
+ 
+ from graphiti_core.utils.datetime_utils import ensure_utc
+ from h_recongraph.config.memory_policy import MemoryPolicy
+@@ -102,6 +102,8 @@
+         query: str,
+         user_id: str,
+         session_id: str | None = None,
++        *,
++        source_mode: Literal['full_source', 'evidence_bundle'] = 'full_source',
+     ) -> HierarchicalMemoryContext:
+         """Retrieve and relink M0/M1/M2 memories for a query-specific evidence graph."""
+ 
+@@ -176,6 +178,7 @@
+             semantic_states=[state for _, state in selected],
+         )
+         context.source_episodes = source_episodes
++        context.source_mode = source_mode
+         context.context_text = context.render_text()
+         returned_state_ids = {state.state_id for state in context.semantic_states}
+         accessed = {
+diff --git a/tests/test_h_recongraph_retrieval.py b/tests/test_h_recongraph_retrieval.py
+--- a/tests/test_h_recongraph_retrieval.py
++++ b/tests/test_h_recongraph_retrieval.py
+@@ -12,7 +12,9 @@
+ from h_recongraph import HReConGraphMemory, MemoryPolicy
+ from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
+ from h_recongraph.memory.ranker import MemoryUtilityRanker
++from h_recongraph.memory.relinking import HierarchicalMemoryContext
++from h_recongraph.schemas.memory_unit import GraphBinding, SourceSpan, UnifiedMemoryUnit
++from h_recongraph.schemas.semantic_state import MemorySemanticState
+-from h_recongraph.schemas.memory_unit import GraphBinding, UnifiedMemoryUnit
+ 
+ 
+ class SearchGraphiti:
+@@ -1108,3 +1110,85 @@
+     context = await controller.retrieve('current project', user_id='u1', session_id='s1')
+ 
+     assert context.context_text.startswith('[M0] current project deadline')
++
++
++def test_evidence_bundle_preserves_facts_conditions_paths_and_causes():
++    paragraphs = [
++        'Only during the October trial, Project A uses Redis.',
++        'Redis serves the cache. The cache serves the dashboard.',
++        'Because the legacy client requires it, the Redis choice is temporary.',
++        'The office cafeteria serves lunch at noon.',
++    ]
++    source = source_episode('ep-bundle', '\n\n'.join(paragraphs))
++    facts = ['Project A uses Redis', 'Redis serves the cache', 'The cache serves the dashboard']
++    edges = [source_edge([source.uuid], uuid=f'edge-{i}') for i in range(len(facts))]
++    for edge, fact in zip(edges, facts, strict=True):
++        edge.fact = fact
++    state = MemorySemanticState(
++        edge_or_subgraph_id='stm-bundle',
++        cause='the legacy client requires it',
++        source_spans=[SourceSpan(evidence_id='ev-bundle', text=paragraphs[2], field='cause')],
++        state_type='evidence_supported',
++    )
++    context = HierarchicalMemoryContext(
++        query='Why does Project A use Redis, and what does it serve?',
++        selected_layers=['M1'],
++        graph_edges=edges,
++        semantic_states=[state],
++        source_episodes=[source, source],
++    )
++
++    full = context.render_text('full_source')
++    bundle = context.render_text('evidence_bundle')
++
++    assert all(paragraph in bundle for paragraph in paragraphs[:3])
++    assert paragraphs[3] in full and paragraphs[3] not in bundle
++    assert bundle.count('[SOURCE ep-bundle]') == 1
++    assert len(bundle) < len(full)
++    assert source.content == '\n\n'.join(paragraphs)
++
++
++def test_evidence_bundle_keeps_full_source_for_paraphrased_relations():
++    text = 'Project A relies on the Redis service.\n\nThis applies only in October.'
++    source = source_episode('ep-paraphrase', text)
++    context = HierarchicalMemoryContext(
++        query='Project A storage',
++        selected_layers=['M1'],
++        graph_edges=[source_edge([source.uuid])],
++        source_episodes=[source],
++    )
++
++    assert context.render_text('evidence_bundle') == context.render_text('full_source')
++    assert text in context.render_text('evidence_bundle')
++
++
++def test_evidence_bundle_shares_identical_m0_and_source_text():
++    text = 'Project A uses Redis.'
++    source = source_episode('ep-shared', text)
++    context = HierarchicalMemoryContext(
++        query='Project A',
++        selected_layers=['M0', 'M1'],
++        instant_memories=[UnifiedMemoryUnit(user_id='u1', layer='M0', raw_content=text)],
++        graph_edges=[source_edge([source.uuid])],
++        source_episodes=[source],
++    )
++
++    assert '[M0]' in context.render_text('full_source')
++    assert '[M0]' not in context.render_text('evidence_bundle')
++    assert f'[SOURCE {source.uuid}] {text}' in context.render_text('evidence_bundle')
++
++
++@pytest.mark.asyncio
++async def test_retrieve_exposes_evidence_bundle_mode_and_preserves_full_sources():
++    _, source = enveloped_source()
++    body = json.loads(source.content)
++    body['content'] += '\n\nOffice lunch is at noon.'
++    source.content = json.dumps(body)
++    controller = HReConGraphMemory(SearchGraphiti([source_edge([source.uuid])], [source]))
++
++    context = await controller.retrieve('Project A', user_id='u1', source_mode='evidence_bundle')
++
++    assert context.source_mode == 'evidence_bundle'
++    assert context.context_text == context.render_text()
++    assert 'Office lunch' not in context.context_text
++    assert 'Office lunch' in context.source_episodes[0].content

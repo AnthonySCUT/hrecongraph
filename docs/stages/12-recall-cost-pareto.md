@@ -10,6 +10,8 @@
 - `evaluate_longmemeval_read.py`：对 Oracle 500 题输出逐题索引、题型统计、双召回口径及 Pareto 分析。
 - `evaluate_read_context.py`：对 16 个机制样本比较自然绑定与显式绑定。
 
+[完整逐文件报告](../details/12-证据裁剪召回成本消融与Pareto探索逐文件交付.md)，含代码对比、示例与实验分析。
+
 ## 验证结果
 
 LongMemEval Oracle 500 题，479 题有支持轮次标注，共 896 条：

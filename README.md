@@ -34,11 +34,11 @@
 | 08 | 记忆束局部更新与改写裁剪 | 回归：121 passed；完整绑定证据保留 100%，减字 43.00% | [08 局部更新](docs/stages/08-local-updates.md) |
 | 09 | 连续更新与增量记忆束 | 回归：129 passed；changed、kept、四维证据均 100% | [09 连续更新](docs/stages/09-continuous-updates.md) |
 | 10 | 自然对话四维证据绑定 | 回归：133 passed；自然锚定、恢复与同源去重通过 | [10 自然证据绑定](docs/stages/10-natural-evidence.md) |
-| 11 | LongMemEval 读取成本配对 | 回归：137 passed；Oracle 500 题 Token 减少 38.46%，证据轮次保留 75.64% | [11 LongMemEval 配对](docs/stages/11-longmemeval-pairing.md) |
+| 11 | LongMemEval 读取成本配对 | 回归：137 passed；Token 减少 38.46%，历史按题平均召回 75.64% | [11 LongMemEval 配对](docs/stages/11-longmemeval-pairing.md) |
 | 12 | 证据召回、窗口与成本 Pareto 消融 | 回归：142 passed；Oracle 500 题，`w=1` 召回 97.43% | [12 召回成本消融](docs/stages/12-recall-cost-pareto.md) |
 | 13 | 重复渲染修复、依赖作用域消融 | 回归：149 passed；Oracle 500 题，去重 `w=1` 召回 97.43% | [13 重复渲染与依赖消融](docs/stages/13-rendering-dependency-ablation.md) |
 
-01–13 阶段说明均可从本仓库 `docs/stages/` 访问。06–13 阶段的逐文件差异与逐题实验 JSON 保存在逐代码审核工作副本。
+01–13 阶段说明均可从本仓库 `docs/stages/` 访问。06–13 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
 
 ## 第 13 阶段读取结果
 
@@ -50,7 +50,7 @@
 | 证据束 `w=1` | 6,606.28 | 873 / 896 | 97.43% |
 | 证据束 `w=2` | 6,693.30 | 877 / 896 | 97.88% |
 
-`w=1` 相较历史重复渲染配置平均减少 543.01 Token（7.60%），保留 873 条支持轮次；相较去重全文减少 1.45%。机制与汇总结果见[第 13 阶段说明](docs/stages/13-rendering-dependency-ablation.md)，逐题 JSON 和题型统计保存在逐代码审核工作副本。
+`w=1` 相较历史重复渲染配置平均减少 543.01 Token（7.60%），保留 873 条支持轮次；相较去重全文减少 1.45%。机制与汇总结果见[第 13 阶段说明](docs/stages/13-rendering-dependency-ablation.md)，逐题 JSON 和题型统计见[实验附件索引](docs/results/README.md)。
 
 ## 安装与调用
 

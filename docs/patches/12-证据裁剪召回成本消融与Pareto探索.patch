@@ -1,0 +1,1185 @@
+diff --git a/h_recongraph/examples/evaluate_longmemeval_read.py b/h_recongraph/examples/evaluate_longmemeval_read.py
+index 07f0ad9..5bd7979 100644
+--- a/h_recongraph/examples/evaluate_longmemeval_read.py
++++ b/h_recongraph/examples/evaluate_longmemeval_read.py
+@@ -1,19 +1,28 @@
+-"""Pair LongMemEval full-source and evidence-bundle reading contexts."""
++"""Explore LongMemEval evidence-recall/token Pareto configurations on fixed retrieval."""
+ 
+ from __future__ import annotations
+ 
+ import argparse
+ import asyncio
+ import json
++from collections import Counter
++from hashlib import sha256
+ from pathlib import Path
+-from statistics import median
+-from time import perf_counter
+ from typing import Any
+ 
+ from graphiti_core.edges import EntityEdge
+-from graphiti_core.nodes import EntityNode, EpisodeType, EpisodicNode
++from graphiti_core.nodes import EpisodeType, EpisodicNode
+ from graphiti_core.utils.content_chunking import estimate_tokens
+ from graphiti_core.utils.datetime_utils import utc_now
++from h_recongraph.examples.evaluate_read_context import (
++    assembly_stages,
++    experiment_environment,
++    finalize_summaries,
++    measure_render,
++    pareto_analysis,
++    stage_source_texts,
++    summarize_rows,
++)
+ from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
+ from h_recongraph.memory.manager import HReConGraphMemory
+ from h_recongraph.memory.ranker import MemoryUtilityRanker
+@@ -21,57 +30,35 @@ from h_recongraph.memory.relinking import HierarchicalMemoryContext
+ from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+ 
+ 
+-def load_cases(
+-    path: str | Path, *, offset: int = 0, limit: int | None = None
+-) -> list[dict[str, Any]]:
+-    """Load a deterministic LongMemEval slice."""
++def load_cases(path: str | Path, *, offset: int = 0, limit: int | None = None) -> list[dict]:
+     cases = json.loads(Path(path).read_text(encoding='utf-8'))
+-    end = None if limit is None else offset + limit
+-    return cases[offset:end]
++    return cases[offset : None if limit is None else offset + limit]
+ 
+ 
+-def turn_text(turn: dict[str, Any]) -> str:
++def turn_text(turn: dict) -> str:
+     return f'{turn["role"]}: {turn["content"]}'
+ 
+ 
+-def session_text(session: list[dict[str, Any]]) -> str:
+-    """Flatten one session into turn-level paragraphs."""
++def session_text(session: list[dict]) -> str:
+     return '\n\n'.join(turn_text(turn) for turn in session)
+ 
+ 
+-def hit_session_indexes(sessions: list[list[dict[str, Any]]], query: str) -> list[int]:
+-    """Return all query-related sessions in their original order."""
++def hit_session_indexes(sessions: list[list[dict]], query: str) -> list[int]:
+     ranker = MemoryUtilityRanker()
+-    scored = [
+-        (ranker.lexical_relevance(session_text(session), query), index)
++    return [
++        index
+         for index, session in enumerate(sessions)
++        if ranker.lexical_relevance(session_text(session), query) > 0
+     ]
+-    return [index for score, index in sorted(scored, key=lambda item: item[1]) if score > 0]
+ 
+ 
+-def best_turn(session: list[dict[str, Any]], query: str) -> dict[str, Any]:
+-    """Create the graph relation from the most query-related turn."""
+-    ranker = MemoryUtilityRanker()
+-    return max(
+-        session,
+-        key=lambda turn: ranker.lexical_relevance(turn_text(turn), query),
+-    )
+-
+-
+-async def build_context(case: dict[str, Any]) -> tuple[HierarchicalMemoryContext, list[str]]:
+-    """Build query relations and automatic four-dimensional source spans per turn."""
++async def build_context(case: dict) -> HierarchicalMemoryContext:
++    """Use only question/source text to build one fixed lexical graph adapter."""
+     now = utc_now()
+     writer = HReConGraphMemory()
+-    store = GraphitiMemoryStore(None)
+-    episodes = []
+-    edges = []
+-    states = []
+-    supporting_turns = [
+-        turn_text(turn)
+-        for session in case['haystack_sessions']
+-        for turn in session
+-        if turn.get('has_answer')
+-    ]
++    episodes, edges, states = [], [], []
++    units, fact_indices = {}, {}
++    ranker = MemoryUtilityRanker()
+     for session_index in hit_session_indexes(case['haystack_sessions'], case['question']):
+         session = case['haystack_sessions'][session_index]
+         memory = UnifiedMemoryUnit(
+@@ -88,127 +75,261 @@ async def build_context(case: dict[str, Any]) -> tuple[HierarchicalMemoryContext
+             group_id='user:eval',
+             source=EpisodeType.text,
+             source_description='LongMemEval dialogue session',
+-            content=store._episode_body(memory),
++            content=GraphitiMemoryStore(None)._episode_body(memory),
+             valid_at=now,
+         )
+-        turn = best_turn(session, case['question'])
+-        node_source = EntityNode(
+-            uuid=f'{episode.uuid}-source', name='session', group_id='user:eval'
++        turn_index = max(
++            range(len(session)),
++            key=lambda index: ranker.lexical_relevance(turn_text(session[index]), case['question']),
+         )
+-        node_target = EntityNode(uuid=f'{episode.uuid}-target', name='turn', group_id='user:eval')
+-        edge = EntityEdge(
+-            uuid=f'{episode.uuid}-edge',
+-            created_at=now,
+-            group_id='user:eval',
+-            source_node_uuid=node_source.uuid,
+-            target_node_uuid=node_target.uuid,
+-            name='RELEVANT_TURN',
+-            fact=turn_text(turn),
+-            episodes=[episode.uuid],
++        units[episode.uuid] = [turn_text(message) for message in session]
++        fact_indices[episode.uuid] = [turn_index]
++        edges.append(
++            EntityEdge(
++                uuid=f'{episode.uuid}-edge',
++                created_at=now,
++                group_id='user:eval',
++                source_node_uuid=f'{episode.uuid}-source',
++                target_node_uuid=f'{episode.uuid}-target',
++                name='RELEVANT_TURN',
++                fact=turn_text(session[turn_index]),
++                episodes=[episode.uuid],
++            )
+         )
+         episodes.append(episode)
+-        edges.append(edge)
+         states.append(writer.semantic_states[memory.semantic_state_id])
+-
+-    context = HierarchicalMemoryContext(
++    return HierarchicalMemoryContext(
+         query=case['question'],
+         selected_layers=['M1'],
+         graph_edges=edges,
+         semantic_states=states,
+         source_episodes=episodes,
++        source_units=units,
++        source_fact_indices=fact_indices,
+     )
+-    return context, supporting_turns
+ 
+ 
+-def measure_render(
+-    context: HierarchicalMemoryContext, mode: str, repeats: int
+-) -> tuple[str, float]:
+-    text = context.render_text(mode)
+-    durations = []
+-    for _ in range(repeats):
+-        started = perf_counter()
+-        context.render_text(mode)
+-        durations.append((perf_counter() - started) * 1000)
+-    return text, median(durations)
++def support_scores(case: dict, hit_indexes: list[int], stages: list[dict], mode: str) -> dict:
++    """Read support annotations only after source assembly, using original turn identities."""
++    supports = {
++        (session_index, turn_index)
++        for session_index, session in enumerate(case['haystack_sessions'])
++        for turn_index, turn in enumerate(session)
++        if turn.get('has_answer')
++    }
++    included = {ref for ref in supports if ref[0] in hit_indexes}
++    sets = {
++        key: {
++            (session_index, index)
++            for session_index, stage in zip(hit_indexes, stages, strict=True)
++            for index in stage[key]
++        }
++        for key in ('fact', 'fact_plus_dependencies', 'dependencies_plus_window', 'final')
++    }
++    retained = included if mode == 'full_source' else supports & sets['final']
++    missing = supports - retained
++    return {
++        'required_count': len(supports),
++        'full_required_count': len(included),
++        'retained_count': len(retained),
++        'supporting_turn_indices': [list(ref) for ref in sorted(supports)],
++        'retained_supporting_turn_indices': [list(ref) for ref in sorted(retained)],
++        'stage_retained': {
++            name: len(supports & sets[key])
++            for name, key in (
++                ('fact', 'fact'),
++                ('dependencies', 'fact_plus_dependencies'),
++                ('window', 'dependencies_plus_window'),
++                ('final', 'final'),
++            )
++        },
++        'stage_support_indices': {
++            name: [list(ref) for ref in sorted(supports & sets[key])]
++            for name, key in (
++                ('fact', 'fact'),
++                ('dependencies', 'fact_plus_dependencies'),
++                ('window', 'dependencies_plus_window'),
++                ('final', 'final'),
++            )
++        },
++        'dependency_added_support_indices': [
++            list(ref) for ref in sorted(supports & (sets['fact_plus_dependencies'] - sets['fact']))
++        ],
++        'window_added_support_indices': [
++            list(ref)
++            for ref in sorted(
++                supports & (sets['dependencies_plus_window'] - sets['fact_plus_dependencies'])
++            )
++        ],
++        'missing_supports': [
++            {
++                'session_index': ref[0],
++                'turn_index': ref[1],
++                'reason': 'session_not_retrieved'
++                if ref not in included
++                else 'outside_evidence_bundle',
++                'distance_to_dependency_bundle': min(
++                    (
++                        abs(ref[1] - index)
++                        for session_index, index in sets['fact_plus_dependencies']
++                        if session_index == ref[0]
++                    ),
++                    default=None,
++                ),
++                'role': case['haystack_sessions'][ref[0]][ref[1]]['role'],
++            }
++            for ref in sorted(missing)
++        ],
++    }
+ 
+ 
+-def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+-    if not rows:
+-        return {'case_count': 0}
++def loss_summary(rows: list[dict]) -> dict:
++    losses = [item for row in rows for item in row['missing_supports']]
+     return {
+-        'case_count': len(rows),
+-        'mean_context_chars': sum(row['context_chars'] for row in rows) / len(rows),
+-        'mean_context_tokens': sum(row['context_tokens'] for row in rows) / len(rows),
+-        'mean_selected_turns': sum(row['selected_turns'] for row in rows) / len(rows),
+-        'answer_visible_rate': sum(row['answer_visible'] for row in rows) / len(rows),
+-        'supporting_turn_recall': sum(row['supporting_turn_recall'] for row in rows) / len(rows),
+-        'median_render_ms': median(row['render_median_ms'] for row in rows),
+-        'token_reduction_vs_full_source': sum(row['token_reduction_vs_full_source'] for row in rows)
+-        / len(rows),
++        'affected_cases': sum(bool(row['missing_supports']) for row in rows),
++        'missing_support_count': len(losses),
++        'by_reason': dict(Counter(item['reason'] for item in losses)),
++        'by_role': dict(Counter(item['role'] for item in losses)),
++        'cropping_distance': dict(
++            Counter(
++                item['distance_to_dependency_bundle']
++                for item in losses
++                if item['reason'] == 'outside_evidence_bundle'
++            )
++        ),
+     }
+ 
+ 
+-async def evaluate_cases(cases: list[dict[str, Any]], *, repeats: int = 3) -> dict[str, Any]:
+-    """Run the same selected graph context through both rendering modes."""
+-    rows = []
++async def evaluate_cases(
++    cases: list[dict[str, Any]], *, repeats: int = 3, window_sizes: tuple[int, ...] = (0,)
++) -> dict:
++    rows, fixed_retrieval = [], []
++    configs = [('full_source', 0)] + [('evidence_bundle', size) for size in window_sizes]
++    names = ['full_source'] + [f'evidence_bundle_w{size}' for size in window_sizes]
+     for case in cases:
+-        context, supporting_turns = await build_context(case)
+-        rendered = {}
+-        for mode in ('full_source', 'evidence_bundle'):
+-            rendered[mode] = measure_render(context, mode, repeats)
+-        full_tokens = estimate_tokens(rendered['full_source'][0])
++        context = await build_context(case)
+         hit_indexes = hit_session_indexes(case['haystack_sessions'], case['question'])
+-        selected_turns = sum(len(case['haystack_sessions'][index]) for index in hit_indexes)
+-        for mode in ('full_source', 'evidence_bundle'):
+-            text, latency = rendered[mode]
+-            retained_supporting = sum(turn in text for turn in supporting_turns)
++        # All four assemblies finish before answer/has_answer labels are read.
++        rendered = {
++            (mode, size): measure_render(context, mode, repeats, size) for mode, size in configs
++        }
++        assemblies = {size: assembly_stages(context, size) for size in window_sizes}
++        for stages in assemblies.values():
++            for session_index, stage in zip(hit_indexes, stages, strict=True):
++                stage['session_index'] = session_index
++        fixed_retrieval.append(
++            {
++                'question_id': case['question_id'],
++                'hit_session_indices': hit_indexes,
++                'source_bindings': [
++                    {
++                        'session_index': session_index,
++                        'episode_id': episode.uuid,
++                        'turn_count': len(context.source_units[episode.uuid]),
++                        'graph_fact_turn_indices': context.source_fact_indices[episode.uuid],
++                        'graph_fact': edge.fact,
++                        'source_span_fields': dict(
++                            Counter(span.field for span in state.source_spans)
++                        ),
++                        'source_spans_sha256': sha256(
++                            json.dumps(
++                                [span.model_dump() for span in state.source_spans], sort_keys=True
++                            ).encode()
++                        ).hexdigest(),
++                    }
++                    for session_index, episode, edge, state in zip(
++                        hit_indexes,
++                        context.source_episodes,
++                        context.graph_edges,
++                        context.semantic_states,
++                        strict=True,
++                    )
++                ],
++            }
++        )
++        for mode, size in configs:
++            text, latency = rendered[(mode, size)]
++            stages = assemblies[size]
++            scores = support_scores(case, hit_indexes, stages, mode)
++            stage_texts = stage_source_texts(context, stages)
+             rows.append(
+                 {
+                     'question_id': case['question_id'],
+-                    'question_type': case.get('question_type', ''),
++                    'question_type': case['question_type'],
++                    'configuration': 'full_source'
++                    if mode == 'full_source'
++                    else f'evidence_bundle_w{size}',
+                     'mode': mode,
+-                    'selected_sessions': len(context.source_episodes),
+-                    'selected_turns': selected_turns,
+-                    'context_chars': len(text),
+-                    'context_tokens': estimate_tokens(text),
++                    'window_size': None if mode == 'full_source' else size,
++                    'chars': len(text),
++                    'tokens': estimate_tokens(text),
+                     'answer_visible': str(case['answer']).lower() in text.lower(),
+-                    'supporting_turn_count': len(supporting_turns),
+-                    'retained_supporting_turns': retained_supporting,
+-                    'supporting_turn_recall': (
+-                        retained_supporting / len(supporting_turns) if supporting_turns else 1.0
+-                    ),
+-                    'token_reduction_vs_full_source': (
+-                        0.0
+-                        if mode == 'full_source' or full_tokens == 0
+-                        else 1 - estimate_tokens(text) / full_tokens
+-                    ),
+                     'render_median_ms': latency,
++                    'assembly_indexes': stages,
++                    'rendered_source_indices': [
++                        {
++                            'session_index': session_index,
++                            'indices': list(range(len(context.source_units[episode.uuid])))
++                            if mode == 'full_source'
++                            else stages[index]['final'],
++                        }
++                        for index, (session_index, episode) in enumerate(
++                            zip(hit_indexes, context.source_episodes, strict=True)
++                        )
++                    ],
++                    'stage_source_tokens': {
++                        stage: estimate_tokens(value) for stage, value in stage_texts.items()
++                    },
++                    **scores,
+                 }
+             )
+-
+     summary = {
+-        mode: _summary([row for row in rows if row['mode'] == mode])
+-        for mode in ('full_source', 'evidence_bundle')
++        name: summarize_rows([row for row in rows if row['configuration'] == name])
++        for name in names
+     }
+-    by_question_type = {
+-        question_type: {
+-            mode: _summary(
++    finalize_summaries(summary)
++    for item in summary.values():
++        item['supporting_turn_recall'] = item['overall_recall']['micro']
++    for name in names:
++        summary[name]['losses'] = loss_summary(
++            [row for row in rows if row['configuration'] == name]
++        )
++    summary['evidence_bundle'] = summary['evidence_bundle_w0']
++    by_type = {}
++    for question_type in sorted({case['question_type'] for case in cases}):
++        group = {
++            name: summarize_rows(
+                 [
+                     row
+                     for row in rows
+-                    if row['question_type'] == question_type and row['mode'] == mode
++                    if row['question_type'] == question_type and row['configuration'] == name
+                 ]
+             )
+-            for mode in ('full_source', 'evidence_bundle')
++            for name in names
+         }
+-        for question_type in sorted({row['question_type'] for row in rows})
+-    }
++        finalize_summaries(group)
++        for name in names:
++            group[name]['losses'] = loss_summary(
++                [
++                    row
++                    for row in rows
++                    if row['configuration'] == name and row['question_type'] == question_type
++                ]
++            )
++        by_type[question_type] = group
+     return {
+-        'protocol': 'LongMemEval turn-level graph relation and evidence-bundle comparison',
+-        'selection': 'all query-related sessions; graph fact anchored to the best query-related turn',
++        'protocol': 'fixed retrieval; original message-index evidence/window ablation',
++        'experiment_role': 'configuration exploration on oracle 500',
++        'selection': 'all positive lexical-overlap sessions; one maximum-overlap turn per session; ties use earliest turn',
++        'labels': 'answer and has_answer used after all configurations have been assembled',
++        'index_unit': 'zero-based original session and message indices; internal newlines stay in the same turn',
++        'stage_scope': 'assembly_indexes and stage costs describe evidence assembly; rendered_source_indices describe the selected configuration',
+         'timing_repeats': repeats,
++        'environment': experiment_environment(),
+         'summary': summary,
+-        'by_question_type': by_question_type,
++        'by_question_type': by_type,
++        'pareto': pareto_analysis(summary, names),
++        'fixed_retrieval': fixed_retrieval,
+         'rows': rows,
+     }
+ 
+@@ -219,11 +340,7 @@ async def main() -> None:
+         '--data',
+         type=Path,
+         default=Path(__file__).parents[2]
+-        / 'tests'
+-        / 'evals'
+-        / 'data'
+-        / 'longmemeval_data'
+-        / 'longmemeval_oracle.json',
++        / 'tests/evals/data/longmemeval_data/longmemeval_oracle.json',
+     )
+     parser.add_argument('--offset', type=int, default=0)
+     parser.add_argument('--limit', type=int)
+@@ -231,8 +348,16 @@ async def main() -> None:
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     result = await evaluate_cases(
+-        load_cases(args.data, offset=args.offset, limit=args.limit), repeats=args.repeats
++        load_cases(args.data, offset=args.offset, limit=args.limit),
++        repeats=args.repeats,
++        window_sizes=(0, 1, 2),
+     )
++    result['dataset'] = {
++        'path': str(args.data),
++        'sha256': sha256(args.data.read_bytes()).hexdigest(),
++        'offset': args.offset,
++        'case_count': len(result['fixed_retrieval']),
++    }
+     args.output_json.parent.mkdir(parents=True, exist_ok=True)
+     args.output_json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+     print(json.dumps(result['summary'], ensure_ascii=False, indent=2))
+diff --git a/h_recongraph/examples/evaluate_read_context.py b/h_recongraph/examples/evaluate_read_context.py
+index 272e8f0..2b68ced 100644
+--- a/h_recongraph/examples/evaluate_read_context.py
++++ b/h_recongraph/examples/evaluate_read_context.py
+@@ -1,11 +1,12 @@
+-"""Paired evidence-retention and text-cost evaluation on fixed reading contexts."""
++"""Paired evidence-recall and cost ablation on fixed reading contexts."""
+ 
+ import argparse
+ import asyncio
+ import json
++import platform
+ import re
+ from pathlib import Path
+-from statistics import median
++from statistics import mean, median
+ from time import perf_counter
+ 
+ from graphiti_core.edges import EntityEdge
+@@ -68,7 +69,7 @@ def build_context(case: dict) -> HierarchicalMemoryContext:
+ 
+ 
+ async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
+-    """Apply separately annotated write bindings, serialize, then recover for reading."""
++    """Apply source-only bindings, serialize, then recover for reading."""
+     contexts = {}
+     for case in cases:
+         context = build_context(case)
+@@ -96,7 +97,7 @@ async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
+ 
+ 
+ async def build_naturally_bound_contexts(cases: list[dict]) -> dict:
+-    """Write each source without external spans and recover its automatic bindings."""
++    """Write source text without external spans and recover automatic bindings."""
+     contexts = {}
+     for case in cases:
+         context = build_context(case)
+@@ -120,17 +121,178 @@ async def build_naturally_bound_contexts(cases: list[dict]) -> dict:
+     return contexts
+ 
+ 
+-def evaluate_cases(cases: list[dict], repeats: int = 100, contexts: dict | None = None) -> dict:
++def assembly_stages(context: HierarchicalMemoryContext, window_size: int) -> list[dict]:
++    """Record cumulative source indexes and disjoint additions, before scoring labels."""
++    stages = []
++    for episode in context.source_episodes:
++        indexes = context.source_indices(episode, window_size)
++        fact = set(indexes['fact'])
++        dependencies = fact | set(indexes['dependencies'])
++        window = dependencies | set(indexes['window'])
++        stages.append(
++            {
++                'episode_id': episode.uuid,
++                'fact': sorted(fact),
++                'fact_plus_dependencies': sorted(dependencies),
++                'dependencies_plus_window': sorted(window),
++                'dependency_added': sorted(dependencies - fact),
++                'window_added': indexes['window'],
++                'fallback_added': indexes['fallback'],
++                'final': sorted(window | set(indexes['fallback'])),
++            }
++        )
++    return stages
++
++
++def stage_source_texts(context: HierarchicalMemoryContext, stages: list[dict]) -> dict[str, str]:
++    sources = {episode.uuid: episode for episode in context.source_episodes}
++    return {
++        name: '\n\n'.join(
++            context._render_source_units(sources[stage['episode_id']], set(stage[key]))
++            for stage in stages
++        )
++        for name, key in (
++            ('fact', 'fact'),
++            ('dependencies', 'fact_plus_dependencies'),
++            ('window', 'dependencies_plus_window'),
++            ('final', 'final'),
++        )
++    }
++
++
++def measure_render(context, mode: str, repeats: int, window_size: int = 0) -> tuple[str, float]:
++    text = context.render_text(mode, window_size=window_size)
++    durations = []
++    for _ in range(repeats):
++        start = perf_counter()
++        context.render_text(mode, window_size=window_size)
++        durations.append((perf_counter() - start) * 1000)
++    return text, median(durations)
++
++
++def summarize_rows(rows: list[dict]) -> dict:
++    overall = [row for row in rows if row['required_count'] > 0]
++    conditional = [row for row in rows if row['full_required_count'] > 0]
++
++    def recall(selected: list[dict], denominator: str) -> dict:
++        total = sum(row[denominator] for row in selected)
++        retained = sum(row['retained_count'] for row in selected)
++        return {
++            'macro': mean(row['retained_count'] / row[denominator] for row in selected)
++            if selected
++            else None,
++            'micro': retained / total if total else None,
++            'retained': retained,
++            'total': total,
++            'valid_cases': len(selected),
++        }
++
++    stage_counts = {
++        stage: sum(row['stage_retained'][stage] for row in overall)
++        for stage in ('fact', 'dependencies', 'window', 'final')
++    }
++    return {
++        'case_count': len(rows),
++        'mean_context_chars': mean(row['chars'] for row in rows),
++        'mean_context_tokens': mean(row['tokens'] for row in rows),
++        'total_chars': sum(row['chars'] for row in rows),
++        'total_tokens': sum(row['tokens'] for row in rows),
++        'overall_recall': recall(overall, 'required_count'),
++        'conditional_recall': recall(conditional, 'full_required_count'),
++        'complete_cases': sum(row['retained_count'] == row['required_count'] for row in overall),
++        'complete_rate': mean(row['retained_count'] == row['required_count'] for row in overall)
++        if overall
++        else None,
++        'answer_visible_rate': mean(row['answer_visible'] for row in rows),
++        'median_render_ms': median(row['render_median_ms'] for row in rows),
++        'stage_counts': stage_counts,
++        'dependency_added_supports': stage_counts['dependencies'] - stage_counts['fact'],
++        'window_added_supports': stage_counts['window'] - stage_counts['dependencies'],
++        'fallback_added_supports': stage_counts['final'] - stage_counts['window'],
++        'stage_source_tokens': {
++            stage: sum(row['stage_source_tokens'][stage] for row in rows)
++            for stage in ('fact', 'dependencies', 'window', 'final')
++        },
++    }
++
++
++def pareto_analysis(summary: dict, configurations: list[str]) -> dict:
++    result = {}
++    for metric in ('overall_recall', 'conditional_recall'):
++        result[metric] = {}
++        for average in ('micro', 'macro'):
++            scored = [name for name in configurations if summary[name][metric][average] is not None]
++            frontier = [
++                name
++                for name in scored
++                if not any(
++                    summary[other][metric][average] >= summary[name][metric][average]
++                    and summary[other]['mean_context_tokens']
++                    <= summary[name]['mean_context_tokens']
++                    and (
++                        summary[other][metric][average] > summary[name][metric][average]
++                        or summary[other]['mean_context_tokens']
++                        < summary[name]['mean_context_tokens']
++                    )
++                    for other in scored
++                )
++            ]
++            result[metric][average] = {
++                'frontier': frontier,
++                'reference_lines': {
++                    str(threshold): min(
++                        (name for name in scored if summary[name][metric][average] >= threshold),
++                        key=lambda name: summary[name]['mean_context_tokens'],
++                        default=None,
++                    )
++                    for threshold in (0.90, 0.95)
++                },
++            }
++    return result
++
++
++def experiment_environment() -> dict:
++    return {
++        'python': platform.python_version(),
++        'platform': platform.platform(),
++        'token_estimator': 'graphiti_core.utils.content_chunking.estimate_tokens: len(text) // 4',
++        'timing_scope': 'render_text only; warmup then repeated measurements',
++    }
++
++
++def finalize_summaries(summary: dict) -> None:
++    full = summary['full_source']
++    for item in summary.values():
++        item['token_reduction_vs_full_source'] = 1 - item['total_tokens'] / full['total_tokens']
++        item['char_reduction_vs_full_source'] = 1 - item['total_chars'] / full['total_chars']
++        item['dependency_added_source_tokens'] = (
++            item['stage_source_tokens']['dependencies'] - item['stage_source_tokens']['fact']
++        )
++        item['window_added_source_tokens'] = (
++            item['stage_source_tokens']['window'] - item['stage_source_tokens']['dependencies']
++        )
++
++
++def evaluate_cases(
++    cases: list[dict],
++    repeats: int = 100,
++    contexts: dict | None = None,
++    window_sizes: tuple[int, ...] = (0,),
++) -> dict:
+     rows = []
++    configs = [('full_source', 0)] + [('evidence_bundle', size) for size in window_sizes]
+     for case in cases:
+         context = contexts[case['id']] if contexts is not None else build_context(case)
+-        for mode in ('full_source', 'evidence_bundle'):
+-            durations = []
+-            for _ in range(repeats):
+-                start = perf_counter()
+-                text = context.render_text(mode)
+-                durations.append((perf_counter() - start) * 1000)
+-            missing = [item for item in case['required'] if item not in text]
++        full_text = context.render_text('full_source')
++        for mode, size in configs:
++            text, latency = measure_render(context, mode, repeats, size)
++            stages = assembly_stages(context, size)
++            stage_texts = stage_source_texts(context, stages)
++            missing = [item for item in case['required'] if item not in stage_texts['final']]
++            retained = len(case['required']) - len(missing)
++            if mode == 'full_source':
++                retained = sum(item in full_text for item in case['required'])
++                missing = [item for item in case['required'] if item not in full_text]
+             match = re.search(case['answer_pattern'], text)
+             answer = match.group('answer') if match else ''
+             rows.append(
+@@ -138,29 +300,52 @@ def evaluate_cases(cases: list[dict], repeats: int = 100, contexts: dict | None
+                     'case_id': case['id'],
+                     'dimension': case['dimension'],
+                     'mode': mode,
++                    'window_size': None if mode == 'full_source' else size,
++                    'configuration': 'full_source'
++                    if mode == 'full_source'
++                    else f'evidence_bundle_w{size}',
+                     'chars': len(text),
+                     'tokens': estimate_tokens(text),
+                     'required_count': len(case['required']),
+-                    'retained_count': len(case['required']) - len(missing),
++                    'full_required_count': sum(item in full_text for item in case['required']),
++                    'retained_count': retained,
+                     'complete': not missing,
+                     'missing': missing,
+                     'probe_answer': answer,
+                     'probe_correct': answer == case['expected_answer'],
+-                    'render_median_ms': median(durations),
++                    'answer_visible': case['expected_answer'].lower() in text.lower(),
++                    'render_median_ms': latency,
++                    'assembly_indexes': stages,
++                    'stage_retained': {
++                        stage: sum(item in value for item in case['required'])
++                        for stage, value in stage_texts.items()
++                    },
++                    'stage_source_tokens': {
++                        stage: estimate_tokens(value) for stage, value in stage_texts.items()
++                    },
++                    'required_evidence': [
++                        {
++                            'text': item,
++                            'locations': [
++                                {'episode_id': episode.uuid, 'paragraph_index': index}
++                                for episode in context.source_episodes
++                                for index, paragraph in enumerate(context.source_segments(episode))
++                                if item in paragraph
++                            ],
++                        }
++                        for item in case['required']
++                    ],
+                 }
+             )
++    configurations = ['full_source'] + [f'evidence_bundle_w{size}' for size in window_sizes]
+     summary = {}
+-    for mode in ('full_source', 'evidence_bundle'):
+-        selected = [row for row in rows if row['mode'] == mode]
+-        summary[mode] = {
+-            'case_count': len(selected),
+-            'total_chars': sum(row['chars'] for row in selected),
+-            'total_tokens': sum(row['tokens'] for row in selected),
++    for configuration in configurations:
++        selected = [row for row in rows if row['configuration'] == configuration]
++        summary[configuration] = {
++            **summarize_rows(selected),
+             'evidence_retention': sum(row['retained_count'] for row in selected)
+             / sum(row['required_count'] for row in selected),
+-            'complete_cases': sum(row['complete'] for row in selected),
+             'extractive_probe_correct': sum(row['probe_correct'] for row in selected),
+-            'render_median_ms': median(row['render_median_ms'] for row in selected),
+             'dimensions': {
+                 dimension: {
+                     'complete': sum(
+@@ -171,22 +356,17 @@ def evaluate_cases(cases: list[dict], repeats: int = 100, contexts: dict | None
+                 for dimension in ('fact', 'constraint', 'path', 'causal')
+             },
+         }
+-    full_tokens = summary['full_source']['total_tokens']
+-    for mode in ('full_source', 'evidence_bundle'):
+-        summary[mode]['token_reduction_vs_full_source'] = (
+-            0.0
+-            if mode == 'full_source'
+-            else round(
+-                1 - summary[mode]['total_tokens'] / full_tokens if full_tokens else 0.0,
+-                4,
+-            )
+-        )
++    finalize_summaries(summary)
++    # Keep the existing w=0 summary key for the earlier paired experiments.
++    summary['evidence_bundle'] = summary['evidence_bundle_w0']
+     return {
+-        'protocol': 'fixed-context evidence retention and deterministic extractive probes',
++        'protocol': 'fixed retrieval; paragraph-level evidence-window ablation and extractive probes',
+         'length_unit': 'unicode_characters',
+         'latency_scope': 'render_text only',
+         'timing_repeats': repeats,
++        'environment': experiment_environment(),
+         'summary': summary,
++        'pareto': pareto_analysis(summary, configurations),
+         'rows': rows,
+     }
+ 
+@@ -196,39 +376,43 @@ def main() -> None:
+     parser.add_argument(
+         '--cases', type=Path, default=Path(__file__).with_name('read_context_cases.json')
+     )
+-    parser.add_argument('--repeats', type=int, default=100)
++    parser.add_argument('--repeats', type=int, default=3)
+     parser.add_argument('--write-bindings', type=Path)
+     parser.add_argument('--natural-bindings', action='store_true')
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     cases = json.loads(args.cases.read_text(encoding='utf-8'))
+-    result = evaluate_cases(cases, args.repeats)
++    sizes = (0, 1, 2)
+     if args.write_bindings:
+         bindings = json.loads(args.write_bindings.read_text(encoding='utf-8'))
+         contexts = asyncio.run(build_written_contexts(cases, bindings))
+         result = {
+             'binding_protocol': 'separate source-only paragraph annotations; fixed graph edges',
+-            'original_bindings': result,
+-            'complete_write_bindings': evaluate_cases(cases, args.repeats, contexts),
++            'original_bindings': evaluate_cases(cases, args.repeats, window_sizes=sizes),
++            'complete_write_bindings': evaluate_cases(cases, args.repeats, contexts, sizes),
+         }
+     elif args.natural_bindings:
+         contexts = asyncio.run(build_naturally_bound_contexts(cases))
+         result = {
+             'binding_protocol': 'SemanticStateConstructor automatic paragraph bindings',
+-            'natural_auto_bindings': evaluate_cases(cases, args.repeats, contexts),
++            'natural_auto_bindings': evaluate_cases(cases, args.repeats, contexts, sizes),
+         }
++    else:
++        result = evaluate_cases(cases, args.repeats, window_sizes=sizes)
+     args.output_json.parent.mkdir(parents=True, exist_ok=True)
+     args.output_json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+-    if args.write_bindings:
+-        summaries = {
+-            name: result[name]['summary']
+-            for name in ('original_bindings', 'complete_write_bindings')
+-        }
+-    elif args.natural_bindings:
+-        summaries = result['natural_auto_bindings']['summary']
+-    else:
+-        summaries = result['summary']
+-    print(json.dumps(summaries, ensure_ascii=False, indent=2))
++    print(
++        json.dumps(
++            {
++                name: value['summary']
++                for name, value in result.items()
++                if isinstance(value, dict) and 'summary' in value
++            }
++            or result['summary'],
++            ensure_ascii=False,
++            indent=2,
++        )
++    )
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/h_recongraph/memory/relinking.py b/h_recongraph/memory/relinking.py
+index 9a7ffaa..9042493 100644
+--- a/h_recongraph/memory/relinking.py
++++ b/h_recongraph/memory/relinking.py
+@@ -23,32 +23,41 @@ class HierarchicalMemoryContext(BaseModel):
+     ephemeral_edges: list[ReConMemoryEdge] = Field(default_factory=list)
+     evidence_trace: list[str] = Field(default_factory=list)
+     source_episodes: list[EpisodicNode] = Field(default_factory=list)
++    source_units: dict[str, list[str]] = Field(default_factory=dict)
++    source_fact_indices: dict[str, list[int]] = Field(default_factory=dict)
++    source_origin_ids: dict[str, str] = Field(default_factory=dict)
+     context_text: str = ''
+     source_mode: Literal['full_source', 'evidence_bundle'] = 'full_source'
+ 
+     model_config = {'arbitrary_types_allowed': True}
+ 
+     def render_text(
+-        self, source_mode: Literal['full_source', 'evidence_bundle'] | None = None
++        self,
++        source_mode: Literal['full_source', 'evidence_bundle'] | None = None,
++        *,
++        window_size: int = 0,
+     ) -> str:
+         """Render the selected memory evidence as compact text for a downstream reader."""
+         source_mode = source_mode or self.source_mode
+-        sources = [
+-            (
+-                episode.uuid,
+-                self._source_bundle(episode)
+-                if source_mode == 'evidence_bundle'
+-                else self._source_text(episode.content),
+-            )
+-            for episode in self.source_episodes
+-        ]
++        sources = []
++        for episode in self.source_episodes:
++            if source_mode == 'evidence_bundle':
++                text = self._source_bundle(episode, window_size=window_size)
++            elif episode.uuid in self.source_units:
++                text = self._render_source_units(episode, range(len(self.source_segments(episode))))
++            else:
++                text = self._source_text(episode.content)
++            sources.append((episode.uuid, text))
+         if source_mode == 'evidence_bundle':
+             seen_sources = set()
+-            sources = [
+-                item
+-                for item in sources
+-                if item[1] and not (item[1] in seen_sources or seen_sources.add(item[1]))
+-            ]
++            unique_sources = []
++            for episode_id, text in sources:
++                origin = self.source_origin_ids.get(episode_id, episode_id)
++                key = (origin, text) if episode_id in self.source_units else text
++                if text and key not in seen_sources:
++                    unique_sources.append((episode_id, text))
++                    seen_sources.add(key)
++            sources = unique_sources
+         blocks: list[str] = []
+ 
+         for memory in self.instant_memories:
+@@ -96,10 +105,10 @@ class HierarchicalMemoryContext(BaseModel):
+ 
+         return '\n'.join(dict.fromkeys(blocks))
+ 
+-    def _source_bundle(self, episode: EpisodicNode) -> str:
+-        """Keep complete paragraphs anchored by retrieved facts and semantic evidence."""
++    def source_indices(self, episode: EpisodicNode, window_size: int = 0) -> dict[str, list[int]]:
++        """Select source-unit indexes, expand dependencies, then union local windows."""
+         content = self._source_text(episode.content)
+-        paragraphs = re.split(r'\n\s*\n', content)
++        paragraphs = self.source_segments(episode)
+         facts = [edge.fact for edge in self.graph_edges if episode.uuid in edge.episodes]
+         spans = [
+             span
+@@ -108,15 +117,16 @@ class HierarchicalMemoryContext(BaseModel):
+             if span.field != 'raw' and span.text and span.text in content
+         ]
+         explicit_spans = [span for span in spans if span.start is None or span.end is None]
+-        # A bound fact anchor also locates evidence when the graph fact is paraphrased.
+         fact_anchors = [span.text for span in spans if span.field == 'fact']
+         if not facts or (any(fact not in content for fact in facts) and not fact_anchors):
+-            return content
+-        selected = set()
+-        for fact in facts:
++            all_indexes = list(range(len(paragraphs)))
++            return {'fact': [], 'dependencies': [], 'window': [], 'fallback': all_indexes}
++
++        fact_indexes = set(self.source_fact_indices.get(episode.uuid, []))
++        for fact in facts if episode.uuid not in self.source_fact_indices else []:
+             literal = {index for index, paragraph in enumerate(paragraphs) if fact in paragraph}
+             if literal:
+-                selected.update(literal)
++                fact_indexes.update(literal)
+                 continue
+             fact_tokens = self._tokens(fact)
+             overlaps = [
+@@ -125,31 +135,61 @@ class HierarchicalMemoryContext(BaseModel):
+             ]
+             score, index = max(overlaps, default=(0, 0))
+             if score:
+-                selected.add(index)
+-        if not selected:
+-            selected.update(
++                fact_indexes.add(index)
++
++        if not fact_indexes:
++            fact_indexes.update(
+                 index
+                 for index, paragraph in enumerate(paragraphs)
+-                if any(span.text in paragraph for span in spans)
++                if any(anchor in paragraph for anchor in fact_anchors)
+             )
+-        selected.update(
++
++        dependency_indexes = {
+             index
+             for index, paragraph in enumerate(paragraphs)
+             if any(span.text in paragraph for span in explicit_spans)
+-        )
+-        selected.update(
+-            index
+-            for index, paragraph in enumerate(paragraphs)
+-            if any(
++            or any(
+                 span.field != 'fact' and span.text in paragraph
+                 for span in spans
+                 if span.field != 'raw'
+             )
+-        )
++        }
++        base_indexes = fact_indexes | dependency_indexes
++        window_indexes = {
++            neighbor
++            for index in base_indexes
++            for neighbor in range(
++                max(0, index - window_size), min(len(paragraphs), index + window_size + 1)
++            )
++        }
++        return {
++            'fact': sorted(fact_indexes),
++            'dependencies': sorted(dependency_indexes),
++            'window': sorted(window_indexes - base_indexes),
++            'fallback': [],
++        }
++
++    def source_segments(self, episode: EpisodicNode) -> list[str]:
++        """Use supplied message boundaries, otherwise paragraph boundaries."""
++        if episode.uuid in self.source_units:
++            return self.source_units[episode.uuid]
++        return re.split(r'\n\s*\n', self._source_text(episode.content))
++
++    def _render_source_units(self, episode: EpisodicNode, selected: set[int] | range) -> str:
+         return '\n\n'.join(
+-            paragraph for index, paragraph in enumerate(paragraphs) if index in selected
++            f'[TURN {index}] {unit}' if episode.uuid in self.source_units else unit
++            for index, unit in enumerate(self.source_segments(episode))
++            if index in selected
+         )
+ 
++    def _source_bundle(self, episode: EpisodicNode, *, window_size: int = 0) -> str:
++        """Keep complete paragraphs anchored by retrieved facts and semantic evidence."""
++        indexes = self.source_indices(episode, window_size)
++        if indexes['fallback'] and episode.uuid not in self.source_units:
++            return self._source_text(episode.content)
++        selected = set().union(*indexes.values())
++        return self._render_source_units(episode, selected)
++
+     @staticmethod
+     def _tokens(text: str) -> set[str]:
+         return {token.lower() for token in re.findall(r'[\w-]+', text) if len(token) > 1}
+diff --git a/tests/test_h_recongraph_longmemeval.py b/tests/test_h_recongraph_longmemeval.py
+index c241354..592ca9d 100644
+--- a/tests/test_h_recongraph_longmemeval.py
++++ b/tests/test_h_recongraph_longmemeval.py
+@@ -3,6 +3,7 @@ import json
+ import pytest
+ 
+ from h_recongraph.examples.evaluate_longmemeval_read import (
++    build_context,
+     evaluate_cases,
+     hit_session_indexes,
+     load_cases,
+@@ -41,13 +42,30 @@ def test_query_selection_uses_content_overlap_and_keeps_order():
+ 
+ @pytest.mark.asyncio
+ async def test_evaluation_reports_turn_level_evidence_bundle():
+-    result = await evaluate_cases([_case()], repeats=1)
++    result = await evaluate_cases([_case()], repeats=1, window_sizes=(0, 1, 2))
+     full = result['summary']['full_source']
+     selected = result['summary']['evidence_bundle']
+     assert selected['mean_context_tokens'] < full['mean_context_tokens']
+     assert selected['supporting_turn_recall'] == 1.0
+     assert selected['answer_visible_rate'] == 1.0
+     assert selected['token_reduction_vs_full_source'] > 0
++    assert len(result['rows']) == 4
++    assert selected['overall_recall'] == {
++        'micro': 1.0,
++        'macro': 1.0,
++        'retained': 1,
++        'total': 1,
++        'valid_cases': 1,
++    }
++    assert result['rows'][1]['supporting_turn_indices'] == [[1, 0]]
++    assert result['rows'][1]['assembly_indexes'][0]['fact'] == [0]
++    case = _case()
++    del case['answer']
++    for session in case['haystack_sessions']:
++        for turn in session:
++            del turn['has_answer']
++    unlabeled_context = await build_context(case)
++    assert len(unlabeled_context.render_text('evidence_bundle')) == result['rows'][1]['chars']
+ 
+ 
+ def test_load_cases_supports_offset_and_limit(tmp_path):
+diff --git a/tests/test_h_recongraph_retrieval.py b/tests/test_h_recongraph_retrieval.py
+index 59f198a..994a027 100644
+--- a/tests/test_h_recongraph_retrieval.py
++++ b/tests/test_h_recongraph_retrieval.py
+@@ -1214,6 +1214,100 @@ def test_evidence_bundle_deduplicates_identical_m1_m2_sources_and_edges():
+     assert bundle.count('[EDGE]') == 1
+ 
+ 
++def test_evidence_bundle_window_zero_keeps_existing_selection():
++    text = 'Fact anchor.\n\nBound dependency.\n\nUnrelated paragraph.'
++    source = source_episode('ep-window-zero', text)
++    edge = source_edge([source.uuid])
++    edge.fact = 'Fact anchor.'
++    context = HierarchicalMemoryContext(
++        query='Fact',
++        selected_layers=['M1'],
++        graph_edges=[edge],
++        source_episodes=[source],
++        semantic_states=[
++            MemorySemanticState(
++                edge_or_subgraph_id='window-state',
++                source_spans=[
++                    SourceSpan(
++                        evidence_id=source.uuid, field='constraint', text='Bound dependency.'
++                    )
++                ],
++                state_type='evidence_supported',
++            )
++        ],
++    )
++
++    assert context.render_text('evidence_bundle') == context.render_text(
++        'evidence_bundle', window_size=0
++    )
++    assert context._source_bundle(source, window_size=0) == ('Fact anchor.\n\nBound dependency.')
++
++
++@pytest.mark.parametrize(('anchor', 'selected'), [(0, [0, 1]), (3, [2, 3])])
++def test_evidence_bundle_window_is_bounded_at_source_edges(anchor, selected):
++    paragraphs = ['Before.', 'Fact anchor.', 'After.', 'Outside.']
++    source = source_episode('ep-window-edge', '\n\n'.join(paragraphs))
++    edge = source_edge([source.uuid])
++    edge.fact = paragraphs[anchor]
++    context = HierarchicalMemoryContext(
++        query='Fact', selected_layers=['M1'], graph_edges=[edge], source_episodes=[source]
++    )
++
++    bundle = context.render_text('evidence_bundle', window_size=1)
++
++    assert context.source_indices(source, 1)['window'] == [
++        index for index in selected if index != anchor
++    ]
++    assert context._source_bundle(source, window_size=1) == '\n\n'.join(
++        paragraphs[index] for index in selected
++    )
++    assert bundle
++
++
++def test_evidence_bundle_overlapping_windows_union_in_original_order():
++    paragraphs = [f'Paragraph {index}.' for index in range(6)]
++    source = source_episode('ep-window-overlap', '\n\n'.join(paragraphs))
++    edges = [source_edge([source.uuid], uuid=f'edge-{index}') for index in (1, 3)]
++    for edge, index in zip(edges, (1, 3), strict=True):
++        edge.fact = paragraphs[index]
++    context = HierarchicalMemoryContext(
++        query='paragraph', selected_layers=['M1'], graph_edges=edges, source_episodes=[source]
++    )
++
++    bundle = context._source_bundle(source, window_size=1)
++
++    assert bundle.index('Paragraph 0.') < bundle.index('Paragraph 1.')
++    assert bundle.index('Paragraph 2.') < bundle.index('Paragraph 3.')
++    assert bundle.count('Paragraph 2.') == 1
++    assert 'Paragraph 4.' in bundle
++    assert 'Paragraph 5.' not in bundle
++
++
++def test_evidence_bundle_preserves_internal_newlines_and_deduplicates_same_source():
++    turn = 'User: Fact anchor.\n\nDetails inside the same message.\nKeep this turn.'
++    units = [turn, 'Assistant: A nearby reply.', turn]
++    text = '\n\n'.join(units)
++    sources = [source_episode('ep-newline-a', text), source_episode('ep-newline-b', text)]
++    edge = source_edge([source.uuid for source in sources])
++    edge.fact = 'Fact anchor.'
++    context = HierarchicalMemoryContext(
++        query='Fact',
++        selected_layers=['M1'],
++        graph_edges=[edge],
++        source_episodes=sources,
++        source_units={source.uuid: units for source in sources},
++        source_fact_indices={source.uuid: [0] for source in sources},
++        source_origin_ids={source.uuid: 'same-session' for source in sources},
++    )
++
++    bundle = context.render_text('evidence_bundle', window_size=2)
++
++    assert f'[TURN 0] {turn}' in bundle and f'[TURN 2] {turn}' in bundle
++    assert bundle.count('User: Fact anchor.') == 2
++    assert bundle.count('[SOURCE ') == 1
++    assert context.source_indices(sources[0], 0)['fact'] == [0]
++
++
+ @pytest.mark.asyncio
+ async def test_retrieve_exposes_evidence_bundle_mode_and_preserves_full_sources():
+     _, source = enveloped_source()
+@@ -1364,6 +1458,8 @@ async def test_complete_write_bindings_recover_all_16_reading_bundles():
+ 
+     selected = result['summary']['evidence_bundle']
+     assert selected['case_count'] == 16
++    assert selected['complete_cases'] == 16
++    assert selected['extractive_probe_correct'] == 16
+     assert selected['total_tokens'] <= result['summary']['full_source']['total_tokens']
+     assert all(context.semantic_states[0].source_spans for context in contexts.values())
+     assert selected['total_chars'] < result['summary']['full_source']['total_chars']

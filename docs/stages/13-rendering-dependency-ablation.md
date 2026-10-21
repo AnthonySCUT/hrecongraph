@@ -10,6 +10,8 @@
 - `evaluate_longmemeval_read.py`：记录远端支持轮次、依赖新增轮次、实际渲染 Token、题型统计和 Pareto 配置。
 - `evaluate_read_context.py`：复核机制样本在依赖筛选下的证据保留。
 
+[完整逐文件报告](../details/13-重复渲染修复与依赖作用域消融逐文件交付.md)，含代码对比、示例与实验分析。
+
 ## 验证结果
 
 LongMemEval Oracle 500 题，479 题有支持轮次标注，共 896 条：

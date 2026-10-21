@@ -1,0 +1,5254 @@
+{
+  "binding_protocol": "SemanticStateConstructor automatic paragraph bindings",
+  "natural_auto_bindings": {
+    "protocol": "fixed retrieval; paragraph-level evidence-window ablation and extractive probes",
+    "length_unit": "unicode_characters",
+    "latency_scope": "render_text only",
+    "timing_repeats": 3,
+    "environment": {
+      "python": "3.11.15",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "token_estimator": "graphiti_core.utils.content_chunking.estimate_tokens: len(text) // 4",
+      "timing_scope": "render_text only; warmup then repeated measurements"
+    },
+    "summary": {
+      "full_source": {
+        "case_count": 16,
+        "mean_context_chars": 308.6875,
+        "mean_context_tokens": 76.6875,
+        "total_chars": 4939,
+        "total_tokens": 1227,
+        "overall_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 35,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "conditional_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 35,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "complete_cases": 16,
+        "complete_rate": 1,
+        "answer_visible_rate": 1,
+        "median_render_ms": 0.007950002327561378,
+        "stage_counts": {
+          "fact": 23,
+          "dependencies": 26,
+          "window": 26,
+          "final": 26
+        },
+        "dependency_added_supports": 3,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 154,
+          "dependencies": 187,
+          "window": 187,
+          "final": 187
+        },
+        "evidence_retention": 1.0,
+        "extractive_probe_correct": 16,
+        "dimensions": {
+          "fact": {
+            "complete": 4,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 4,
+            "count": 4
+          },
+          "causal": {
+            "complete": 4,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.0,
+        "char_reduction_vs_full_source": 0.0,
+        "dependency_added_source_tokens": 33,
+        "window_added_source_tokens": 0
+      },
+      "evidence_bundle_w0": {
+        "case_count": 16,
+        "mean_context_chars": 161.9375,
+        "mean_context_tokens": 40.125,
+        "total_chars": 2591,
+        "total_tokens": 642,
+        "overall_recall": {
+          "macro": 0.75,
+          "micro": 0.7428571428571429,
+          "retained": 26,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "conditional_recall": {
+          "macro": 0.75,
+          "micro": 0.7428571428571429,
+          "retained": 26,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "complete_cases": 7,
+        "complete_rate": 0.4375,
+        "answer_visible_rate": 0.5,
+        "median_render_ms": 0.02950000634882599,
+        "stage_counts": {
+          "fact": 23,
+          "dependencies": 26,
+          "window": 26,
+          "final": 26
+        },
+        "dependency_added_supports": 3,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 154,
+          "dependencies": 187,
+          "window": 187,
+          "final": 187
+        },
+        "evidence_retention": 0.7428571428571429,
+        "extractive_probe_correct": 8,
+        "dimensions": {
+          "fact": {
+            "complete": 1,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 1,
+            "count": 4
+          },
+          "causal": {
+            "complete": 1,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.47677261613691935,
+        "char_reduction_vs_full_source": 0.47539987851791865,
+        "dependency_added_source_tokens": 33,
+        "window_added_source_tokens": 0
+      },
+      "evidence_bundle_w1": {
+        "case_count": 16,
+        "mean_context_chars": 238.375,
+        "mean_context_tokens": 59.25,
+        "total_chars": 3814,
+        "total_tokens": 948,
+        "overall_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 35,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "conditional_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 35,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "complete_cases": 16,
+        "complete_rate": 1,
+        "answer_visible_rate": 1,
+        "median_render_ms": 0.029050002922303975,
+        "stage_counts": {
+          "fact": 23,
+          "dependencies": 26,
+          "window": 35,
+          "final": 35
+        },
+        "dependency_added_supports": 3,
+        "window_added_supports": 9,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 154,
+          "dependencies": 187,
+          "window": 492,
+          "final": 492
+        },
+        "evidence_retention": 1.0,
+        "extractive_probe_correct": 16,
+        "dimensions": {
+          "fact": {
+            "complete": 4,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 4,
+            "count": 4
+          },
+          "causal": {
+            "complete": 4,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.2273838630806846,
+        "char_reduction_vs_full_source": 0.22777890261186473,
+        "dependency_added_source_tokens": 33,
+        "window_added_source_tokens": 305
+      },
+      "evidence_bundle_w2": {
+        "case_count": 16,
+        "mean_context_chars": 308.6875,
+        "mean_context_tokens": 76.6875,
+        "total_chars": 4939,
+        "total_tokens": 1227,
+        "overall_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 35,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "conditional_recall": {
+          "macro": 1.0,
+          "micro": 1.0,
+          "retained": 35,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "complete_cases": 16,
+        "complete_rate": 1,
+        "answer_visible_rate": 1,
+        "median_render_ms": 0.02915001823566854,
+        "stage_counts": {
+          "fact": 23,
+          "dependencies": 26,
+          "window": 35,
+          "final": 35
+        },
+        "dependency_added_supports": 3,
+        "window_added_supports": 9,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 154,
+          "dependencies": 187,
+          "window": 775,
+          "final": 775
+        },
+        "evidence_retention": 1.0,
+        "extractive_probe_correct": 16,
+        "dimensions": {
+          "fact": {
+            "complete": 4,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 4,
+            "count": 4
+          },
+          "causal": {
+            "complete": 4,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.0,
+        "char_reduction_vs_full_source": 0.0,
+        "dependency_added_source_tokens": 33,
+        "window_added_source_tokens": 588
+      },
+      "evidence_bundle": {
+        "case_count": 16,
+        "mean_context_chars": 161.9375,
+        "mean_context_tokens": 40.125,
+        "total_chars": 2591,
+        "total_tokens": 642,
+        "overall_recall": {
+          "macro": 0.75,
+          "micro": 0.7428571428571429,
+          "retained": 26,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "conditional_recall": {
+          "macro": 0.75,
+          "micro": 0.7428571428571429,
+          "retained": 26,
+          "total": 35,
+          "valid_cases": 16
+        },
+        "complete_cases": 7,
+        "complete_rate": 0.4375,
+        "answer_visible_rate": 0.5,
+        "median_render_ms": 0.02950000634882599,
+        "stage_counts": {
+          "fact": 23,
+          "dependencies": 26,
+          "window": 26,
+          "final": 26
+        },
+        "dependency_added_supports": 3,
+        "window_added_supports": 0,
+        "fallback_added_supports": 0,
+        "stage_source_tokens": {
+          "fact": 154,
+          "dependencies": 187,
+          "window": 187,
+          "final": 187
+        },
+        "evidence_retention": 0.7428571428571429,
+        "extractive_probe_correct": 8,
+        "dimensions": {
+          "fact": {
+            "complete": 1,
+            "count": 4
+          },
+          "constraint": {
+            "complete": 4,
+            "count": 4
+          },
+          "path": {
+            "complete": 1,
+            "count": 4
+          },
+          "causal": {
+            "complete": 1,
+            "count": 4
+          }
+        },
+        "token_reduction_vs_full_source": 0.47677261613691935,
+        "char_reduction_vs_full_source": 0.47539987851791865,
+        "dependency_added_source_tokens": 33,
+        "window_added_source_tokens": 0
+      }
+    },
+    "pareto": {
+      "overall_recall": {
+        "micro": {
+          "frontier": [
+            "evidence_bundle_w0",
+            "evidence_bundle_w1"
+          ],
+          "reference_lines": {
+            "0.9": "evidence_bundle_w1",
+            "0.95": "evidence_bundle_w1"
+          }
+        },
+        "macro": {
+          "frontier": [
+            "evidence_bundle_w0",
+            "evidence_bundle_w1"
+          ],
+          "reference_lines": {
+            "0.9": "evidence_bundle_w1",
+            "0.95": "evidence_bundle_w1"
+          }
+        }
+      },
+      "conditional_recall": {
+        "micro": {
+          "frontier": [
+            "evidence_bundle_w0",
+            "evidence_bundle_w1"
+          ],
+          "reference_lines": {
+            "0.9": "evidence_bundle_w1",
+            "0.95": "evidence_bundle_w1"
+          }
+        },
+        "macro": {
+          "frontier": [
+            "evidence_bundle_w0",
+            "evidence_bundle_w1"
+          ],
+          "reference_lines": {
+            "0.9": "evidence_bundle_w1",
+            "0.95": "evidence_bundle_w1"
+          }
+        }
+      }
+    },
+    "rows": [
+      {
+        "case_id": "fact-inline",
+        "dimension": "fact",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 251,
+        "tokens": 62,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.008200004231184721,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 13,
+          "dependencies": 13,
+          "window": 13,
+          "final": 13
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "operator is Team Blue",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-inline",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 126,
+        "tokens": 31,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02920001861639321,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 13,
+          "dependencies": 13,
+          "window": 13,
+          "final": 13
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "operator is Team Blue",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-inline",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 251,
+        "tokens": 62,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02500001573935151,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 13,
+          "dependencies": 13,
+          "window": 44,
+          "final": 44
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "operator is Team Blue",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-inline",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 251,
+        "tokens": 62,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.023800006601959467,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 13,
+          "dependencies": 13,
+          "window": 44,
+          "final": 44
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "operator is Team Blue",
+            "locations": [
+              {
+                "episode_id": "ep-fact-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-linked",
+        "dimension": "fact",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 258,
+        "tokens": 64,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.007299997378140688,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-linked",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 99,
+        "tokens": 24,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The cache operator is Team Blue."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.02579999272711575,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-linked",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 133,
+        "tokens": 33,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02549999044276774,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 14,
+          "final": 14
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-linked",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 258,
+        "tokens": 64,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.025399989681318402,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1,
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 46,
+          "final": 46
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-unanchored",
+        "dimension": "fact",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 262,
+        "tokens": 65,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.007299997378140688,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-unanchored",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 103,
+        "tokens": 25,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The cache operator is Team Blue."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.025299988919869065,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-unanchored",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 137,
+        "tokens": 34,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.024899985874071717,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 14,
+          "final": 14
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-unanchored",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 262,
+        "tokens": 65,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Team Blue",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.025100016500800848,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1,
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 46,
+          "final": 46
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-paraphrase",
+        "dimension": "fact",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 273,
+        "tokens": 68,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.007299997378140688,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 10,
+          "dependencies": 10,
+          "window": 10,
+          "final": 10
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on the Redis service.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-paraphrase",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 120,
+        "tokens": 30,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The operator is Team Blue."
+        ],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03359999391250312,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 10,
+          "dependencies": 10,
+          "window": 10,
+          "final": 10
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on the Redis service.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-paraphrase",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 148,
+        "tokens": 37,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.032800016924738884,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 10,
+          "dependencies": 10,
+          "window": 17,
+          "final": 17
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on the Redis service.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "fact-paraphrase",
+        "dimension": "fact",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 273,
+        "tokens": 68,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "Redis",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.033899996196851134,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-fact-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1,
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 10,
+          "dependencies": 10,
+          "window": 48,
+          "final": 48
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on the Redis service.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The operator is Team Blue.",
+            "locations": [
+              {
+                "episode_id": "ep-fact-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-inline",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 327,
+        "tokens": 81,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.008800008799880743,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 11,
+          "final": 11
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "only during October",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-inline",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 202,
+        "tokens": 50,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03160000778734684,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 11,
+          "final": 11
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "only during October",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-inline",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 327,
+        "tokens": 81,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03159997868351638,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 42,
+          "final": 42
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "only during October",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-inline",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 327,
+        "tokens": 81,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.029600021662190557,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 42,
+          "final": 42
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "only during October",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-linked",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 350,
+        "tokens": 87,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.014399993233382702,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 17,
+          "final": 17
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-linked",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 225,
+        "tokens": 56,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03399999695830047,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 17,
+          "final": 17
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-linked",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 350,
+        "tokens": 87,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03470000228844583,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 48,
+          "final": 48
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-linked",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 350,
+        "tokens": 87,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03309999010525644,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 48,
+          "final": 48
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-unanchored",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 358,
+        "tokens": 89,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.009400013368576765,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 17,
+          "final": 17
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-unanchored",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 233,
+        "tokens": 58,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.0329999893438071,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 17,
+          "final": 17
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-unanchored",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 358,
+        "tokens": 89,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03309999010525644,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 48,
+          "final": 48
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-unanchored",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 358,
+        "tokens": 89,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.0323000131174922,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 17,
+          "window": 48,
+          "final": 48
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-paraphrase",
+        "dimension": "constraint",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 363,
+        "tokens": 90,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.009700015652924776,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 18,
+          "window": 18,
+          "final": 18
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-paraphrase",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 238,
+        "tokens": 59,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.04149999585933983,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 18,
+          "window": 18,
+          "final": 18
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-paraphrase",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 363,
+        "tokens": 90,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.041000021155923605,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 18,
+          "window": 49,
+          "final": 49
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "constraint-paraphrase",
+        "dimension": "constraint",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 363,
+        "tokens": 90,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "October",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.040399987483397126,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-constraint-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [
+              1
+            ],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 18,
+          "window": 49,
+          "final": 49
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "This setting applies only during October.",
+            "locations": [
+              {
+                "episode_id": "ep-constraint-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-inline",
+        "dimension": "path",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 328,
+        "tokens": 82,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.006900023436173797,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 20,
+          "dependencies": 20,
+          "window": 20,
+          "final": 20
+        },
+        "required_evidence": [
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-inline",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 203,
+        "tokens": 50,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02449998282827437,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 20,
+          "dependencies": 20,
+          "window": 20,
+          "final": 20
+        },
+        "required_evidence": [
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-inline",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 328,
+        "tokens": 82,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.023600005079060793,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 20,
+          "dependencies": 20,
+          "window": 51,
+          "final": 51
+        },
+        "required_evidence": [
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-inline",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 328,
+        "tokens": 82,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.023900007363408804,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 20,
+          "dependencies": 20,
+          "window": 51,
+          "final": 51
+        },
+        "required_evidence": [
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-linked",
+        "dimension": "path",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.00790000194683671,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-linked",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 12,
+          "final": 12
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-linked",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 172,
+        "tokens": 43,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 2,
+        "complete": false,
+        "missing": [
+          "The cache serves the dashboard"
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.028699985705316067,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-linked",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 12,
+          "final": 12
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-linked",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 205,
+        "tokens": 51,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02929999027401209,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-linked",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 3,
+          "final": 3
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 20,
+          "final": 20
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-linked",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.029400020139291883,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-linked",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "dependency_added": [],
+            "window_added": [
+              2,
+              3
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 3,
+          "final": 3
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 52,
+          "final": 52
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-linked",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-unanchored",
+        "dimension": "path",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 334,
+        "tokens": 83,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.008000002708286047,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-unanchored",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 12,
+          "final": 12
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-unanchored",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 176,
+        "tokens": 44,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 2,
+        "complete": false,
+        "missing": [
+          "The cache serves the dashboard"
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.029399991035461426,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-unanchored",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 12,
+          "final": 12
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-unanchored",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 209,
+        "tokens": 52,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02880001557059586,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-unanchored",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 3,
+          "final": 3
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 20,
+          "final": 20
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-unanchored",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 334,
+        "tokens": 83,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.028900016332045197,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-unanchored",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "dependency_added": [],
+            "window_added": [
+              2,
+              3
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 3,
+          "final": 3
+        },
+        "stage_source_tokens": {
+          "fact": 12,
+          "dependencies": 12,
+          "window": 52,
+          "final": 52
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-unanchored",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-paraphrase",
+        "dimension": "path",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 331,
+        "tokens": 82,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.008000002708286047,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-paraphrase",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 11,
+          "final": 11
+        },
+        "required_evidence": [
+          {
+            "text": "Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-paraphrase",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 173,
+        "tokens": 43,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 2,
+        "complete": false,
+        "missing": [
+          "The cache serves the dashboard"
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.037500023609027267,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-paraphrase",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 11,
+          "final": 11
+        },
+        "required_evidence": [
+          {
+            "text": "Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-paraphrase",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 206,
+        "tokens": 51,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.19439999596215785,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-paraphrase",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 3,
+          "final": 3
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 20,
+          "final": 20
+        },
+        "required_evidence": [
+          {
+            "text": "Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "path-paraphrase",
+        "dimension": "path",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 331,
+        "tokens": 82,
+        "required_count": 3,
+        "full_required_count": 3,
+        "retained_count": 3,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "dashboard",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.06459999713115394,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-path-paraphrase",
+            "fact": [
+              0,
+              1
+            ],
+            "fact_plus_dependencies": [
+              0,
+              1
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "dependency_added": [],
+            "window_added": [
+              2,
+              3
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2,
+              3
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 3,
+          "final": 3
+        },
+        "stage_source_tokens": {
+          "fact": 11,
+          "dependencies": 11,
+          "window": 51,
+          "final": 51
+        },
+        "required_evidence": [
+          {
+            "text": "Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "Redis serves the cache",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          },
+          {
+            "text": "The cache serves the dashboard",
+            "locations": [
+              {
+                "episode_id": "ep-path-paraphrase",
+                "paragraph_index": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-inline",
+        "dimension": "causal",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.015600002370774746,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 15,
+          "dependencies": 15,
+          "window": 15,
+          "final": 15
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "because the legacy client requires it",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-inline",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 205,
+        "tokens": 51,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.029600021662190557,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 15,
+          "dependencies": 15,
+          "window": 15,
+          "final": 15
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "because the legacy client requires it",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-inline",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02819998189806938,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 15,
+          "dependencies": 15,
+          "window": 47,
+          "final": 47
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "because the legacy client requires it",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-inline",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 330,
+        "tokens": 82,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.027499976567924023,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-inline",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 2,
+          "dependencies": 2,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 15,
+          "dependencies": 15,
+          "window": 47,
+          "final": 47
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "because the legacy client requires it",
+            "locations": [
+              {
+                "episode_id": "ep-causal-inline",
+                "paragraph_index": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-linked",
+        "dimension": "causal",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 277,
+        "tokens": 69,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.007399998139590025,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-linked",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 101,
+        "tokens": 25,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The reason is that the legacy client requires it."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.02609999501146376,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-linked",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 152,
+        "tokens": 38,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.026299996534362435,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 19,
+          "final": 19
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-linked",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 277,
+        "tokens": 69,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02549999044276774,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-linked",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1,
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 50,
+          "final": 50
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-linked",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-unanchored",
+        "dimension": "causal",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 281,
+        "tokens": 70,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.007199996616691351,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-unanchored",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 105,
+        "tokens": 26,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The reason is that the legacy client requires it."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.02579999272711575,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 6,
+          "final": 6
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-unanchored",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 156,
+        "tokens": 39,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.02579999272711575,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 19,
+          "final": 19
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-unanchored",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 281,
+        "tokens": 70,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.025500019546598196,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-unanchored",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1,
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 6,
+          "dependencies": 6,
+          "window": 50,
+          "final": 50
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas uses Redis",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-unanchored",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-paraphrase",
+        "dimension": "causal",
+        "mode": "full_source",
+        "window_size": null,
+        "configuration": "full_source",
+        "chars": 286,
+        "tokens": 71,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.007299997378140688,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 7,
+          "window": 7,
+          "final": 7
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-paraphrase",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 0,
+        "configuration": "evidence_bundle_w0",
+        "chars": 110,
+        "tokens": 27,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 1,
+        "complete": false,
+        "missing": [
+          "The reason is that the legacy client requires it."
+        ],
+        "probe_answer": "",
+        "probe_correct": false,
+        "answer_visible": false,
+        "render_median_ms": 0.03329999162815511,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0
+            ],
+            "dependency_added": [],
+            "window_added": [],
+            "fallback_added": [],
+            "final": [
+              0
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 1,
+          "final": 1
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 7,
+          "window": 7,
+          "final": 7
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-paraphrase",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 1,
+        "configuration": "evidence_bundle_w1",
+        "chars": 161,
+        "tokens": 40,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.034500000765547156,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 7,
+          "window": 20,
+          "final": 20
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "case_id": "causal-paraphrase",
+        "dimension": "causal",
+        "mode": "evidence_bundle",
+        "window_size": 2,
+        "configuration": "evidence_bundle_w2",
+        "chars": 286,
+        "tokens": 71,
+        "required_count": 2,
+        "full_required_count": 2,
+        "retained_count": 2,
+        "complete": true,
+        "missing": [],
+        "probe_answer": "the legacy client requires it",
+        "probe_correct": true,
+        "answer_visible": true,
+        "render_median_ms": 0.03339999238960445,
+        "assembly_indexes": [
+          {
+            "episode_id": "ep-causal-paraphrase",
+            "fact": [
+              0
+            ],
+            "fact_plus_dependencies": [
+              0
+            ],
+            "dependencies_plus_window": [
+              0,
+              1,
+              2
+            ],
+            "dependency_added": [],
+            "window_added": [
+              1,
+              2
+            ],
+            "fallback_added": [],
+            "final": [
+              0,
+              1,
+              2
+            ]
+          }
+        ],
+        "stage_retained": {
+          "fact": 1,
+          "dependencies": 1,
+          "window": 2,
+          "final": 2
+        },
+        "stage_source_tokens": {
+          "fact": 7,
+          "dependencies": 7,
+          "window": 51,
+          "final": 51
+        },
+        "required_evidence": [
+          {
+            "text": "Project Atlas relies on Redis.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 0
+              }
+            ]
+          },
+          {
+            "text": "The reason is that the legacy client requires it.",
+            "locations": [
+              {
+                "episode_id": "ep-causal-paraphrase",
+                "paragraph_index": 1
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

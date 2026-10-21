@@ -1,0 +1,905 @@
+diff --git a/h_recongraph/memory/manager.py b/h_recongraph/memory/manager.py
+--- a/h_recongraph/memory/manager.py
++++ b/h_recongraph/memory/manager.py
+@@ -17,7 +17,7 @@
+ from h_recongraph.memory.semantic_state import SemanticStateConstructor
+ from h_recongraph.memory.versioning import MemoryVersionManager
+ from h_recongraph.schemas.conflict import ConflictAssessment
++from h_recongraph.schemas.memory_unit import GraphBinding, SourceSpan, UnifiedMemoryUnit
+-from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+ from h_recongraph.schemas.semantic_state import MemorySemanticState
+ 
+ 
+@@ -68,35 +68,123 @@
+         user_id: str,
+         session_id: str | None = None,
+         metadata: dict[str, Any] | None = None,
++        *,
++        source_spans: list[SourceSpan] | None = None,
+     ) -> UnifiedMemoryUnit:
+         """Write a new interaction through M0, then promote/consolidate by policy."""
+ 
+         instant = self.buffer.add(text, user_id, session_id, metadata)
++        instant.source_spans.extend(source_spans or [])
++        instant.evidence_ids = list(
++            dict.fromkeys(
++                [*instant.evidence_ids, *(span.evidence_id for span in source_spans or [])]
++            )
++        )
+         instant.scores = self.evolution.score_m0(instant)
+ 
+         if not self.evolution.should_promote_to_m1(instant):
+             return instant
+ 
+         short_term = self.evolution.promote_to_m1(instant)
+-        semantic_state = self.semantic_state_constructor.construct(short_term)
+-        short_term.semantic_state_id = semantic_state.state_id
+-        short_term.semantic_state = semantic_state.model_dump(mode='json')
+         short_term_assessment = await self._assess_against_existing(
+             short_term,
+             [*self.short_term_memories.values(), *self.long_term_memories.values()],
+         )
+         self._apply_assessment_metadata(short_term, short_term_assessment)
++        await self.add_memory(short_term)
+-        self.short_term_memories[short_term.memory_id] = short_term
+-        self.semantic_states[semantic_state.state_id] = semantic_state
+ 
+-        if self.store is not None:
+-            await self.store.add_memory(short_term)
+-
+         if self.evolution.should_consolidate_to_m2(short_term):
+             await self._consolidate_memory(short_term)
+ 
+         return short_term
+ 
++    async def add_memory(self, memory: UnifiedMemoryUnit) -> UnifiedMemoryUnit:
++        """Write one M1/M2 bundle with its fact, constraint, path and causal evidence."""
++        memory.evidence_ids = list(
++            dict.fromkeys(
++                [*memory.evidence_ids, *(span.evidence_id for span in memory.source_spans)]
++            )
++        )
++        state = self.semantic_state_constructor.construct(memory)
++        memory.semantic_state_id = state.state_id
++        memory.semantic_state = state.model_dump(mode='json')
++        memory.source_spans = [
++            *(span for span in memory.source_spans if span.field == 'raw'),
++            *state.source_spans,
++        ]
++        target = self.short_term_memories if memory.layer == 'M1' else self.long_term_memories
++        target[memory.memory_id] = memory
++        self.semantic_states[state.state_id] = state
++        if self.store is not None:
++            await self.store.add_memory(memory)
++        return memory
++
++    async def update_memory(
++        self,
++        memory_id: str,
++        *,
++        operation: Literal['modify', 'supersede', 'delete'],
++        replacement: UnifiedMemoryUnit | None = None,
++    ) -> UnifiedMemoryUnit | None:
++        """Apply a local operation to a bundle and its M0/M1/M2 lineage."""
++        memories = {**self.short_term_memories, **self.long_term_memories}
++        target = memories[memory_id]
++        family_ids = {memory_id}
++        lineage = [
++            (memory.memory_id, parent)
++            for memory in memories.values()
++            for parent in (
++                memory.metadata.get('promoted_from'),
++                memory.metadata.get('consolidated_from'),
++            )
++            if parent
++        ]
++        while True:
++            expanded = family_ids | {
++                item
++                for child, parent in lineage
++                if child in family_ids or parent in family_ids
++                for item in (child, parent)
++            }
++            if expanded == family_ids:
++                break
++            family_ids = expanded
++        family = [memory for memory in memories.values() if memory.memory_id in family_ids]
++        if self.store is not None:
++            await self.store.remove_memories(family)
++        self.buffer.remove_many(family_ids)
++        for memory in family:
++            memory.lifecycle_status = 'deleted' if operation == 'delete' else 'revised'
++            self.semantic_states.pop(memory.semantic_state_id, None)
++        if operation == 'delete':
++            return None
++        if operation == 'supersede':
++            replacement.version = target.version + 1
++            replacement.supersedes = list(dict.fromkeys([*target.supersedes, target.memory_id]))
++            return await self.add_memory(replacement)
++        updated = {}
++        for memory in family:
++            revised = replacement.model_copy(deep=True)
++            revised.memory_id = memory.memory_id
++            revised.layer = memory.layer
++            revised.ttl = memory.ttl
++            revised.lifecycle_status = (
++                'active_short_term' if memory.layer == 'M1' else 'consolidated'
++            )
++            revised.version = memory.version + 1
++            revised.supersedes = list(memory.supersedes)
++            revised.graph_binding = GraphBinding()
++            revised.metadata = {
++                **replacement.metadata,
++                **{
++                    key: memory.metadata[key]
++                    for key in ('promoted_from', 'consolidated_from')
++                    if key in memory.metadata
++                },
++            }
++            updated[memory.memory_id] = await self.add_memory(revised)
++        return updated[memory_id]
++
+     async def retrieve(
+         self,
+         query: str,
+@@ -245,6 +333,11 @@
+                         'metadata': {
+                             'graphiti_episode_ids': data.get('graphiti_episode_ids', []),
+                             'graphiti_episode_id': data.get('graphiti_episode_id'),
++                            **{
++                                key: data[key]
++                                for key in ('promoted_from', 'consolidated_from')
++                                if key in data
++                            },
+                         },
+                     }
+                 )
+@@ -337,6 +430,8 @@
+ 
+         consolidated: list[UnifiedMemoryUnit] = []
+         for memory in list(self.short_term_memories.values()):
++            if memory.lifecycle_status in {'deleted', 'revised', 'archived', 'expired'}:
++                continue
+             if memory.user_id != user_id:
+                 continue
+             if session_id is not None and memory.session_id != session_id:
+@@ -368,16 +463,8 @@
+         )
+         existing = self._get_long_term_memory(assessment.matched_memory_id)
+         long_term = self.version_manager.apply(long_term, existing, assessment)
++        return await self.add_memory(long_term)
+-        semantic_state = self.semantic_state_constructor.construct(long_term)
+-        long_term.semantic_state_id = semantic_state.state_id
+-        long_term.semantic_state = semantic_state.model_dump(mode='json')
+-        self.long_term_memories[long_term.memory_id] = long_term
+-        self.semantic_states[semantic_state.state_id] = semantic_state
+ 
+-        if self.store is not None:
+-            await self.store.add_memory(long_term)
+-        return long_term
+-
+     async def _assess_against_existing(
+         self,
+         memory: UnifiedMemoryUnit,
+diff --git a/h_recongraph/memory/graphiti_store.py b/h_recongraph/memory/graphiti_store.py
+--- a/h_recongraph/memory/graphiti_store.py
++++ b/h_recongraph/memory/graphiti_store.py
+@@ -3,6 +3,7 @@
+ import json
+ from typing import Any
+ 
++from graphiti_core.edges import EntityEdge
+ from graphiti_core.nodes import EpisodeType, EpisodicNode
+ from graphiti_core.utils.datetime_utils import utc_now
+ from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+@@ -51,6 +52,28 @@
+             memory.metadata['graphiti_episode_id'] = episode.uuid
+         return result
+ 
++    async def remove_memories(self, memories: list[UnifiedMemoryUnit]) -> None:
++        """Detach bundle sources while retaining edges supported by other sources."""
++        episode_ids = list(
++            dict.fromkeys(eid for memory in memories for eid in self.episode_ids(memory))
++        )
++        if not episode_ids:
++            return
++        driver = self.graphiti.driver
++        episodes = await EpisodicNode.get_by_uuids(driver, episode_ids)
++        edge_ids = list(dict.fromkeys(eid for episode in episodes for eid in episode.entity_edges))
++        edges = await EntityEdge.get_by_uuids(driver, edge_ids) if edge_ids else []
++        for edge in edges:
++            if not set(episode_ids).intersection(edge.episodes):
++                continue
++            edge.episodes = [eid for eid in edge.episodes if eid not in episode_ids]
++            if edge.episodes:
++                await edge.save(driver)
++            else:
++                await edge.delete(driver)
++        for episode in episodes:
++            await episode.delete(driver)
++
+     async def search_memories(
+         self,
+         query: str,
+@@ -134,6 +157,13 @@
+         )
+         snapshot['graphiti_episode_ids'] = self.episode_ids(memory)
+         snapshot['graphiti_episode_id'] = memory.metadata.get('graphiti_episode_id')
++        snapshot.update(
++            {
++                key: memory.metadata[key]
++                for key in ('promoted_from', 'consolidated_from')
++                if key in memory.metadata
++            }
++        )
+         envelope = {
+             'h_recongraph': snapshot,
+             'content': memory.raw_content,
+diff --git a/h_recongraph/memory/relinking.py b/h_recongraph/memory/relinking.py
+--- a/h_recongraph/memory/relinking.py
++++ b/h_recongraph/memory/relinking.py
+@@ -89,16 +89,19 @@
+         """Keep complete paragraphs anchored by retrieved facts and semantic evidence."""
+         content = self._source_text(episode.content)
+         facts = [edge.fact for edge in self.graph_edges if episode.uuid in edge.episodes]
++        spans = [
++            span
++            for state in self.semantic_states
++            for span in state.source_spans
++            if span.field != 'raw' and span.text and span.text in content
++        ]
++        # A bound fact anchor also locates evidence when the graph fact is paraphrased.
++        fact_anchors = [span.text for span in spans if span.field == 'fact']
++        if not facts or (any(fact not in content for fact in facts) and not fact_anchors):
+-        if not facts or any(fact not in content for fact in facts):
+             return content
+         anchors = [
++            *(fact for fact in facts if fact in content),
++            *(span.text for span in spans),
+-            *facts,
+-            *(
+-                span.text
+-                for state in self.semantic_states
+-                for span in state.source_spans
+-                if span.text and span.text in content
+-            ),
+         ]
+         return '\n\n'.join(
+             paragraph
+diff --git a/h_recongraph/memory/semantic_state.py b/h_recongraph/memory/semantic_state.py
+--- a/h_recongraph/memory/semantic_state.py
++++ b/h_recongraph/memory/semantic_state.py
+@@ -26,7 +26,7 @@
+         edge_or_subgraph_id: str | None = None,
+     ) -> MemorySemanticState:
+         text = memory.raw_content or ''
++        spans = [span.model_copy(deep=True) for span in memory.source_spans if span.field != 'raw']
+-        spans: list[SourceSpan] = []
+ 
+         temporal_scope = self._span_for_any(
+             text, self.TEMPORAL_MARKERS, memory.evidence_ids, 'temporal_scope', spans
+@@ -61,6 +61,12 @@
+                     )
+                 )
+ 
++        spans = list(
++            {
++                (span.evidence_id, span.field, span.text, span.start, span.end): span
++                for span in spans
++            }.values()
++        )
+         confidence = max(memory.scores.confidence, memory.scores.salience, 0.1 if spans else 0.0)
+         state_type = 'evidence_supported' if spans else 'unsupported'
+         return MemorySemanticState(
+@@ -120,10 +126,14 @@
+                 continue
+             start = index + len(marker)
+             end_candidates = [
++                pos + (delimiter in ('。', '.'))
++                for delimiter in ('，', ',', '。', '.', '\n')
++                if (pos := text.find(delimiter, start)) != -1
+-                pos for pos in [text.find('，', start), text.find(',', start)] if pos != -1
+             ]
+             end = min(end_candidates) if end_candidates else min(len(text), start + 48)
+             value = text[start:end].strip(' ，,')
++            start += len(text[start:end]) - len(text[start:end].lstrip(' ，,'))
++            end = start + len(value)
+             if not value:
+                 value = text[index : min(len(text), index + len(marker) + 12)].strip()
+                 start = index
+diff --git a/h_recongraph/examples/evaluate_read_context.py b/h_recongraph/examples/evaluate_read_context.py
+--- a/h_recongraph/examples/evaluate_read_context.py
++++ b/h_recongraph/examples/evaluate_read_context.py
+@@ -1,6 +1,7 @@
+ """Paired evidence-retention and text-cost evaluation on fixed reading contexts."""
+ 
+ import argparse
++import asyncio
+ import json
+ import re
+ from pathlib import Path
+@@ -10,8 +11,10 @@
+ from graphiti_core.edges import EntityEdge
+ from graphiti_core.nodes import EpisodeType, EpisodicNode
+ from graphiti_core.utils.datetime_utils import utc_now
++from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
++from h_recongraph.memory.manager import HReConGraphMemory
+ from h_recongraph.memory.relinking import HierarchicalMemoryContext
++from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
+-from h_recongraph.schemas.memory_unit import SourceSpan
+ from h_recongraph.schemas.semantic_state import MemorySemanticState
+ 
+ 
+@@ -63,10 +66,38 @@
+     )
+ 
+ 
++async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
++    """Apply separately annotated write bindings, serialize, then recover for reading."""
++    contexts = {}
++    for case in cases:
++        context = build_context(case)
++        writer = HReConGraphMemory()
++        for source in context.source_episodes:
++            memory = UnifiedMemoryUnit(
++                memory_id=f'stm-{source.uuid}',
++                user_id='eval',
++                layer='M1',
++                lifecycle_status='active_short_term',
++                raw_content=source.content,
++                source_spans=[
++                    SourceSpan(evidence_id=source.uuid, **span) for span in bindings[case['id']]
++                ],
++            )
++            await writer.add_memory(memory)
++            source.content = GraphitiMemoryStore(None)._episode_body(memory)
++        reader = HReConGraphMemory(store=GraphitiMemoryStore(None))
++        reader._restore_source_memories(
++            context.source_episodes, context.graph_edges, 'eval', ['M1', 'M2']
++        )
++        context.semantic_states = list(reader.semantic_states.values())
++        contexts[case['id']] = context
++    return contexts
++
++
++def evaluate_cases(cases: list[dict], repeats: int = 100, contexts: dict | None = None) -> dict:
+-def evaluate_cases(cases: list[dict], repeats: int = 100) -> dict:
+     rows = []
+     for case in cases:
++        context = contexts[case['id']] if contexts is not None else build_context(case)
+-        context = build_context(case)
+         for mode in ('full_source', 'evidence_bundle'):
+             durations = []
+             for _ in range(repeats):
+@@ -128,13 +159,27 @@
+         '--cases', type=Path, default=Path(__file__).with_name('read_context_cases.json')
+     )
+     parser.add_argument('--repeats', type=int, default=100)
++    parser.add_argument('--write-bindings', type=Path)
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     cases = json.loads(args.cases.read_text(encoding='utf-8'))
+     result = evaluate_cases(cases, args.repeats)
++    if args.write_bindings:
++        bindings = json.loads(args.write_bindings.read_text(encoding='utf-8'))
++        contexts = asyncio.run(build_written_contexts(cases, bindings))
++        result = {
++            'binding_protocol': 'separate source-only paragraph annotations; fixed graph edges',
++            'original_bindings': result,
++            'complete_write_bindings': evaluate_cases(cases, args.repeats, contexts),
++        }
+     args.output_json.parent.mkdir(parents=True, exist_ok=True)
+     args.output_json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
++    summaries = (
++        {name: result[name]['summary'] for name in ('original_bindings', 'complete_write_bindings')}
++        if args.write_bindings
++        else result['summary']
++    )
++    print(json.dumps(summaries, ensure_ascii=False, indent=2))
+-    print(json.dumps(result['summary'], ensure_ascii=False, indent=2))
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/tests/test_h_recongraph_memory.py b/tests/test_h_recongraph_memory.py
+--- a/tests/test_h_recongraph_memory.py
++++ b/tests/test_h_recongraph_memory.py
+@@ -1,4 +1,5 @@
+ from datetime import timedelta
++from unittest.mock import AsyncMock
+ 
+ import pytest
+ 
+@@ -6,7 +7,7 @@
+ from h_recongraph.memory.conflict import ConflictDetector
+ from h_recongraph.memory.llm_evaluator import LLMMemoryEvaluator
+ from h_recongraph.memory.semantic_state import SemanticStateConstructor
++from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
+-from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+ 
+ 
+ class FakeGraphiti:
+@@ -220,3 +221,111 @@
+     assert consolidated[0].supersedes == ['ltm_old']
+     assert old_long_term.lifecycle_status == 'revised'
+     assert old_long_term.metadata['revised_by'] == consolidated[0].memory_id
++
++
++def bundle(text='Project Atlas uses Redis.', memory_id='stm-atlas'):
++    paragraphs = [
++        text,
++        'Only during October.',
++        'The cache serves the dashboard.',
++        'The reason is compatibility.',
++    ]
++    return UnifiedMemoryUnit(
++        memory_id=memory_id,
++        user_id='u1',
++        layer='M1',
++        lifecycle_status='active_short_term',
++        raw_content='\n\n'.join(paragraphs),
++        source_spans=[
++            SourceSpan(evidence_id='ev-atlas', field=field, text=paragraph)
++            for field, paragraph in zip(
++                ('fact', 'constraint', 'path', 'causal'), paragraphs, strict=True
++            )
++        ],
++    )
++
++
++@pytest.mark.asyncio
++async def test_write_bundle_keeps_four_dimensions_through_m0_m1_m2():
++    controller = HReConGraphMemory(policy=MemoryPolicy(consolidation_threshold=2.0))
++    supplied = bundle()
++    short = await controller.add_interaction(
++        'remember ' + supplied.raw_content, 'u1', source_spans=supplied.source_spans
++    )
++    long = await controller._consolidate_memory(short)
++
++    for memory in [*controller.buffer.list(), short, long]:
++        assert all(span in memory.source_spans for span in supplied.source_spans)
++    for memory in (short, long):
++        assert all(
++            span.model_dump(mode='json') in memory.semantic_state['source_spans']
++            for span in supplied.source_spans
++        )
++
++
++@pytest.mark.asyncio
++async def test_modify_replaces_entire_bundle_in_both_layers_and_preserves_other_memory():
++    controller = HReConGraphMemory()
++    old = await controller.add_memory(bundle())
++    old.metadata['promoted_from'] = 'im-atlas'
++    long = await controller._consolidate_memory(old)
++    unrelated = await controller.add_memory(bundle('Project Beta uses SQLite.', 'stm-beta'))
++    kept = unrelated.model_dump()
++    store = AsyncMock()
++    controller.store = store
++    replacement = bundle('Project Atlas uses PostgreSQL.', 'stm-replacement')
++    replacement.source_spans[1].text = 'Only during November.'
++    replacement.raw_content = replacement.raw_content.replace('October', 'November')
++
++    result = await controller.update_memory(
++        old.memory_id, operation='modify', replacement=replacement
++    )
++
++    for memory in (result, controller.long_term_memories[long.memory_id]):
++        assert memory.version == 2
++        assert 'Redis' not in memory.raw_content
++        assert 'October' not in str(memory.semantic_state)
++        assert memory.source_spans == replacement.source_spans
++    assert unrelated.model_dump() == kept
++    store.remove_memories.assert_awaited_once_with([old, long])
++    assert store.add_memory.await_count == 2
++
++
++@pytest.mark.asyncio
++async def test_supersede_records_predecessor_and_reads_only_new_bundle():
++    controller = HReConGraphMemory()
++    old = await controller.add_memory(bundle())
++    new = await controller.update_memory(
++        old.memory_id,
++        operation='supersede',
++        replacement=bundle('Project Atlas uses PostgreSQL.', 'stm-new'),
++    )
++    context = await controller.retrieve('Project Atlas', 'u1')
++
++    assert new.supersedes == [old.memory_id]
++    assert new.version == 2
++    assert old.lifecycle_status == 'revised'
++    assert [state.edge_or_subgraph_id for state in context.semantic_states] == [new.memory_id]
++    assert old.semantic_state_id not in controller.semantic_states
++
++
++@pytest.mark.asyncio
++async def test_delete_clears_bundle_lineage_and_keeps_unrelated_memory():
++    controller = HReConGraphMemory(policy=MemoryPolicy(consolidation_threshold=2.0))
++    old = await controller.add_interaction(
++        'remember ' + bundle().raw_content, 'u1', source_spans=bundle().source_spans
++    )
++    long = await controller._consolidate_memory(old)
++    unrelated = await controller.add_memory(bundle('Project Beta uses SQLite.', 'stm-beta'))
++    kept = unrelated.model_dump()
++
++    await controller.update_memory(long.memory_id, operation='delete')
++    context = await controller.retrieve('Redis', 'u1')
++
++    assert old.lifecycle_status == long.lifecycle_status == 'deleted'
++    assert controller.buffer.list() == []
++    assert old.semantic_state_id not in controller.semantic_states
++    assert long.semantic_state_id not in controller.semantic_states
++    assert context.instant_memories == context.semantic_states == []
++    assert unrelated.model_dump() == kept
++    assert await controller.consolidate('u1') == []
+diff --git a/tests/test_h_recongraph_graphiti_store.py b/tests/test_h_recongraph_graphiti_store.py
+--- a/tests/test_h_recongraph_graphiti_store.py
++++ b/tests/test_h_recongraph_graphiti_store.py
+@@ -311,3 +311,35 @@
+ 
+     assert memory.model_dump() == before
+     client.add_episode.assert_awaited_once()
++
++
++@pytest.mark.asyncio
++async def test_remove_bundle_detaches_shared_edges_and_deletes_exclusive_sources(monkeypatch):
++    from graphiti_core.edges import EntityEdge
++
++    source = SimpleNamespace(
++        uuid='ep-atlas', entity_edges=['shared', 'exclusive', 'other'], delete=AsyncMock()
++    )
++    shared = SimpleNamespace(episodes=['ep-atlas', 'ep-beta'], save=AsyncMock(), delete=AsyncMock())
++    exclusive = SimpleNamespace(episodes=['ep-atlas'], save=AsyncMock(), delete=AsyncMock())
++    other = SimpleNamespace(episodes=['ep-beta'], save=AsyncMock(), delete=AsyncMock())
++    load_sources = AsyncMock(return_value=[source])
++    load_edges = AsyncMock(return_value=[shared, exclusive, other])
++    monkeypatch.setattr(EpisodicNode, 'get_by_uuids', load_sources)
++    monkeypatch.setattr(EntityEdge, 'get_by_uuids', load_edges)
++    client = SimpleNamespace(driver=object())
++    memory = UnifiedMemoryUnit(
++        user_id='u1', layer='M1', metadata={'graphiti_episode_ids': ['ep-atlas']}
++    )
++
++    await GraphitiMemoryStore(client).remove_memories([memory, memory])
++
++    load_sources.assert_awaited_once_with(client.driver, ['ep-atlas'])
++    load_edges.assert_awaited_once_with(client.driver, ['shared', 'exclusive', 'other'])
++    assert shared.episodes == ['ep-beta']
++    shared.save.assert_awaited_once_with(client.driver)
++    shared.delete.assert_not_awaited()
++    exclusive.delete.assert_awaited_once_with(client.driver)
++    source.delete.assert_awaited_once_with(client.driver)
++    other.save.assert_not_awaited()
++    other.delete.assert_not_awaited()
+diff --git a/tests/test_h_recongraph_retrieval.py b/tests/test_h_recongraph_retrieval.py
+--- a/tests/test_h_recongraph_retrieval.py
++++ b/tests/test_h_recongraph_retrieval.py
+@@ -11,7 +11,7 @@
+ from graphiti_core.nodes import EntityNode, EpisodeType, EpisodicNode
+ from graphiti_core.utils.datetime_utils import utc_now
+ from h_recongraph import HReConGraphMemory, MemoryPolicy
++from h_recongraph.examples.evaluate_read_context import build_written_contexts, evaluate_cases
+-from h_recongraph.examples.evaluate_read_context import evaluate_cases
+ from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
+ from h_recongraph.memory.ranker import MemoryUtilityRanker
+ from h_recongraph.memory.relinking import HierarchicalMemoryContext
+@@ -1196,6 +1196,96 @@
+     assert 'Office lunch' in context.source_episodes[0].content
+ 
+ 
++@pytest.mark.asyncio
++async def test_local_bundle_operations_roundtrip_through_graph_store():
++    class BundleGraphiti(SearchGraphiti):
++        def __init__(self):
++            super().__init__([])
++            self.writes = []
++            self.driver.graph_operations_interface.edge_get_by_uuids = self.load_edges
++            self.driver.graph_operations_interface.edge_delete = self.delete_edge
++            self.driver.graph_operations_interface.node_delete = self.delete_episode
++
++        async def load_edges(self, edge_type, driver, uuids):
++            return [edge for edge in self.edges if edge.uuid in uuids]
++
++        async def delete_edge(self, edge, driver):
++            self.edges.remove(edge)
++
++        async def delete_episode(self, episode, driver):
++            self.episodes.remove(episode)
++
++        async def add_episode(self, **kwargs):
++            self.writes.append(kwargs['episode_body'])
++            episode = source_episode(f'ep-{len(self.writes)}', kwargs['episode_body'])
++            edge = source_edge([episode.uuid], uuid=f'edge-{len(self.writes)}')
++            body = json.loads(episode.content)
++            edge.fact = next(
++                span['text']
++                for span in body['h_recongraph']['source_spans']
++                if span['field'] == 'fact'
++            )
++            episode.entity_edges = [edge.uuid]
++            self.episodes.append(episode)
++            self.edges.append(edge)
++            return AddEpisodeResults(
++                episode=episode,
++                nodes=[],
++                edges=[edge],
++                episodic_edges=[],
++                communities=[],
++                community_edges=[],
++            )
++
++    def make_bundle(memory_id, fact, month):
++        return UnifiedMemoryUnit(
++            memory_id=memory_id,
++            user_id='u1',
++            layer='M1',
++            lifecycle_status='active_short_term',
++            raw_content=f'{fact}\n\nOnly during {month}.',
++            source_spans=[
++                SourceSpan(evidence_id=memory_id, field='fact', text=fact),
++                SourceSpan(evidence_id=memory_id, field='constraint', text=f'Only during {month}.'),
++            ],
++        )
++
++    client = BundleGraphiti()
++    controller = HReConGraphMemory(client)
++    old = await controller.add_memory(make_bundle('stm-a', 'Atlas uses Redis.', 'October'))
++    kept = await controller.add_memory(make_bundle('stm-b', 'Beta uses SQLite.', 'December'))
++    kept_body = client.episodes[1].content
++    kept_edge = client.edges[1].model_dump()
++    await controller.update_memory(
++        old.memory_id,
++        operation='modify',
++        replacement=make_bundle('draft', 'Atlas uses PostgreSQL.', 'November'),
++    )
++    reader = HReConGraphMemory(client)
++    context = await reader.retrieve('Atlas', 'u1', source_mode='evidence_bundle')
++    assert 'Redis' not in context.context_text
++    assert 'PostgreSQL' in context.context_text and 'November' in context.context_text
++    assert reader.short_term_memories[old.memory_id].version == 2
++    new = await controller.update_memory(
++        old.memory_id,
++        operation='supersede',
++        replacement=make_bundle('stm-new', 'Atlas uses Memcached.', 'January'),
++    )
++    reader = HReConGraphMemory(client)
++    context = await reader.retrieve('Atlas', 'u1', source_mode='evidence_bundle')
++    assert 'PostgreSQL' not in context.context_text
++    assert 'Memcached' in context.context_text and 'January' in context.context_text
++    assert reader.short_term_memories[new.memory_id].supersedes == [old.memory_id]
++    await controller.update_memory(new.memory_id, operation='delete')
++    reader = HReConGraphMemory(client)
++    context = await reader.retrieve('Atlas', 'u1', source_mode='evidence_bundle')
++    assert 'Atlas' not in context.context_text
++    assert client.episodes[0].content == kept_body
++    assert client.edges[0].model_dump() == kept_edge
++    assert list(reader.short_term_memories) == [kept.memory_id]
++    assert len(client.writes) == 4
++
++
+ def test_reading_ablation_reports_per_dimension_evidence_and_probe_results():
+     path = Path(__file__).parents[1] / 'h_recongraph/examples/read_context_cases.json'
+     cases = json.loads(path.read_text(encoding='utf-8'))
+@@ -1227,3 +1317,61 @@
+ 
+     assert [row['complete'] for row in rows] == [False, True]
+     assert [row['probe_correct'] for row in rows] == [False, True]
++
++
++@pytest.mark.asyncio
++async def test_complete_write_bindings_recover_all_16_reading_bundles():
++    folder = Path(__file__).parents[1] / 'h_recongraph/examples'
++    cases = json.loads((folder / 'read_context_cases.json').read_text(encoding='utf-8'))
++    bindings = json.loads((folder / 'read_context_write_bindings.json').read_text(encoding='utf-8'))
++
++    contexts = await build_written_contexts(cases, bindings)
++    result = evaluate_cases(cases, repeats=1, contexts=contexts)
++
++    selected = result['summary']['evidence_bundle']
++    assert selected['complete_cases'] == selected['extractive_probe_correct'] == 16
++    assert selected['evidence_retention'] == 1.0
++    assert selected['total_chars'] < result['summary']['full_source']['total_chars']
++    for case in cases:
++        context = contexts[case['id']]
++        assert context.semantic_states[0].source_spans
++        assert 'cafeteria menus' not in context.render_text('evidence_bundle')
++        if case['id'].endswith('-paraphrase'):
++            assert len(context.render_text('evidence_bundle')) < len(
++                context.render_text('full_source')
++            )
++
++
++@pytest.mark.asyncio
++async def test_paraphrase_retrieval_uses_written_fact_and_dependency_spans():
++    text = (
++        'Project A relies on Redis.\n\nOnly during October.\n\n'
++        'The cache serves the dashboard.\n\nThe reason is compatibility.\n\nOffice lunch at noon.'
++    )
++    writer = HReConGraphMemory()
++    memory = UnifiedMemoryUnit(
++        memory_id='stm-written',
++        user_id='u1',
++        layer='M1',
++        raw_content=text,
++        source_spans=[
++            SourceSpan(evidence_id='ev-written', field=field, text=paragraph)
++            for field, paragraph in zip(
++                ('fact', 'constraint', 'path', 'causal'), text.split('\n\n')[:4], strict=True
++            )
++        ],
++        metadata={'promoted_from': 'im-written'},
++    )
++    await writer.add_memory(memory)
++    source = source_episode('ep-written', GraphitiMemoryStore(None)._episode_body(memory))
++    edge = source_edge([source.uuid])
++    controller = HReConGraphMemory(SearchGraphiti([edge], [source]))
++
++    context = await controller.retrieve('Project A', 'u1', source_mode='evidence_bundle')
++
++    restored = controller.short_term_memories[memory.memory_id]
++    assert restored.source_spans == memory.source_spans
++    assert restored.graph_binding.edges == [edge.uuid]
++    assert restored.metadata['promoted_from'] == 'im-written'
++    assert all(paragraph in context.context_text for paragraph in text.split('\n\n')[:4])
++    assert 'Office lunch' not in context.context_text
+diff --git a/h_recongraph/examples/read_context_write_bindings.json b/h_recongraph/examples/read_context_write_bindings.json
+new file mode 100644
+--- /dev/null
++++ b/h_recongraph/examples/read_context_write_bindings.json
+@@ -0,0 +1,158 @@
++{
++  "fact-inline": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis. The operator is Team Blue."
++    }
++  ],
++  "fact-linked": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "fact",
++      "text": "The cache operator is Team Blue."
++    }
++  ],
++  "fact-unanchored": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "fact",
++      "text": "The cache operator is Team Blue."
++    }
++  ],
++  "fact-paraphrase": [
++    {
++      "field": "fact",
++      "text": "Project Atlas relies on the Redis service."
++    },
++    {
++      "field": "fact",
++      "text": "The operator is Team Blue."
++    }
++  ],
++  "constraint-inline": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis only during October."
++    }
++  ],
++  "constraint-linked": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "constraint",
++      "text": "This setting applies only during October."
++    }
++  ],
++  "constraint-unanchored": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "constraint",
++      "text": "This setting applies only during October."
++    }
++  ],
++  "constraint-paraphrase": [
++    {
++      "field": "fact",
++      "text": "Project Atlas relies on Redis."
++    },
++    {
++      "field": "constraint",
++      "text": "This setting applies only during October."
++    }
++  ],
++  "path-inline": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis. Redis serves the cache. The cache serves the dashboard."
++    }
++  ],
++  "path-linked": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "path",
++      "text": "Redis serves the cache."
++    },
++    {
++      "field": "path",
++      "text": "The cache serves the dashboard."
++    }
++  ],
++  "path-unanchored": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "path",
++      "text": "Redis serves the cache."
++    },
++    {
++      "field": "path",
++      "text": "The cache serves the dashboard."
++    }
++  ],
++  "path-paraphrase": [
++    {
++      "field": "fact",
++      "text": "Atlas relies on Redis."
++    },
++    {
++      "field": "path",
++      "text": "Redis serves the cache."
++    },
++    {
++      "field": "path",
++      "text": "The cache serves the dashboard."
++    }
++  ],
++  "causal-inline": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis because the legacy client requires it."
++    }
++  ],
++  "causal-linked": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "causal",
++      "text": "The reason is that the legacy client requires it."
++    }
++  ],
++  "causal-unanchored": [
++    {
++      "field": "fact",
++      "text": "Project Atlas uses Redis."
++    },
++    {
++      "field": "causal",
++      "text": "The reason is that the legacy client requires it."
++    }
++  ],
++  "causal-paraphrase": [
++    {
++      "field": "fact",
++      "text": "Project Atlas relies on Redis."
++    },
++    {
++      "field": "causal",
++      "text": "The reason is that the legacy client requires it."
++    }
++  ]
++}

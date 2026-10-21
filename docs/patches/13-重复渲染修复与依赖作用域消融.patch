@@ -1,0 +1,610 @@
+diff --git a/h_recongraph/examples/evaluate_longmemeval_read.py b/h_recongraph/examples/evaluate_longmemeval_read.py
+index 3c88815..e5d5acb 100644
+--- a/h_recongraph/examples/evaluate_longmemeval_read.py
++++ b/h_recongraph/examples/evaluate_longmemeval_read.py
+@@ -20,6 +20,7 @@ from h_recongraph.examples.evaluate_read_context import (
+     finalize_summaries,
+     measure_render,
+     pareto_analysis,
++    reading_configurations,
+     stage_source_texts,
+     summarize_rows,
+ )
+@@ -212,24 +213,83 @@ def loss_summary(rows: list[dict]) -> dict:
+     }
+ 
+ 
++def dependency_diagnostic(rows: list[dict], fixed_retrieval: list[dict], names: list[str]) -> dict:
++    """Trace the legacy dependency-added supports after each label-blind assembly."""
++    groups = {name: [row for row in rows if row['configuration'] == name] for name in names}
++
++    def positions(selected: list[dict], key: str) -> set[tuple]:
++        return {(row['question_id'], *ref) for row in selected for ref in row[key]}
++
++    added = positions(groups['legacy_w1'], 'dependency_added_support_indices')
++    near = added & positions(groups['fact_window_w1'], 'retained_supporting_turn_indices')
++    far = added - near
++    turn_count = sum(
++        source['turn_count'] for item in fixed_retrieval for source in item['source_bindings']
++    )
++    return {
++        'legacy_dependency_added_supports': len(added),
++        'inside_fact_window_w1': len(near),
++        'outside_fact_window_w1': len(far),
++        'far_support_indices': [list(ref) for ref in sorted(far)],
++        'retrieved_source_turns': turn_count,
++        'by_configuration': {
++            name: {
++                'far_supports_retained': len(
++                    far & positions(selected, 'retained_supporting_turn_indices')
++                ),
++                'far_supports_lost': [
++                    list(ref)
++                    for ref in sorted(far - positions(selected, 'retained_supporting_turn_indices'))
++                ],
++                'dependency_added_turns': sum(
++                    len(stage['dependency_added'])
++                    for row in selected
++                    for stage in row['assembly_indexes']
++                ),
++                'selected_source_turns': sum(
++                    len(source['indices'])
++                    for row in selected
++                    for source in row['rendered_source_indices']
++                ),
++            }
++            for name, selected in groups.items()
++        },
++    }
++
++
+ async def evaluate_cases(
+     cases: list[dict[str, Any]],
+     *,
+     repeats: int = 3,
+     window_sizes: tuple[int, ...] = (0,),
+     max_fact_anchors: int = 1,
++    reading_configs: dict | None = None,
+ ) -> dict:
+     rows, fixed_retrieval = [], []
+-    configs = [('full_source', 0)] + [('evidence_bundle', size) for size in window_sizes]
+-    names = ['full_source'] + [f'evidence_bundle_w{size}' for size in window_sizes]
++    configs = reading_configs or reading_configurations(window_sizes)
++    names = list(configs)
+     for case in cases:
+         context = await build_context(case, max_fact_anchors=max_fact_anchors)
+         hit_indexes = hit_session_indexes(case['haystack_sessions'], case['question'])
+-        # All four assemblies finish before answer/has_answer labels are read.
++        # All configurations render before answer/has_answer labels are read.
+         rendered = {
+-            (mode, size): measure_render(context, mode, repeats, size) for mode, size in configs
++            name: measure_render(
++                context,
++                config['mode'],
++                repeats,
++                **{key: value for key, value in config.items() if key != 'mode'},
++            )
++            for name, config in configs.items()
++        }
++        assemblies = {
++            name: assembly_stages(
++                context,
++                config['window_size'],
++                dependency_mode=config.get('dependency_mode', 'all'),
++                window_scope=config.get('window_scope', 'bundle'),
++            )
++            for name, config in configs.items()
+         }
+-        assemblies = {size: assembly_stages(context, size) for size in window_sizes}
+         for stages in assemblies.values():
+             for session_index, stage in zip(hit_indexes, stages, strict=True):
+                 stage['session_index'] = session_index
+@@ -271,18 +331,17 @@ async def evaluate_cases(
+                 ],
+             }
+         )
+-        for mode, size in configs:
+-            text, latency = rendered[(mode, size)]
+-            stages = assemblies[size]
++        for name, config in configs.items():
++            mode, size = config['mode'], config['window_size']
++            text, latency = rendered[name]
++            stages = assemblies[name]
+             scores = support_scores(case, hit_indexes, stages, mode)
+             stage_texts = stage_source_texts(context, stages)
+             rows.append(
+                 {
+                     'question_id': case['question_id'],
+                     'question_type': case['question_type'],
+-                    'configuration': 'full_source'
+-                    if mode == 'full_source'
+-                    else f'evidence_bundle_w{size}',
++                    'configuration': name,
+                     'mode': mode,
+                     'window_size': None if mode == 'full_source' else size,
+                     'chars': len(text),
+@@ -355,6 +414,10 @@ async def evaluate_cases(
+         'stage_scope': 'assembly_indexes and stage costs describe evidence assembly; rendered_source_indices describe the selected configuration',
+         'timing_repeats': repeats,
+         'environment': experiment_environment(),
++        'reading_configurations': configs,
++        'dependency_diagnostic': dependency_diagnostic(rows, fixed_retrieval, names)
++        if 'legacy_w1' in configs
++        else {},
+         'summary': summary,
+         'by_question_type': by_type,
+         'pareto': pareto_analysis(summary, names),
+@@ -375,6 +438,7 @@ async def main() -> None:
+     parser.add_argument('--limit', type=int)
+     parser.add_argument('--repeats', type=int, default=3)
+     parser.add_argument('--max-fact-anchors', type=int, choices=(1, 2), default=1)
++    parser.add_argument('--dependency-ablation', action='store_true')
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     result = await evaluate_cases(
+@@ -382,6 +446,7 @@ async def main() -> None:
+         repeats=args.repeats,
+         window_sizes=(0, 1, 2),
+         max_fact_anchors=args.max_fact_anchors,
++        reading_configs=reading_configurations((0, 1, 2), ablation=args.dependency_ablation),
+     )
+     result['dataset'] = {
+         'path': str(args.data),
+diff --git a/h_recongraph/examples/evaluate_read_context.py b/h_recongraph/examples/evaluate_read_context.py
+index 2b68ced..ee5e99c 100644
+--- a/h_recongraph/examples/evaluate_read_context.py
++++ b/h_recongraph/examples/evaluate_read_context.py
+@@ -121,11 +121,61 @@ async def build_naturally_bound_contexts(cases: list[dict]) -> dict:
+     return contexts
+ 
+ 
+-def assembly_stages(context: HierarchicalMemoryContext, window_size: int) -> list[dict]:
++def reading_configurations(window_sizes: tuple[int, ...], *, ablation: bool = False) -> dict:
++    """Separate repeated edges, window scope and dependency filtering in paired runs."""
++    configs = {'full_source': {'mode': 'full_source', 'window_size': 0}}
++    configs.update(
++        {
++            f'evidence_bundle_w{size}': {'mode': 'evidence_bundle', 'window_size': size}
++            for size in window_sizes
++        }
++    )
++    if ablation:
++        configs['full_source']['deduplicate_edge_facts'] = False
++        configs['full_source_dedup'] = {'mode': 'full_source', 'window_size': 0}
++        configs['legacy_w1'] = {
++            'mode': 'evidence_bundle',
++            'window_size': 1,
++            'deduplicate_edge_facts': False,
++        }
++        configs['fact_window_w1'] = {
++            'mode': 'evidence_bundle',
++            'window_size': 1,
++            'dependency_mode': 'none',
++            'window_scope': 'fact',
++        }
++        configs['all_dependencies_fact_window_w1'] = {
++            'mode': 'evidence_bundle',
++            'window_size': 1,
++            'window_scope': 'fact',
++        }
++        configs.update(
++            {
++                f'lexical_fact_window_w{size}': {
++                    'mode': 'evidence_bundle',
++                    'window_size': size,
++                    'dependency_mode': 'lexical',
++                    'window_scope': 'fact',
++                }
++                for size in (0, 1, 2)
++            }
++        )
++    return configs
++
++
++def assembly_stages(
++    context: HierarchicalMemoryContext,
++    window_size: int,
++    *,
++    dependency_mode: str = 'all',
++    window_scope: str = 'bundle',
++) -> list[dict]:
+     """Record cumulative source indexes and disjoint additions, before scoring labels."""
+     stages = []
+     for episode in context.source_episodes:
+-        indexes = context.source_indices(episode, window_size)
++        indexes = context.source_indices(
++            episode, window_size, dependency_mode=dependency_mode, window_scope=window_scope
++        )
+         fact = set(indexes['fact'])
+         dependencies = fact | set(indexes['dependencies'])
+         window = dependencies | set(indexes['window'])
+@@ -160,12 +210,14 @@ def stage_source_texts(context: HierarchicalMemoryContext, stages: list[dict]) -
+     }
+ 
+ 
+-def measure_render(context, mode: str, repeats: int, window_size: int = 0) -> tuple[str, float]:
+-    text = context.render_text(mode, window_size=window_size)
++def measure_render(
++    context, mode: str, repeats: int, window_size: int = 0, **render_options
++) -> tuple[str, float]:
++    text = context.render_text(mode, window_size=window_size, **render_options)
+     durations = []
+     for _ in range(repeats):
+         start = perf_counter()
+-        context.render_text(mode, window_size=window_size)
++        context.render_text(mode, window_size=window_size, **render_options)
+         durations.append((perf_counter() - start) * 1000)
+     return text, median(durations)
+ 
+@@ -278,15 +330,23 @@ def evaluate_cases(
+     repeats: int = 100,
+     contexts: dict | None = None,
+     window_sizes: tuple[int, ...] = (0,),
++    reading_configs: dict | None = None,
+ ) -> dict:
+     rows = []
+-    configs = [('full_source', 0)] + [('evidence_bundle', size) for size in window_sizes]
++    configs = reading_configs or reading_configurations(window_sizes)
+     for case in cases:
+         context = contexts[case['id']] if contexts is not None else build_context(case)
+         full_text = context.render_text('full_source')
+-        for mode, size in configs:
+-            text, latency = measure_render(context, mode, repeats, size)
+-            stages = assembly_stages(context, size)
++        for name, config in configs.items():
++            mode, size = config['mode'], config['window_size']
++            options = {key: value for key, value in config.items() if key != 'mode'}
++            text, latency = measure_render(context, mode, repeats, **options)
++            stages = assembly_stages(
++                context,
++                size,
++                dependency_mode=config.get('dependency_mode', 'all'),
++                window_scope=config.get('window_scope', 'bundle'),
++            )
+             stage_texts = stage_source_texts(context, stages)
+             missing = [item for item in case['required'] if item not in stage_texts['final']]
+             retained = len(case['required']) - len(missing)
+@@ -301,9 +361,7 @@ def evaluate_cases(
+                     'dimension': case['dimension'],
+                     'mode': mode,
+                     'window_size': None if mode == 'full_source' else size,
+-                    'configuration': 'full_source'
+-                    if mode == 'full_source'
+-                    else f'evidence_bundle_w{size}',
++                    'configuration': name,
+                     'chars': len(text),
+                     'tokens': estimate_tokens(text),
+                     'required_count': len(case['required']),
+@@ -337,7 +395,7 @@ def evaluate_cases(
+                     ],
+                 }
+             )
+-    configurations = ['full_source'] + [f'evidence_bundle_w{size}' for size in window_sizes]
++    configurations = list(configs)
+     summary = {}
+     for configuration in configurations:
+         selected = [row for row in rows if row['configuration'] == configuration]
+@@ -365,6 +423,7 @@ def evaluate_cases(
+         'latency_scope': 'render_text only',
+         'timing_repeats': repeats,
+         'environment': experiment_environment(),
++        'reading_configurations': configs,
+         'summary': summary,
+         'pareto': pareto_analysis(summary, configurations),
+         'rows': rows,
+@@ -379,26 +438,34 @@ def main() -> None:
+     parser.add_argument('--repeats', type=int, default=3)
+     parser.add_argument('--write-bindings', type=Path)
+     parser.add_argument('--natural-bindings', action='store_true')
++    parser.add_argument('--dependency-ablation', action='store_true')
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     cases = json.loads(args.cases.read_text(encoding='utf-8'))
+     sizes = (0, 1, 2)
++    configs = reading_configurations(sizes, ablation=args.dependency_ablation)
+     if args.write_bindings:
+         bindings = json.loads(args.write_bindings.read_text(encoding='utf-8'))
+         contexts = asyncio.run(build_written_contexts(cases, bindings))
+         result = {
+             'binding_protocol': 'separate source-only paragraph annotations; fixed graph edges',
+-            'original_bindings': evaluate_cases(cases, args.repeats, window_sizes=sizes),
+-            'complete_write_bindings': evaluate_cases(cases, args.repeats, contexts, sizes),
++            'original_bindings': evaluate_cases(
++                cases, args.repeats, window_sizes=sizes, reading_configs=configs
++            ),
++            'complete_write_bindings': evaluate_cases(
++                cases, args.repeats, contexts, sizes, reading_configs=configs
++            ),
+         }
+     elif args.natural_bindings:
+         contexts = asyncio.run(build_naturally_bound_contexts(cases))
+         result = {
+             'binding_protocol': 'SemanticStateConstructor automatic paragraph bindings',
+-            'natural_auto_bindings': evaluate_cases(cases, args.repeats, contexts, sizes),
++            'natural_auto_bindings': evaluate_cases(
++                cases, args.repeats, contexts, sizes, reading_configs=configs
++            ),
+         }
+     else:
+-        result = evaluate_cases(cases, args.repeats, window_sizes=sizes)
++        result = evaluate_cases(cases, args.repeats, window_sizes=sizes, reading_configs=configs)
+     args.output_json.parent.mkdir(parents=True, exist_ok=True)
+     args.output_json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+     print(
+diff --git a/h_recongraph/memory/relinking.py b/h_recongraph/memory/relinking.py
+index 9042493..160717b 100644
+--- a/h_recongraph/memory/relinking.py
++++ b/h_recongraph/memory/relinking.py
+@@ -7,6 +7,7 @@ from typing import Any, Literal
+ from pydantic import BaseModel, Field
+ 
+ from graphiti_core.nodes import EpisodicNode
++from h_recongraph.memory.ranker import MemoryUtilityRanker
+ from h_recongraph.schemas.memory_edge import ReConMemoryEdge
+ from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+ from h_recongraph.schemas.semantic_state import MemorySemanticState
+@@ -36,13 +37,21 @@ class HierarchicalMemoryContext(BaseModel):
+         source_mode: Literal['full_source', 'evidence_bundle'] | None = None,
+         *,
+         window_size: int = 0,
++        dependency_mode: Literal['all', 'lexical', 'none'] = 'all',
++        window_scope: Literal['bundle', 'fact'] = 'bundle',
++        deduplicate_edge_facts: bool = True,
+     ) -> str:
+         """Render the selected memory evidence as compact text for a downstream reader."""
+         source_mode = source_mode or self.source_mode
+         sources = []
+         for episode in self.source_episodes:
+             if source_mode == 'evidence_bundle':
+-                text = self._source_bundle(episode, window_size=window_size)
++                text = self._source_bundle(
++                    episode,
++                    window_size=window_size,
++                    dependency_mode=dependency_mode,
++                    window_scope=window_scope,
++                )
+             elif episode.uuid in self.source_units:
+                 text = self._render_source_units(episode, range(len(self.source_segments(episode))))
+             else:
+@@ -97,7 +106,16 @@ class HierarchicalMemoryContext(BaseModel):
+             seen_edge_facts.add(fact)
+             source = getattr(edge, 'source_node_uuid', '?')
+             target = getattr(edge, 'target_node_uuid', '?')
+-            blocks.append(f'[EDGE] {source} -> {target}: {fact}')
++            covered_source = next(
++                (episode_id for episode_id, text in sources if fact in text), None
++            )
++            edge_text = fact
++            if deduplicate_edge_facts and covered_source is not None:
++                relation = getattr(edge, 'name', None) or 'RELATION'
++                reference = f'{relation} [source={covered_source}]'
++                if len(reference) < len(fact):
++                    edge_text = reference
++            blocks.append(f'[EDGE] {source} -> {target}: {edge_text}')
+ 
+         for episode_id, content in sources:
+             if content:
+@@ -105,7 +123,14 @@ class HierarchicalMemoryContext(BaseModel):
+ 
+         return '\n'.join(dict.fromkeys(blocks))
+ 
+-    def source_indices(self, episode: EpisodicNode, window_size: int = 0) -> dict[str, list[int]]:
++    def source_indices(
++        self,
++        episode: EpisodicNode,
++        window_size: int = 0,
++        *,
++        dependency_mode: Literal['all', 'lexical', 'none'] = 'all',
++        window_scope: Literal['bundle', 'fact'] = 'bundle',
++    ) -> dict[str, list[int]]:
+         """Select source-unit indexes, expand dependencies, then union local windows."""
+         content = self._source_text(episode.content)
+         paragraphs = self.source_segments(episode)
+@@ -154,10 +179,28 @@ class HierarchicalMemoryContext(BaseModel):
+                 if span.field != 'raw'
+             )
+         }
++        if dependency_mode == 'none':
++            dependency_indexes = set()
++        elif dependency_mode == 'lexical':
++            ranker = MemoryUtilityRanker()
++            unit_tokens = [
++                ranker.tokenize(re.sub(r'^(?:user|assistant|system):\s*', '', unit, flags=re.I))
++                for unit in paragraphs
++            ]
++            anchor_tokens = ranker.tokenize(self.query)
++            for index in fact_indexes:
++                anchor_tokens.update(unit_tokens[index])
++            dependency_indexes = {
++                index
++                for index in dependency_indexes
++                if unit_tokens[index] & anchor_tokens
++                or any(span.text in paragraphs[index] for span in explicit_spans)
++            }
+         base_indexes = fact_indexes | dependency_indexes
++        window_anchors = fact_indexes if window_scope == 'fact' else base_indexes
+         window_indexes = {
+             neighbor
+-            for index in base_indexes
++            for index in window_anchors
+             for neighbor in range(
+                 max(0, index - window_size), min(len(paragraphs), index + window_size + 1)
+             )
+@@ -182,9 +225,18 @@ class HierarchicalMemoryContext(BaseModel):
+             if index in selected
+         )
+ 
+-    def _source_bundle(self, episode: EpisodicNode, *, window_size: int = 0) -> str:
++    def _source_bundle(
++        self,
++        episode: EpisodicNode,
++        *,
++        window_size: int = 0,
++        dependency_mode: Literal['all', 'lexical', 'none'] = 'all',
++        window_scope: Literal['bundle', 'fact'] = 'bundle',
++    ) -> str:
+         """Keep complete paragraphs anchored by retrieved facts and semantic evidence."""
+-        indexes = self.source_indices(episode, window_size)
++        indexes = self.source_indices(
++            episode, window_size, dependency_mode=dependency_mode, window_scope=window_scope
++        )
+         if indexes['fallback'] and episode.uuid not in self.source_units:
+             return self._source_text(episode.content)
+         selected = set().union(*indexes.values())
+diff --git a/tests/test_h_recongraph_longmemeval.py b/tests/test_h_recongraph_longmemeval.py
+index 25f6f18..1c8aba6 100644
+--- a/tests/test_h_recongraph_longmemeval.py
++++ b/tests/test_h_recongraph_longmemeval.py
+@@ -9,6 +9,7 @@ from h_recongraph.examples.evaluate_longmemeval_read import (
+     hit_session_indexes,
+     load_cases,
+ )
++from h_recongraph.examples.evaluate_read_context import reading_configurations
+ 
+ 
+ def _case():
+@@ -124,3 +125,20 @@ async def test_conditional_anchors_keep_session_bindings_and_ignore_answer_label
+         edge.fact for edge in context.graph_edges
+     ]
+     assert unlabeled.source_fact_indices == context.source_fact_indices
++
++
++@pytest.mark.asyncio
++async def test_dependency_ablation_reports_shared_retrieval_and_support_diagnostics():
++    configs = reading_configurations((0, 1, 2), ablation=True)
++    result = await evaluate_cases([_case()], repeats=1, reading_configs=configs)
++    assert len(result['fixed_retrieval']) == 1
++    assert len(result['rows']) == len(configs) == 11
++    assert (
++        result['summary']['full_source_dedup']['total_tokens']
++        <= result['summary']['full_source']['total_tokens']
++    )
++    assert result['summary']['fact_window_w1']['overall_recall']['retained'] == 1
++    assert result['dependency_diagnostic']['retrieved_source_turns'] == 2
++    assert result['dependency_diagnostic']['outside_fact_window_w1'] == 0
++    for row in result['rows']:
++        assert row['supporting_turn_indices'] == [[1, 0]]
+diff --git a/tests/test_h_recongraph_retrieval.py b/tests/test_h_recongraph_retrieval.py
+index 994a027..2506af3 100644
+--- a/tests/test_h_recongraph_retrieval.py
++++ b/tests/test_h_recongraph_retrieval.py
+@@ -21,6 +21,7 @@ from h_recongraph.examples.evaluate_read_context import (
+     build_naturally_bound_contexts,
+     build_written_contexts,
+     evaluate_cases,
++    reading_configurations,
+ )
+ from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
+ from h_recongraph.memory.ranker import MemoryUtilityRanker
+@@ -1471,6 +1472,14 @@ async def test_complete_write_bindings_recover_all_16_reading_bundles():
+             assert len(context.render_text('evidence_bundle')) < len(
+                 context.render_text('full_source')
+             )
++    ablation = evaluate_cases(
++        cases,
++        repeats=1,
++        contexts=contexts,
++        reading_configs=reading_configurations((0, 1, 2), ablation=True),
++    )
++    assert ablation['summary']['lexical_fact_window_w0']['complete_cases'] == 16
++    assert ablation['summary']['lexical_fact_window_w0']['extractive_probe_correct'] == 16
+ 
+ 
+ @pytest.mark.asyncio
+@@ -1596,3 +1605,96 @@ def test_update_metrics_distinguish_changed_kept_completeness_and_stale_exposure
+     assert summary['kept']['rate'] == 0.0
+     assert summary['four_dim_complete']['rate'] == 0.75
+     assert summary['stale_misuse']['rate'] == 1.0
++
++
++def test_covered_long_edge_uses_source_reference_and_keeps_paraphrases():
++    text = 'Atlas uses Redis to serve analytics dashboards during the October project trial.'
++    source = source_episode('ep-edge-share', text)
++    edge = source_edge([source.uuid])
++    edge.fact = text
++    context = HierarchicalMemoryContext(
++        query='Atlas Redis', selected_layers=['M1'], graph_edges=[edge], source_episodes=[source]
++    )
++    repeated = context.render_text('evidence_bundle', deduplicate_edge_facts=False)
++    shared = context.render_text('evidence_bundle')
++    assert repeated.count(text) == 2
++    assert shared.count(text) == 1
++    assert '[EDGE] node-a -> node-b: USES [source=ep-edge-share]' in shared
++    assert len(shared) < len(repeated)
++    edge.fact = 'Atlas relies on Redis.'
++    assert edge.fact in context.render_text('evidence_bundle')
++
++
++def test_lexical_dependencies_and_fact_windows_are_separate_selections():
++    units = [
++        'user: Atlas uses Redis.',
++        'assistant: Nearby response.',
++        'user: A separate topic.',
++        'user: Because Redis supports compatibility.',
++        'assistant: Remote neighbor.',
++        'user: Only during office lunch.',
++        'assistant: Another remote neighbor.',
++    ]
++    text = '\n\n'.join(units)
++    source = source_episode('ep-scope', text)
++    edge = source_edge([source.uuid])
++    edge.fact = units[0]
++    spans = [
++        SourceSpan(
++            evidence_id=source.uuid,
++            field=field,
++            text=units[index],
++            start=text.index(units[index]),
++            end=text.index(units[index]) + len(units[index]),
++        )
++        for field, index in [('causal', 3), ('constraint', 5)]
++    ]
++    context = HierarchicalMemoryContext(
++        query='Atlas Redis',
++        selected_layers=['M1'],
++        graph_edges=[edge],
++        source_episodes=[source],
++        source_units={source.uuid: units},
++        source_fact_indices={source.uuid: [0]},
++        semantic_states=[
++            MemorySemanticState(
++                edge_or_subgraph_id='scope',
++                source_spans=spans,
++                state_type='evidence_supported',
++            )
++        ],
++    )
++    indexes = context.source_indices(source, 1, dependency_mode='lexical', window_scope='fact')
++    assert indexes == {'fact': [0], 'dependencies': [3], 'window': [1], 'fallback': []}
++    assert context.source_indices(source, 1, window_scope='fact')['dependencies'] == [3, 5]
++    assert context.source_indices(source, 1, dependency_mode='none', window_scope='fact') == {
++        'fact': [0],
++        'dependencies': [],
++        'window': [1],
++        'fallback': [],
++    }
++    assert context.source_indices(source, 1)['window'] == [1, 2, 4, 6]
++
++
++def test_explicit_dependency_survives_without_shared_content_words():
++    source = source_episode('ep-explicit-scope', 'Atlas uses Redis.\n\nOnly during October.')
++    edge = source_edge([source.uuid])
++    edge.fact = 'Atlas uses Redis.'
++    context = HierarchicalMemoryContext(
++        query='Atlas Redis',
++        selected_layers=['M1'],
++        graph_edges=[edge],
++        source_episodes=[source],
++        semantic_states=[
++            MemorySemanticState(
++                edge_or_subgraph_id='explicit-scope',
++                state_type='evidence_supported',
++                source_spans=[
++                    SourceSpan(
++                        evidence_id=source.uuid, field='constraint', text='Only during October.'
++                    )
++                ],
++            )
++        ],
++    )
++    assert context.source_indices(source, dependency_mode='lexical')['dependencies'] == [1]

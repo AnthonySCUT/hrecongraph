@@ -1,0 +1,651 @@
+diff --git a/tests/test_h_recongraph_retrieval.py b/tests/test_h_recongraph_retrieval.py
+--- a/tests/test_h_recongraph_retrieval.py
++++ b/tests/test_h_recongraph_retrieval.py
+@@ -1,5 +1,6 @@
+ import json
+ from datetime import timedelta
++from pathlib import Path
+ from types import SimpleNamespace
+ from unittest.mock import AsyncMock
+ 
+@@ -10,6 +11,7 @@
+ from graphiti_core.nodes import EntityNode, EpisodeType, EpisodicNode
+ from graphiti_core.utils.datetime_utils import utc_now
+ from h_recongraph import HReConGraphMemory, MemoryPolicy
++from h_recongraph.examples.evaluate_read_context import evaluate_cases
+ from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
+ from h_recongraph.memory.ranker import MemoryUtilityRanker
+ from h_recongraph.memory.relinking import HierarchicalMemoryContext
+@@ -1192,3 +1194,36 @@
+     assert context.context_text == context.render_text()
+     assert 'Office lunch' not in context.context_text
+     assert 'Office lunch' in context.source_episodes[0].content
++
++
++def test_reading_ablation_reports_per_dimension_evidence_and_probe_results():
++    path = Path(__file__).parents[1] / 'h_recongraph/examples/read_context_cases.json'
++    cases = json.loads(path.read_text(encoding='utf-8'))
++
++    result = evaluate_cases(cases, repeats=1)
++
++    assert result['length_unit'] == 'unicode_characters'
++    assert result['latency_scope'] == 'render_text only'
++    assert result['summary']['full_source']['complete_cases'] == 16
++    assert result['summary']['evidence_bundle']['complete_cases'] == 12
++    assert result['summary']['evidence_bundle']['extractive_probe_correct'] == 12
++    assert {row['case_id'] for row in result['rows'] if not row['complete']} == {
++        f'{dimension}-unanchored' for dimension in ('fact', 'constraint', 'path', 'causal')
++    }
++
++
++def test_explicit_causal_span_restores_cross_paragraph_evidence_in_ablation():
++    path = Path(__file__).parents[1] / 'h_recongraph/examples/read_context_cases.json'
++    cases = json.loads(path.read_text(encoding='utf-8'))
++    case = next(case for case in cases if case['id'] == 'causal-unanchored')
++    linked = {
++        **case,
++        'id': 'causal-explicit-span',
++        'spans': [{'field': 'cause', 'text': case['required'][1]}],
++    }
++
++    result = evaluate_cases([case, linked], repeats=1)
++    rows = [row for row in result['rows'] if row['mode'] == 'evidence_bundle']
++
++    assert [row['complete'] for row in rows] == [False, True]
++    assert [row['probe_correct'] for row in rows] == [False, True]
+diff --git a/h_recongraph/examples/evaluate_read_context.py b/h_recongraph/examples/evaluate_read_context.py
+new file mode 100644
+--- /dev/null
++++ b/h_recongraph/examples/evaluate_read_context.py
+@@ -0,0 +1,141 @@
++"""Paired evidence-retention and text-cost evaluation on fixed reading contexts."""
++
++import argparse
++import json
++import re
++from pathlib import Path
++from statistics import median
++from time import perf_counter
++
++from graphiti_core.edges import EntityEdge
++from graphiti_core.nodes import EpisodeType, EpisodicNode
++from graphiti_core.utils.datetime_utils import utc_now
++from h_recongraph.memory.relinking import HierarchicalMemoryContext
++from h_recongraph.schemas.memory_unit import SourceSpan
++from h_recongraph.schemas.semantic_state import MemorySemanticState
++
++
++def build_context(case: dict) -> HierarchicalMemoryContext:
++    now = utc_now()
++    sources = [
++        EpisodicNode(
++            uuid=source['id'],
++            name=case['id'],
++            group_id='user:eval',
++            source=EpisodeType.text,
++            source_description='fixed reading case',
++            content=source['content'],
++            valid_at=now,
++        )
++        for source in case['sources']
++    ]
++    edges = [
++        EntityEdge(
++            uuid=fact['id'],
++            created_at=now,
++            group_id='user:eval',
++            source_node_uuid=f'node-{i}',
++            target_node_uuid=f'node-{i + 1}',
++            name='RELATION',
++            fact=fact['text'],
++            episodes=[fact['source']],
++        )
++        for i, fact in enumerate(case['facts'])
++    ]
++    spans = [SourceSpan(evidence_id=case['id'], **span) for span in case['spans']]
++    states = (
++        [
++            MemorySemanticState(
++                edge_or_subgraph_id=case['id'],
++                source_spans=spans,
++                state_type='evidence_supported',
++            )
++        ]
++        if spans
++        else []
++    )
++    return HierarchicalMemoryContext(
++        query=case['question'],
++        selected_layers=['M1', 'M2'],
++        graph_edges=edges,
++        semantic_states=states,
++        source_episodes=sources,
++    )
++
++
++def evaluate_cases(cases: list[dict], repeats: int = 100) -> dict:
++    rows = []
++    for case in cases:
++        context = build_context(case)
++        for mode in ('full_source', 'evidence_bundle'):
++            durations = []
++            for _ in range(repeats):
++                start = perf_counter()
++                text = context.render_text(mode)
++                durations.append((perf_counter() - start) * 1000)
++            missing = [item for item in case['required'] if item not in text]
++            match = re.search(case['answer_pattern'], text)
++            answer = match.group('answer') if match else ''
++            rows.append(
++                {
++                    'case_id': case['id'],
++                    'dimension': case['dimension'],
++                    'mode': mode,
++                    'chars': len(text),
++                    'required_count': len(case['required']),
++                    'retained_count': len(case['required']) - len(missing),
++                    'complete': not missing,
++                    'missing': missing,
++                    'probe_answer': answer,
++                    'probe_correct': answer == case['expected_answer'],
++                    'render_median_ms': median(durations),
++                }
++            )
++    summary = {}
++    for mode in ('full_source', 'evidence_bundle'):
++        selected = [row for row in rows if row['mode'] == mode]
++        summary[mode] = {
++            'case_count': len(selected),
++            'total_chars': sum(row['chars'] for row in selected),
++            'evidence_retention': sum(row['retained_count'] for row in selected)
++            / sum(row['required_count'] for row in selected),
++            'complete_cases': sum(row['complete'] for row in selected),
++            'extractive_probe_correct': sum(row['probe_correct'] for row in selected),
++            'render_median_ms': median(row['render_median_ms'] for row in selected),
++            'dimensions': {
++                dimension: {
++                    'complete': sum(
++                        row['complete'] for row in selected if row['dimension'] == dimension
++                    ),
++                    'count': sum(row['dimension'] == dimension for row in selected),
++                }
++                for dimension in ('fact', 'constraint', 'path', 'causal')
++            },
++        }
++    return {
++        'protocol': 'fixed-context evidence retention and deterministic extractive probes',
++        'length_unit': 'unicode_characters',
++        'latency_scope': 'render_text only',
++        'timing_repeats': repeats,
++        'summary': summary,
++        'rows': rows,
++    }
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument(
++        '--cases', type=Path, default=Path(__file__).with_name('read_context_cases.json')
++    )
++    parser.add_argument('--repeats', type=int, default=100)
++    parser.add_argument('--output-json', type=Path, required=True)
++    args = parser.parse_args()
++    cases = json.loads(args.cases.read_text(encoding='utf-8'))
++    result = evaluate_cases(cases, args.repeats)
++    args.output_json.parent.mkdir(parents=True, exist_ok=True)
++    args.output_json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
++    print(json.dumps(result['summary'], ensure_ascii=False, indent=2))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/h_recongraph/examples/read_context_cases.json b/h_recongraph/examples/read_context_cases.json
+new file mode 100644
+--- /dev/null
++++ b/h_recongraph/examples/read_context_cases.json
+@@ -0,0 +1,445 @@
++[
++  {
++    "id": "fact-inline",
++    "dimension": "fact",
++    "question": "Which cache does Project Atlas use?",
++    "sources": [
++      {
++        "id": "ep-fact-inline",
++        "content": "Project Atlas uses Redis. The operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "fact-inline-edge-0",
++        "source": "ep-fact-inline",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "operator is Team Blue"
++    ],
++    "answer_pattern": "Project Atlas uses (?P<answer>\\w+)",
++    "expected_answer": "Redis"
++  },
++  {
++    "id": "fact-linked",
++    "dimension": "fact",
++    "question": "Who operates the cache?",
++    "sources": [
++      {
++        "id": "ep-fact-linked",
++        "content": "Project Atlas uses Redis.\n\nThe cache operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "fact-linked-edge-0",
++        "source": "ep-fact-linked",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [
++      {
++        "field": "fact",
++        "text": "The cache operator is Team Blue."
++      }
++    ],
++    "required": [
++      "Project Atlas uses Redis",
++      "The cache operator is Team Blue."
++    ],
++    "answer_pattern": "The cache operator is (?P<answer>[^.]+)",
++    "expected_answer": "Team Blue"
++  },
++  {
++    "id": "fact-unanchored",
++    "dimension": "fact",
++    "question": "Who operates the cache?",
++    "sources": [
++      {
++        "id": "ep-fact-unanchored",
++        "content": "Project Atlas uses Redis.\n\nThe cache operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "fact-unanchored-edge-0",
++        "source": "ep-fact-unanchored",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "The cache operator is Team Blue."
++    ],
++    "answer_pattern": "The cache operator is (?P<answer>[^.]+)",
++    "expected_answer": "Team Blue"
++  },
++  {
++    "id": "fact-paraphrase",
++    "dimension": "fact",
++    "question": "Which service does Atlas rely on?",
++    "sources": [
++      {
++        "id": "ep-fact-paraphrase",
++        "content": "Project Atlas relies on the Redis service.\n\nThe operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "fact-paraphrase-edge-0",
++        "source": "ep-fact-paraphrase",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas relies on the Redis service.",
++      "The operator is Team Blue."
++    ],
++    "answer_pattern": "relies on the (?P<answer>\\w+) service",
++    "expected_answer": "Redis"
++  },
++  {
++    "id": "constraint-inline",
++    "dimension": "constraint",
++    "question": "During which month is this setting active?",
++    "sources": [
++      {
++        "id": "ep-constraint-inline",
++        "content": "Project Atlas uses Redis only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "constraint-inline-edge-0",
++        "source": "ep-constraint-inline",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "only during October"
++    ],
++    "answer_pattern": "only during (?P<answer>\\w+)",
++    "expected_answer": "October"
++  },
++  {
++    "id": "constraint-linked",
++    "dimension": "constraint",
++    "question": "During which month is this setting active?",
++    "sources": [
++      {
++        "id": "ep-constraint-linked",
++        "content": "Project Atlas uses Redis.\n\nThis setting applies only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "constraint-linked-edge-0",
++        "source": "ep-constraint-linked",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [
++      {
++        "field": "condition",
++        "text": "This setting applies only during October."
++      }
++    ],
++    "required": [
++      "Project Atlas uses Redis",
++      "This setting applies only during October."
++    ],
++    "answer_pattern": "only during (?P<answer>\\w+)",
++    "expected_answer": "October"
++  },
++  {
++    "id": "constraint-unanchored",
++    "dimension": "constraint",
++    "question": "During which month is this setting active?",
++    "sources": [
++      {
++        "id": "ep-constraint-unanchored",
++        "content": "Project Atlas uses Redis.\n\nThis setting applies only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "constraint-unanchored-edge-0",
++        "source": "ep-constraint-unanchored",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "This setting applies only during October."
++    ],
++    "answer_pattern": "only during (?P<answer>\\w+)",
++    "expected_answer": "October"
++  },
++  {
++    "id": "constraint-paraphrase",
++    "dimension": "constraint",
++    "question": "During which month is this setting active?",
++    "sources": [
++      {
++        "id": "ep-constraint-paraphrase",
++        "content": "Project Atlas relies on Redis.\n\nThis setting applies only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "constraint-paraphrase-edge-0",
++        "source": "ep-constraint-paraphrase",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas relies on Redis.",
++      "This setting applies only during October."
++    ],
++    "answer_pattern": "only during (?P<answer>\\w+)",
++    "expected_answer": "October"
++  },
++  {
++    "id": "path-inline",
++    "dimension": "path",
++    "question": "What does the cache serve?",
++    "sources": [
++      {
++        "id": "ep-path-inline",
++        "content": "Project Atlas uses Redis. Redis serves the cache. The cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "path-inline-edge-0",
++        "source": "ep-path-inline",
++        "text": "Project Atlas uses Redis"
++      },
++      {
++        "id": "path-inline-edge-1",
++        "source": "ep-path-inline",
++        "text": "Redis serves the cache"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Redis serves the cache",
++      "The cache serves the dashboard"
++    ],
++    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
++    "expected_answer": "dashboard"
++  },
++  {
++    "id": "path-linked",
++    "dimension": "path",
++    "question": "What does the cache serve?",
++    "sources": [
++      {
++        "id": "ep-path-linked",
++        "content": "Project Atlas uses Redis.\n\nRedis serves the cache.\n\nThe cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "path-linked-edge-0",
++        "source": "ep-path-linked",
++        "text": "Project Atlas uses Redis"
++      },
++      {
++        "id": "path-linked-edge-1",
++        "source": "ep-path-linked",
++        "text": "Redis serves the cache"
++      }
++    ],
++    "spans": [
++      {
++        "field": "path",
++        "text": "The cache serves the dashboard."
++      }
++    ],
++    "required": [
++      "Project Atlas uses Redis",
++      "Redis serves the cache",
++      "The cache serves the dashboard"
++    ],
++    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
++    "expected_answer": "dashboard"
++  },
++  {
++    "id": "path-unanchored",
++    "dimension": "path",
++    "question": "What does the cache serve?",
++    "sources": [
++      {
++        "id": "ep-path-unanchored",
++        "content": "Project Atlas uses Redis.\n\nRedis serves the cache.\n\nThe cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "path-unanchored-edge-0",
++        "source": "ep-path-unanchored",
++        "text": "Project Atlas uses Redis"
++      },
++      {
++        "id": "path-unanchored-edge-1",
++        "source": "ep-path-unanchored",
++        "text": "Redis serves the cache"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "Redis serves the cache",
++      "The cache serves the dashboard"
++    ],
++    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
++    "expected_answer": "dashboard"
++  },
++  {
++    "id": "path-paraphrase",
++    "dimension": "path",
++    "question": "What does the cache serve?",
++    "sources": [
++      {
++        "id": "ep-path-paraphrase",
++        "content": "Atlas relies on Redis.\n\nRedis serves the cache.\n\nThe cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "path-paraphrase-edge-0",
++        "source": "ep-path-paraphrase",
++        "text": "Project Atlas uses Redis"
++      },
++      {
++        "id": "path-paraphrase-edge-1",
++        "source": "ep-path-paraphrase",
++        "text": "Redis serves the cache"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Atlas relies on Redis.",
++      "Redis serves the cache",
++      "The cache serves the dashboard"
++    ],
++    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
++    "expected_answer": "dashboard"
++  },
++  {
++    "id": "causal-inline",
++    "dimension": "causal",
++    "question": "Why does Atlas use Redis?",
++    "sources": [
++      {
++        "id": "ep-causal-inline",
++        "content": "Project Atlas uses Redis because the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "causal-inline-edge-0",
++        "source": "ep-causal-inline",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "because the legacy client requires it"
++    ],
++    "answer_pattern": "because (?P<answer>[^.]+)",
++    "expected_answer": "the legacy client requires it"
++  },
++  {
++    "id": "causal-linked",
++    "dimension": "causal",
++    "question": "Why does Atlas use Redis?",
++    "sources": [
++      {
++        "id": "ep-causal-linked",
++        "content": "Project Atlas uses Redis.\n\nThe reason is that the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "causal-linked-edge-0",
++        "source": "ep-causal-linked",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [
++      {
++        "field": "cause",
++        "text": "The reason is that the legacy client requires it."
++      }
++    ],
++    "required": [
++      "Project Atlas uses Redis",
++      "The reason is that the legacy client requires it."
++    ],
++    "answer_pattern": "The reason is that (?P<answer>[^.]+)",
++    "expected_answer": "the legacy client requires it"
++  },
++  {
++    "id": "causal-unanchored",
++    "dimension": "causal",
++    "question": "Why does Atlas use Redis?",
++    "sources": [
++      {
++        "id": "ep-causal-unanchored",
++        "content": "Project Atlas uses Redis.\n\nThe reason is that the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "causal-unanchored-edge-0",
++        "source": "ep-causal-unanchored",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas uses Redis",
++      "The reason is that the legacy client requires it."
++    ],
++    "answer_pattern": "The reason is that (?P<answer>[^.]+)",
++    "expected_answer": "the legacy client requires it"
++  },
++  {
++    "id": "causal-paraphrase",
++    "dimension": "causal",
++    "question": "Why does Atlas use Redis?",
++    "sources": [
++      {
++        "id": "ep-causal-paraphrase",
++        "content": "Project Atlas relies on Redis.\n\nThe reason is that the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
++      }
++    ],
++    "facts": [
++      {
++        "id": "causal-paraphrase-edge-0",
++        "source": "ep-causal-paraphrase",
++        "text": "Project Atlas uses Redis"
++      }
++    ],
++    "spans": [],
++    "required": [
++      "Project Atlas relies on Redis.",
++      "The reason is that the legacy client requires it."
++    ],
++    "answer_pattern": "The reason is that (?P<answer>[^.]+)",
++    "expected_answer": "the legacy client requires it"
++  }
++]
