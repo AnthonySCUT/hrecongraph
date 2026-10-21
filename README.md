@@ -1,4 +1,4 @@
-# H-ReConGraph Lightweight
+# H-ReConGraph
 
 基于 Graphiti 的三层图记忆科研原型。本仓库对应从原版备份逐文件审核至 **05 版**的代码快照，主要完善按问题读取、来源回溯、语义状态恢复与稳定排序。
 
