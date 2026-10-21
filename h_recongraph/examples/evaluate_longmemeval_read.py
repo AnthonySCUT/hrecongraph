@@ -152,6 +152,17 @@ def update_annotation(case: dict, raw: dict) -> dict:
     return {**raw, 'eligible': True if verified else None, 'evidence_verified': verified}
 
 
+def parse_qa_json(text: str) -> dict:
+    text = text.strip()
+    if text.startswith('```'):
+        text = '\n'.join(text.splitlines()[1:-1])
+    result = json.loads(text)
+    for score in result.get('scores', []):
+        if 'stale_muse' in score and 'stale_misuse' not in score:
+            score['stale_misuse'] = score.pop('stale_muse')
+    return result
+
+
 def qa_judge_payload(case: dict, answers: dict, annotation: dict) -> tuple[dict, dict]:
     """Rotate opaque answer ids and keep configuration names outside the judge prompt."""
     names = list(QA_CONFIGS)
@@ -184,6 +195,7 @@ def summarize_qa(rows: list[dict], calls: list[dict], case_count: int) -> dict:
         selected = [row for row in rows if row['configuration'] == name]
         judged = [row for row in selected if row.get('correct') is not None]
         eligible = [row for row in judged if row.get('stale_eligible') is True]
+        stale_scored = [row for row in eligible if row.get('stale_misuse') is not None]
         answers = [
             call
             for call in calls
@@ -199,9 +211,10 @@ def summarize_qa(rows: list[dict], calls: list[dict], case_count: int) -> dict:
             'accuracy': correct / len(judged) if judged else None,
             'accuracy_wilson95': wilson_interval(correct, len(judged)),
             'stale_eligible_cases': len(eligible),
-            'stale_misuse_count': sum(row['stale_misuse'] for row in eligible),
-            'stale_misuse_rate': mean(row['stale_misuse'] for row in eligible)
-            if eligible
+            'stale_scored_cases': len(stale_scored),
+            'stale_misuse_count': sum(row['stale_misuse'] for row in stale_scored),
+            'stale_misuse_rate': mean(row['stale_misuse'] for row in stale_scored)
+            if stale_scored
             else None,
             'usage_observed_calls': len(usage),
             'mean_input_tokens': mean(item['prompt_tokens'] for item in usage) if usage else None,
@@ -348,6 +361,9 @@ async def run_qa(cases: list[dict], args: argparse.Namespace) -> dict:
 
     async def call(case, phase, configuration, system, payload):
         key = (case['question_id'], phase, configuration)
+        payload_digest = sha256(json.dumps(payload, ensure_ascii=False).encode()).hexdigest()
+        if key in cache and cache[key].get('payload_sha256', payload_digest) != payload_digest:
+            cache.pop(key)
         if key in cache:
             return cache[key]
         async with semaphore:
@@ -358,6 +374,7 @@ async def run_qa(cases: list[dict], args: argparse.Namespace) -> dict:
                 'configuration': configuration,
                 'base_url': args.base_url,
                 'requested_model': args.model,
+                'payload_sha256': payload_digest,
             }
             try:
                 response = await client.chat.completions.create(
@@ -413,11 +430,17 @@ async def run_qa(cases: list[dict], args: argparse.Namespace) -> dict:
         if 'error' in row:
             return {'eligible': None, 'error': row['error']}
         try:
-            return update_annotation(case, json.loads(row['text']))
+            return update_annotation(case, parse_qa_json(row['text']))
         except (ValueError, KeyError, TypeError, IndexError):
             return {'eligible': None, 'error': 'invalid_update_annotation'}
 
     try:
+        annotations_path = folder / 'update_annotations.json'
+        previous_annotations = (
+            json.loads(annotations_path.read_text(encoding='utf-8'))
+            if annotations_path.exists()
+            else {}
+        )
         annotations = dict(
             zip(
                 (case['question_id'] for case in cases),
@@ -425,7 +448,12 @@ async def run_qa(cases: list[dict], args: argparse.Namespace) -> dict:
                 strict=True,
             )
         )
-        (folder / 'update_annotations.json').write_text(
+        reviews_path = folder / 'update_annotation_reviews.json'
+        if reviews_path.exists():
+            reviews = json.loads(reviews_path.read_text(encoding='utf-8'))
+            for qid, review in reviews.items():
+                annotations[qid].update(review, eligibility_reviewed=True)
+        annotations_path.write_text(
             json.dumps(annotations, ensure_ascii=False, indent=2), encoding='utf-8'
         )
         rows = []
@@ -459,12 +487,30 @@ async def run_qa(cases: list[dict], args: argparse.Namespace) -> dict:
             judge_error = None
             if all('error' not in answer for answer in answers.values()):
                 payload, mapping = qa_judge_payload(case, answers, annotation)
+                judge_key = (qid, 'judge', 'shared')
+                if judge_key in cache:
+                    previous = previous_annotations.get(qid, {})
+                    old_update = previous if previous.get('eligible') is True else None
+                    try:
+                        cached_scores = parse_qa_json(cache[judge_key]['text'])['scores']
+                        complete = {item['id'] for item in cached_scores} == set(mapping) and all(
+                            type(item.get('correct')) is bool
+                            and (
+                                annotation['eligible'] is not True
+                                or type(item.get('stale_misuse')) is bool
+                            )
+                            for item in cached_scores
+                        )
+                    except (ValueError, KeyError, TypeError):
+                        complete = False
+                    if not complete or old_update != payload['verified_update']:
+                        cache.pop(judge_key)
                 judged = await call(case, 'judge', 'shared', QA_JUDGE_SYSTEM, payload)
                 if 'error' not in judged:
                     try:
                         scores = {
                             mapping[item['id']]: item
-                            for item in json.loads(judged['text'])['scores']
+                            for item in parse_qa_json(judged['text'])['scores']
                         }
                     except (ValueError, KeyError, TypeError):
                         judge_error = 'invalid_judge_json'

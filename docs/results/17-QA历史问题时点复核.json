@@ -1,0 +1,14 @@
+{
+  "50635ada": {
+    "eligible": false,
+    "reason": "Source/question review: asks for the previous United Airlines status before the current status; historical value is requested."
+  },
+  "e66b632c": {
+    "eligible": false,
+    "reason": "Source/question review: asks for the previous charity 5K personal best; historical value is requested."
+  },
+  "9bbe84a2": {
+    "eligible": false,
+    "reason": "Source/question review: asks for the previous Apex Legends goal before its update; historical value is requested."
+  }
+}

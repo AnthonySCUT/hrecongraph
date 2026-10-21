@@ -16,6 +16,10 @@
       "status_code": 503,
       "attempts": 3,
       "result": "Service temporarily unavailable; minimal request also failed"
+    },
+    {
+      "base_url": "http://118.89.124.131:3001/v1",
+      "result": "authorized local env credential returned 401; authorized backup completed remaining 922 answers and final scoring"
     }
   ],
   "resume_concurrency": 150

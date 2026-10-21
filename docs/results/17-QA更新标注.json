@@ -947,8 +947,21 @@
     "evidence_verified": true
   },
   "c4ea545c": {
-    "eligible": null,
-    "error": "invalid_update_annotation"
+    "eligible": true,
+    "old_value": "3 times a week (Tuesdays, Thursdays, and Saturdays)",
+    "current_value": "4 times a week",
+    "reason": "The user's gym frequency increased from 3 days per week (Tuesdays, Thursdays, Saturdays) as established in the original June 1 session to 4 times per week as stated in the August 15 session. This is a direct superseded frequency value.",
+    "old_evidence": {
+      "session_index": 0,
+      "turn_index": 4,
+      "quote": "I don't actually work out on Mondays, Wednesdays, and Fridays. I go to the gym on Tuesdays, Thursdays, and Saturdays."
+    },
+    "current_evidence": {
+      "session_index": 1,
+      "turn_index": 0,
+      "quote": "I've been consistent with my gym routine - four times a week, actually."
+    },
+    "evidence_verified": true
   },
   "01493427": {
     "eligible": true,
@@ -1283,10 +1296,10 @@
     "evidence_verified": true
   },
   "50635ada": {
-    "eligible": null,
+    "eligible": false,
     "old_value": "Premier Silver",
     "current_value": "Premier Gold",
-    "reason": "The user explicitly stated that they had reached Premier Gold by May 30, 2023. This superseded the previously stated Premier Silver status, which they had reached in September 2022.",
+    "reason": "Source/question review: asks for the previous United Airlines status before the current status; historical value is requested.",
     "old_evidence": {
       "session_index": 0,
       "turn_index": 4,
@@ -1297,13 +1310,14 @@
       "turn_index": 2,
       "quote": "I do have a United Airlines MileagePlus account - I just reached Premier Gold status."
     },
-    "evidence_verified": false
+    "evidence_verified": false,
+    "eligibility_reviewed": true
   },
   "e66b632c": {
-    "eligible": true,
+    "eligible": false,
     "old_value": "27 minutes and 45 seconds",
     "current_value": "26 minutes and 30 seconds",
-    "reason": "The earlier charity 5K personal best was explicitly superseded when the user later reported a new personal best, shaving about 90 seconds off the previous record. This matches the difference between 27:45 and 26:30.",
+    "reason": "Source/question review: asks for the previous charity 5K personal best; historical value is requested.",
     "old_evidence": {
       "session_index": 0,
       "turn_index": 2,
@@ -1314,7 +1328,8 @@
       "turn_index": 2,
       "quote": "shaved off about a minute and a half from my previous record"
     },
-    "evidence_verified": true
+    "evidence_verified": true,
+    "eligibility_reviewed": true
   },
   "0ddfec37": {
     "eligible": false,
@@ -1496,10 +1511,10 @@
     "evidence_verified": true
   },
   "9bbe84a2": {
-    "eligible": true,
+    "eligible": false,
     "old_value": "level 100",
     "current_value": "level 150",
-    "reason": "The user explicitly changed their Apex Legends goal from level 100 to level 150.",
+    "reason": "Source/question review: asks for the previous Apex Legends goal before its update; historical value is requested.",
     "old_evidence": {
       "session_index": 0,
       "turn_index": 0,
@@ -1510,7 +1525,8 @@
       "turn_index": 8,
       "quote": "my current goal is to reach level 150"
     },
-    "evidence_verified": true
+    "evidence_verified": true,
+    "eligibility_reviewed": true
   },
   "10e09553": {
     "eligible": false,

@@ -1,7 +1,13 @@
 {
+  "status": "complete",
   "prepared_cases": 500,
   "prepared_contexts": 1500,
+  "successful_unique_answers": 1500,
+  "complete_question_judgements": 500,
   "shared_hit_sessions": true,
+  "context_hashes_verified": 1500,
+  "saved_answers_match_results": true,
+  "saved_judgements_match_results": true,
   "stage16_reproduction": {
     "top1_w1": {
       "context_estimated_tokens_equal": true,
@@ -14,38 +20,56 @@
   },
   "calls_by_phase_status": {
     "('annotation', 'OK', None)": 78,
-    "('answer', 'OK', None)": 578,
+    "('answer', 'OK', None)": 1500,
     "('answer', 'AuthenticationError', 401)": 922,
-    "('judge', 'AuthenticationError', 401)": 192
+    "('judge', 'AuthenticationError', 401)": 192,
+    "('judge', 'OK', None)": 506,
+    "('judge', 'RateLimitError', 429)": 45
   },
   "update_annotation_counts": {
-    "False": 443,
-    "True": 55,
-    "None": 2
+    "False": 446,
+    "True": 54
   },
-  "update_source_quotes_verified": 110,
-  "unresolved_update_annotations": {
-    "c4ea545c": {
-      "eligible": null,
-      "error": "invalid_update_annotation"
-    },
+  "update_source_quotes_verified": 108,
+  "historical_question_reviews": {
     "50635ada": {
-      "eligible": null,
-      "old_value": "Premier Silver",
-      "current_value": "Premier Gold",
-      "reason": "The user explicitly stated that they had reached Premier Gold by May 30, 2023. This superseded the previously stated Premier Silver status, which they had reached in September 2022.",
-      "old_evidence": {
-        "session_index": 0,
-        "turn_index": 4,
-        "quote": "I'm actually just hit 20,000 miles on United Airlines, which means I'm finally eligible for Premier Silver status."
-      },
-      "current_evidence": {
-        "session_index": 1,
-        "turn_index": 2,
-        "quote": "I do have a United Airlines MileagePlus account - I just reached Premier Gold status."
-      },
-      "evidence_verified": false
+      "eligible": false,
+      "reason": "Source/question review: asks for the previous United Airlines status before the current status; historical value is requested."
+    },
+    "e66b632c": {
+      "eligible": false,
+      "reason": "Source/question review: asks for the previous charity 5K personal best; historical value is requested."
+    },
+    "9bbe84a2": {
+      "eligible": false,
+      "reason": "Source/question review: asks for the previous Apex Legends goal before its update; historical value is requested."
     }
   },
-  "status": "API authentication blocked; saved answers retained for resume"
+  "scoring_response_normalization": [
+    "Markdown JSON fences",
+    "stale_muse field spelling"
+  ],
+  "invalid_or_changed_judgements": "retried with frozen prompt and cached answers; all attempts retained",
+  "actual_usage_all_phases": {
+    "prompt_tokens": 9850482,
+    "completion_tokens": 143537,
+    "total_tokens": 9994019
+  },
+  "requested_models": [
+    "glm-5.1"
+  ],
+  "successful_endpoints": [
+    "http://118.89.124.131:3001/v1"
+  ],
+  "credential_rotation": "same endpoint and requested model; original 578 answers plus resumed 922 answers",
+  "answer_latency_measure": "observed per-call wall time including SDK retries and provider queue; calls overlap",
+  "evaluation_role": "exploratory paired QA on previously explored oracle questions",
+  "generation_and_judge_model": "glm-5.1",
+  "frozen_code_sha256": {
+    "memory/relinking.py": "da22a54616d938cd2e742039081e6a18fed9a969a365dd5dad634473a29a137a",
+    "memory/semantic_state.py": "78d6472469c2f55b4aec4b487e875c80580eb423c9788fa1c0809a9381978bd1",
+    "memory/ranker.py": "e364b329f362ad7fbed62c8ca2893b669b9181503b89bd71d0b056cfb776514f",
+    "examples/evaluate_longmemeval_read.py": "577ec1efd6d5637977f1af4601ee588ee8076b465ed7045f4a621e76955f1706"
+  },
+  "final_evaluation_code_sha256": "1fa50dca8c1da061cfa7033a4497cf2b095bf4035f89d3e08abb79c34e7b8f46"
 }

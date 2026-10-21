@@ -12,6 +12,7 @@ from h_recongraph.examples.evaluate_longmemeval_read import (
     fact_turn_indexes,
     hit_session_indexes,
     load_cases,
+    parse_qa_json,
     prepare_qa_contexts,
     qa_judge_payload,
     run_qa,
@@ -61,6 +62,10 @@ def test_update_scoring_uses_cited_replacement_and_blinded_answer_ids():
         'current_evidence': {'session_index': 1, 'turn_index': 1, 'quote': 'to the observatory'},
     }
     annotation = update_annotation(case, raw)
+    assert parse_qa_json('```json\n' + json.dumps(raw) + '\n```') == raw
+    assert parse_qa_json('{"scores":[{"stale_muse":false}]}')['scores'][0] == {
+        'stale_misuse': False
+    }
     assert annotation['eligible'] and annotation['evidence_verified']
     answers = {name: {'text': 'observatory'} for name in ('full_source', 'top1_w1', 'top2_w1')}
     payload, mapping = qa_judge_payload(case, answers, annotation)
@@ -109,6 +114,11 @@ def test_qa_summary_separates_accuracy_stale_errors_and_actual_phase_usage():
     assert summary['configurations']['full_source']['mean_total_tokens'] == 110
     assert summary['phase_costs']['judge']['total_tokens'] == 25
     assert summary['paired_vs_full_source']['top1_w1']['lost_correct'] == 1
+    rows[0]['stale_misuse'] = None
+    incomplete = summarize_qa(rows, calls, 1)['configurations']['full_source']
+    assert incomplete['stale_eligible_cases'] == 1
+    assert incomplete['stale_scored_cases'] == 0
+    assert incomplete['stale_misuse_rate'] is None
 
 
 @pytest.mark.asyncio
@@ -196,6 +206,14 @@ async def test_qa_checkpoints_answers_and_scores_for_resumption(tmp_path, monkey
     ]
     assert segments[-1]['base_url'] == args.base_url
     assert segments[-1]['reused_successful_calls'] == 5
+    calls_path = args.qa_dir / 'calls.jsonl'
+    checkpoint = [json.loads(line) for line in calls_path.read_text().splitlines()]
+    checkpoint[-1]['text'] = json.dumps({'scores': []})
+    calls_path.write_text('\n'.join(json.dumps(row) for row in checkpoint) + '\n')
+    repaired = await run_qa([case], args)
+    assert len(requests) == 6
+    assert all(row['correct'] is True for row in repaired['rows'])
+    assert repaired['summary']['phase_costs']['answer']['calls'] == 3
 
 
 def _case():
