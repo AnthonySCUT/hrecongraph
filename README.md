@@ -1,6 +1,6 @@
 # H-ReConGraph
 
-基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **15 阶段**，包含记忆束更新、四维证据绑定、证据裁剪及句子锚点与词形消融。阶段机制与结果见下方阶段页。
+基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **16 阶段**，包含记忆束更新、四维证据绑定、多片段来源保留、证据裁剪与按需句子定位。阶段机制与结果见下方阶段页。
 
 ## 研究框架
 
@@ -39,8 +39,9 @@
 | 13 | 重复渲染修复、依赖作用域消融 | 回归：149 passed；Oracle 500 题，去重 `w=1` 召回 97.43% | [13 重复渲染与依赖消融](docs/stages/13-rendering-dependency-ablation.md) |
 | 14 | 写入词界与事实作用域校准 | 回归：153 passed；Oracle 500 题，作用域 `w=1` 召回 93.75%，较原证据束省 Token 10.99% | [14 写入绑定校准](docs/stages/14-write-binding-calibration.md) |
 | 15 | 句子锚点与词形因子消融 | 回归：157 passed；Oracle 500 题，词形原粒度 `w=1` 召回 95.20%、5,986.68 Token | [15 句子锚点与词形](docs/stages/15-sentence-anchor-ablation.md) |
+| 16 | 多片段证据、按需句子定位与条件双锚点 | 回归：161 passed；Oracle 500 题，候选 `w=1` 召回 97.10%、6,245.99 Token | [16 多片段与按需定位](docs/stages/16-multispan-on-demand-anchors.md) |
 
-01–15 阶段说明均可从本仓库 `docs/stages/` 访问。06–15 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
+01–16 阶段说明均可从本仓库 `docs/stages/` 访问。06–16 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
 
 ## 代表性结果
 
@@ -51,11 +52,11 @@
 | 四维证据绑定 | 08：16 个机制样本，完整显式绑定 | 必要证据保留 100%，读取字符减少 43.00% | [记忆束与改写裁剪](docs/stages/08-local-updates.md) |
 | 连续记忆更新 | 09：新增、补充、局部修改、替代、删除与读取回放 | 更新正确率 36.36% → 100%；无关记忆保持 100%；四维证据完整率 17.65% → 100% | [连续更新配对实验](docs/stages/09-continuous-updates.md) |
 | 读取去重与成本 | 13：Oracle 500 题，原子串证据束 `w=1` | 支持召回 97.43%，平均 6,606.28 Token；较重复渲染配置减少 7.60% Token | [去重与依赖消融](docs/stages/13-rendering-dependency-ablation.md) |
-| 绑定规则与事实粒度 | 15：Oracle 500 题，固定 Session / Top-1 轮次，`w=1` | 词形原粒度：95.20%、5,986.68 Token；词形句子：90.29%、5,005.48 Token | [句子锚点与词形消融](docs/stages/15-sentence-anchor-ablation.md) |
+| 证据保留与锚点成本 | 16：Oracle 500 题，词形作用域，`w=1` | 第 15 批首匹配：95.20%、5,986.68 Token；完整触发 + 按需 Top-2：97.10%、6,245.99 Token | [多片段与按需定位](docs/stages/16-multispan-on-demand-anchors.md) |
 
 LongMemEval 表中召回采用整体 Micro：保留支持轮次 / 全部标注支持轮次；479 题共 896 条支持。Token 采用 `len(text) // 4` 估算，平均值覆盖 500 题。完整分组、配置与逐题结果见[实验附件索引](docs/results/README.md)。
 
-当前默认采用原子串规则与原粒度；词界、词形和句子锚点作为可选消融配置。完整阶段演进见“阶段进展”表，各批次详情保存在对应阶段页。
+当前默认采用原子串规则、原粒度与完整触发收集；`first` 保留历史首匹配对照，词形、句子作用域和条件 Top-2 作为可选消融配置。按需句子定位保留段落依赖索引。完整阶段演进见“阶段进展”表，各批次详情保存在对应阶段页。
 
 ## 安装与调用
 
@@ -82,7 +83,7 @@ print(context.context_text)
 
 ## 验证
 
-当前代码快照（15 阶段）指定回归：**157 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
+当前代码快照（16 阶段）指定回归：**161 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
 
 ```powershell
 python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider

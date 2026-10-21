@@ -1,0 +1,49 @@
+{
+  "dataset": {
+    "sha256": "821a2034d219ab45846873dd14c14f12cfe7776e73527a483f9dac095d38620c",
+    "case_count": 500
+  },
+  "variants": {
+    "first-fact-scope": {
+      "slot_mode": "first",
+      "binding_rule": "fact_scope"
+    },
+    "first-word-forms": {
+      "slot_mode": "first",
+      "binding_rule": "word_form_scope"
+    },
+    "all-fact-scope": {
+      "slot_mode": "all",
+      "binding_rule": "fact_scope"
+    },
+    "all-word-forms": {
+      "slot_mode": "all",
+      "binding_rule": "word_form_scope"
+    },
+    "all-dense-sentence": {
+      "slot_mode": "all",
+      "binding_rule": "word_form_scope",
+      "fact_granularity": "sentence"
+    },
+    "all-on-demand": {
+      "slot_mode": "all",
+      "binding_rule": "word_form_scope",
+      "sentence_locator": true
+    },
+    "all-on-demand-top2": {
+      "slot_mode": "all",
+      "binding_rule": "word_form_scope",
+      "sentence_locator": true,
+      "max_fact_anchors": 2
+    }
+  },
+  "result_files": {
+    "first-fact-scope": "16-LongMemEval-first-fact-scope.json",
+    "first-word-forms": "16-LongMemEval-first-word-forms.json",
+    "all-fact-scope": "16-LongMemEval-all-fact-scope.json",
+    "all-word-forms": "16-LongMemEval-all-word-forms.json",
+    "all-dense-sentence": "16-LongMemEval-all-dense-sentence.json",
+    "all-on-demand": "16-LongMemEval-all-on-demand.json",
+    "all-on-demand-top2": "16-LongMemEval-all-on-demand-top2.json"
+  }
+}

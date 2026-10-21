@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from graphiti_core.nodes import EpisodicNode
 from h_recongraph.memory.ranker import MemoryUtilityRanker
+from h_recongraph.memory.semantic_state import SemanticStateConstructor
 from h_recongraph.schemas.memory_edge import ReConMemoryEdge
 from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
 from h_recongraph.schemas.semantic_state import MemorySemanticState
@@ -238,6 +239,34 @@ class HierarchicalMemoryContext(BaseModel):
         if episode.uuid in self.source_units:
             return self.source_units[episode.uuid]
         return re.split(r'\n\s*\n', self._source_text(episode.content))
+
+    def locate_fact_sentences(self) -> dict[str, list[SourceSpan]]:
+        """Locate sentences in retrieved fact turns while retaining paragraph dependencies."""
+        located = {}
+        ranker = MemoryUtilityRanker()
+        words = ranker.tokenize(self.query)
+        for episode in self.source_episodes:
+            content = self._source_text(episode.content)
+            selected = set(
+                self.source_fact_indices[episode.uuid]
+                if episode.uuid in self.source_fact_indices
+                else self.source_indices(episode)['fact']
+            )
+            anchors, cursor = [], 0
+            for index, unit in enumerate(self.source_segments(episode)):
+                start = content.find(unit, cursor)
+                cursor = start + len(unit)
+                if index not in selected:
+                    continue
+                sentences = SemanticStateConstructor._sentences(unit, [episode.uuid])
+                anchor = max(sentences, key=lambda span: len(ranker.tokenize(span.text) & words))
+                anchors.append(
+                    anchor.model_copy(
+                        update={'start': start + anchor.start, 'end': start + anchor.end}
+                    )
+                )
+            located[episode.uuid] = anchors
+        return located
 
     def _render_source_units(self, episode: EpisodicNode, selected: set[int] | range) -> str:
         return '\n\n'.join(

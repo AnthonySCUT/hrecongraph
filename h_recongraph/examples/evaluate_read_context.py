@@ -99,7 +99,12 @@ async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
 
 
 async def build_naturally_bound_contexts(
-    cases: list[dict], *, binding_rule: str = 'substring', fact_granularity: str = 'paragraph'
+    cases: list[dict],
+    *,
+    binding_rule: str = 'substring',
+    fact_granularity: str = 'paragraph',
+    slot_mode: str = 'all',
+    sentence_locator: bool = False,
 ) -> dict:
     """Write source text without external spans and recover automatic bindings."""
     contexts = {}
@@ -108,7 +113,7 @@ async def build_naturally_bound_contexts(
         sentence_facts = {}
         writer = HReConGraphMemory(
             semantic_state_constructor=SemanticStateConstructor(
-                binding_rule, fact_granularity=fact_granularity
+                binding_rule, fact_granularity=fact_granularity, slot_mode=slot_mode
             )
         )
         for source in context.source_episodes:
@@ -143,6 +148,21 @@ async def build_naturally_bound_contexts(
                 )
             ]
             context.source_fact_spans[source.uuid] = [select_fact_span(facts, case['question'])]
+        if sentence_locator:
+            context.source_fact_indices = {
+                source.uuid: context.source_indices(source)['fact']
+                for source in context.source_episodes
+            }
+            located = context.locate_fact_sentences()
+            for source in context.source_episodes:
+                source_edges = [
+                    edge for edge in context.graph_edges if source.uuid in edge.episodes
+                ]
+                for edge in source_edges:
+                    for anchor in located[source.uuid]:
+                        if anchor.text in edge.fact:
+                            edge.fact = anchor.text
+                            break
         contexts[case['id']] = context
     return contexts
 
@@ -474,6 +494,16 @@ def main() -> None:
     parser.add_argument('--dependency-ablation', action='store_true')
     parser.add_argument('--binding-calibration', action='store_true')
     parser.add_argument('--anchor-calibration', action='store_true')
+    parser.add_argument('--slot-mode', choices=('first', 'all'), default='all')
+    parser.add_argument(
+        '--binding-rule',
+        default='substring',
+        choices=('substring', 'word_boundary', 'fact_scope', 'word_form_scope'),
+    )
+    parser.add_argument(
+        '--fact-granularity', choices=('paragraph', 'sentence'), default='paragraph'
+    )
+    parser.add_argument('--sentence-locator', action='store_true')
     parser.add_argument('--output-json', type=Path, required=True)
     args = parser.parse_args()
     cases = json.loads(args.cases.read_text(encoding='utf-8'))
@@ -485,7 +515,10 @@ def main() -> None:
             for granularity in ('paragraph', 'sentence'):
                 contexts = asyncio.run(
                     build_naturally_bound_contexts(
-                        cases, binding_rule=rule, fact_granularity=granularity
+                        cases,
+                        binding_rule=rule,
+                        fact_granularity=granularity,
+                        slot_mode=args.slot_mode,
                     )
                 )
                 result['anchor_calibration'][f'{rule}/{granularity}'] = evaluate_cases(
@@ -494,7 +527,9 @@ def main() -> None:
     elif args.binding_calibration:
         result = {'binding_calibration': {}}
         for rule in ('substring', 'word_boundary', 'fact_scope'):
-            contexts = asyncio.run(build_naturally_bound_contexts(cases, binding_rule=rule))
+            contexts = asyncio.run(
+                build_naturally_bound_contexts(cases, binding_rule=rule, slot_mode=args.slot_mode)
+            )
             result['binding_calibration'][rule] = evaluate_cases(
                 cases, args.repeats, contexts, sizes, reading_configs=configs
             )
@@ -511,7 +546,15 @@ def main() -> None:
             ),
         }
     elif args.natural_bindings:
-        contexts = asyncio.run(build_naturally_bound_contexts(cases))
+        contexts = asyncio.run(
+            build_naturally_bound_contexts(
+                cases,
+                binding_rule=args.binding_rule,
+                fact_granularity=args.fact_granularity,
+                slot_mode=args.slot_mode,
+                sentence_locator=args.sentence_locator,
+            )
+        )
         result = {
             'binding_protocol': 'SemanticStateConstructor automatic paragraph bindings',
             'natural_auto_bindings': evaluate_cases(

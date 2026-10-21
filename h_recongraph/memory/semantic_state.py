@@ -65,9 +65,11 @@ class SemanticStateConstructor:
         ] = 'substring',
         *,
         fact_granularity: Literal['paragraph', 'sentence'] = 'paragraph',
+        slot_mode: Literal['first', 'all'] = 'all',
     ):
         self.binding_rule = binding_rule
         self.fact_granularity = fact_granularity
+        self.slot_mode = slot_mode
 
     def construct(
         self,
@@ -225,20 +227,28 @@ class SemanticStateConstructor:
                     )
         return sentences
 
-    def _marker_index(self, text: str, marker: str) -> int:
+    def _marker_matches(self, text: str, marker: str) -> list[tuple[int, int]]:
         if self.binding_rule == 'substring' or not marker.isascii():
-            return text.lower().find(marker.lower())
-        forms = (
-            self.MARKER_FORMS.get(marker, (marker,))
-            if self.binding_rule == 'word_form_scope'
-            else (marker,)
+            pattern = re.escape(marker)
+        else:
+            forms = (
+                self.MARKER_FORMS.get(marker, (marker,))
+                if self.binding_rule == 'word_form_scope'
+                else (marker,)
+            )
+            pattern = r'(?<!\w)(?:' + '|'.join(map(re.escape, forms)) + r')(?!\w)'
+        return [match.span() for match in re.finditer(pattern, text, flags=re.I)]
+
+    def _slot_matches(self, text: str, markers: Iterable[str]) -> list[tuple[int, int]]:
+        matches = list(
+            dict.fromkeys(
+                match for marker in markers for match in self._marker_matches(text, marker)
+            )
         )
-        pattern = r'(?<!\w)(?:' + '|'.join(map(re.escape, forms)) + r')(?!\w)'
-        match = re.search(pattern, text, flags=re.I)
-        return match.start() if match else -1
+        return matches[:1] if self.slot_mode == 'first' else matches
 
     def _contains_marker(self, text: str, markers: Iterable[str]) -> bool:
-        return any(self._marker_index(text, marker) >= 0 for marker in markers)
+        return any(self._marker_matches(text, marker) for marker in markers)
 
     def _bind_fact_scopes(
         self, text: str, memory: UnifiedMemoryUnit, spans: list[SourceSpan]
@@ -283,11 +293,9 @@ class SemanticStateConstructor:
         field: str,
         spans: list[SourceSpan],
     ) -> str | None:
-        for marker in markers:
-            index = self._marker_index(text, marker)
-            if index == -1:
-                continue
-            end = min(len(text), index + max(len(marker), 12))
+        values = []
+        for index, match_end in self._slot_matches(text, markers):
+            end = min(len(text), max(match_end, index + 12))
             value = text[index:end].strip()
             spans.append(
                 SourceSpan(
@@ -298,8 +306,8 @@ class SemanticStateConstructor:
                     field=field,
                 )
             )
-            return value
-        return None
+            values.append(value)
+        return values[0] if values else None
 
     def _clause_after_any(
         self,
@@ -309,11 +317,9 @@ class SemanticStateConstructor:
         field: str,
         spans: list[SourceSpan],
     ) -> str | None:
-        for marker in markers:
-            index = self._marker_index(text, marker)
-            if index == -1:
-                continue
-            start = index + len(marker)
+        values = []
+        for index, match_end in self._slot_matches(text, markers):
+            start = match_end
             end_candidates = [
                 pos + (delimiter in ('。', '.'))
                 for delimiter in ('，', ',', '。', '.', '\n')
@@ -324,7 +330,7 @@ class SemanticStateConstructor:
             start += len(text[start:end]) - len(text[start:end].lstrip(' ，,'))
             end = start + len(value)
             if not value:
-                value = text[index : min(len(text), index + len(marker) + 12)].strip()
+                value = text[index : min(len(text), match_end + 12)].strip()
                 start = index
                 end = start + len(value)
             spans.append(
@@ -336,5 +342,5 @@ class SemanticStateConstructor:
                     field=field,
                 )
             )
-            return value
-        return None
+            values.append(value)
+        return values[0] if values else None

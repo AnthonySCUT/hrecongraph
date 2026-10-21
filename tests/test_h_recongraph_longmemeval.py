@@ -239,3 +239,64 @@ async def test_anchor_calibration_separates_granularity_and_word_form_effects():
         forms = result['anchor_calibration'][f'word_form_scope/{granularity}']
         assert scoped['summary']['evidence_bundle_w0']['overall_recall']['retained'] == 1
         assert forms['summary']['evidence_bundle_w0']['overall_recall']['retained'] == 2
+
+
+@pytest.mark.asyncio
+async def test_on_demand_sentences_preserve_paragraph_dependencies_and_original_turn_offsets():
+    case = _case()
+    case['haystack_sessions'][1] = [
+        {'role': 'user', 'content': 'Tea is ready.'},
+        {
+            'role': 'user',
+            'content': 'The telescope is stored at the observatory.\nWe discussed weather forecasts.',
+            'has_answer': True,
+        },
+        {'role': 'assistant', 'content': 'Tea is ready.'},
+        {'role': 'user', 'content': 'Weather alerts apply only during storms.'},
+    ]
+    original = await build_context(case, binding_rule='word_form_scope')
+    located = await build_context(case, binding_rule='word_form_scope', sentence_locator=True)
+    assert located.source_fact_indices == original.source_fact_indices
+    assert not located.source_fact_spans
+    for left, right in zip(original.source_episodes, located.source_episodes, strict=True):
+        assert original.source_indices(left, 1) == located.source_indices(right, 1)
+        assert located.source_indices(right)['dependencies'] == [3]
+        anchors = located.locate_fact_sentences()[right.uuid]
+        text = located._source_text(right.content)
+        assert len(anchors) == 1
+        assert text[anchors[0].start : anchors[0].end] == located.graph_edges[0].fact
+        assert 'weather' not in anchors[0].text
+    assert [span.model_dump() for span in original.semantic_states[0].source_spans] == [
+        span.model_dump() for span in located.semantic_states[0].source_spans
+    ]
+
+
+@pytest.mark.asyncio
+async def test_on_demand_top2_uses_fixed_anchors_and_ignores_answer_labels():
+    case = _case()
+    case['question'] = 'Where is the telescope stored at the observatory?'
+    case['haystack_sessions'][1][1]['content'] = 'Telescope observatory mounts. Tea is ready.'
+    result = await evaluate_cases(
+        [case],
+        repeats=1,
+        window_sizes=(0, 1, 2),
+        binding_rule='word_form_scope',
+        max_fact_anchors=2,
+        sentence_locator=True,
+    )
+    binding = result['fixed_retrieval'][0]['source_bindings'][0]
+    assert binding['graph_fact_turn_indices'] == [0, 1]
+    assert [anchor['turn_index'] for anchor in binding['fact_anchors']] == [0, 1]
+    context = await build_context(
+        case, binding_rule='word_form_scope', max_fact_anchors=2, sentence_locator=True
+    )
+    del case['answer']
+    for session in case['haystack_sessions']:
+        for turn in session:
+            turn.pop('has_answer', None)
+    unlabeled = await build_context(
+        case, binding_rule='word_form_scope', max_fact_anchors=2, sentence_locator=True
+    )
+    assert unlabeled.render_text('evidence_bundle', window_size=1) == context.render_text(
+        'evidence_bundle', window_size=1
+    )

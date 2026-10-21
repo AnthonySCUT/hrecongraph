@@ -8,6 +8,8 @@ import json
 from collections import Counter
 from hashlib import sha256
 from pathlib import Path
+from statistics import median
+from time import perf_counter
 from typing import Any
 
 from graphiti_core.edges import EntityEdge
@@ -76,12 +78,14 @@ async def build_context(
     max_fact_anchors: int = 1,
     binding_rule: str = 'substring',
     fact_granularity: str = 'paragraph',
+    slot_mode: str = 'all',
+    sentence_locator: bool = False,
 ) -> HierarchicalMemoryContext:
     """Use only question/source text to build one fixed lexical graph adapter."""
     now = utc_now()
     writer = HReConGraphMemory(
         semantic_state_constructor=SemanticStateConstructor(
-            binding_rule, fact_granularity=fact_granularity
+            binding_rule, fact_granularity=fact_granularity, slot_mode=slot_mode
         )
     )
     episodes, edges, states = [], [], []
@@ -134,7 +138,7 @@ async def build_context(
             )
         episodes.append(episode)
         states.append(writer.semantic_states[memory.semantic_state_id])
-    return HierarchicalMemoryContext(
+    context = HierarchicalMemoryContext(
         query=case['question'],
         selected_layers=['M1'],
         graph_edges=edges,
@@ -144,6 +148,13 @@ async def build_context(
         source_fact_indices=fact_indices,
         source_fact_spans=fact_spans,
     )
+    if sentence_locator:
+        located = context.locate_fact_sentences()
+        for episode in episodes:
+            source_edges = [edge for edge in edges if episode.uuid in edge.episodes]
+            for edge, anchor in zip(source_edges, located[episode.uuid], strict=True):
+                edge.fact = anchor.text
+    return context
 
 
 def support_scores(case: dict, hit_indexes: list[int], stages: list[dict], mode: str) -> dict:
@@ -290,6 +301,8 @@ async def evaluate_cases(
     reading_configs: dict | None = None,
     binding_rule: str = 'substring',
     fact_granularity: str = 'paragraph',
+    slot_mode: str = 'all',
+    sentence_locator: bool = False,
 ) -> dict:
     rows, fixed_retrieval = [], []
     configs = reading_configs or reading_configurations(window_sizes)
@@ -300,7 +313,16 @@ async def evaluate_cases(
             max_fact_anchors=max_fact_anchors,
             binding_rule=binding_rule,
             fact_granularity=fact_granularity,
+            slot_mode=slot_mode,
+            sentence_locator=sentence_locator,
         )
+        located, locator_times = {}, []
+        if sentence_locator:
+            context.locate_fact_sentences()
+            for _ in range(repeats):
+                start = perf_counter()
+                located = context.locate_fact_sentences()
+                locator_times.append((perf_counter() - start) * 1000)
         hit_indexes = hit_session_indexes(case['haystack_sessions'], case['question'])
         # All configurations render before answer/has_answer labels are read.
         rendered = {
@@ -328,6 +350,7 @@ async def evaluate_cases(
             {
                 'question_id': case['question_id'],
                 'hit_session_indices': hit_indexes,
+                'sentence_locator_median_ms': median(locator_times) if locator_times else 0,
                 'source_bindings': [
                     {
                         'session_index': session_index,
@@ -338,7 +361,9 @@ async def evaluate_cases(
                             {'turn_index': turn_index, **span.model_dump()}
                             for turn_index, span in zip(
                                 context.source_fact_indices[episode.uuid],
-                                context.source_fact_spans.get(episode.uuid, []),
+                                located.get(
+                                    episode.uuid, context.source_fact_spans.get(episode.uuid, [])
+                                ),
                                 strict=False,
                             )
                         ],
@@ -444,6 +469,8 @@ async def evaluate_cases(
         'protocol': 'fixed retrieval; original message-index evidence/window ablation',
         'binding_rule': binding_rule,
         'fact_granularity': fact_granularity,
+        'slot_mode': slot_mode,
+        'sentence_locator': sentence_locator,
         'experiment_role': 'configuration exploration on oracle 500',
         'selection': 'all positive lexical-overlap sessions; Top-1 per session; optional Top-2 with relative score >= 0.5 and >= 2 distinct content-word matches; ties use earliest turn',
         'anchor_policy': {
@@ -565,10 +592,12 @@ def binding_diagnostic(results: dict) -> dict:
     return diagnostic
 
 
-async def evaluate_binding_calibration(cases: list[dict], *, repeats: int = 3) -> dict:
+async def evaluate_binding_calibration(
+    cases: list[dict], *, repeats: int = 3, slot_mode: str = 'all'
+) -> dict:
     results = {
         rule: await evaluate_cases(
-            cases, repeats=repeats, window_sizes=(0, 1, 2), binding_rule=rule
+            cases, repeats=repeats, window_sizes=(0, 1, 2), binding_rule=rule, slot_mode=slot_mode
         )
         for rule in ('substring', 'word_boundary', 'fact_scope')
     }
@@ -602,7 +631,9 @@ async def evaluate_binding_calibration(cases: list[dict], *, repeats: int = 3) -
     }
 
 
-async def evaluate_anchor_calibration(cases: list[dict], *, repeats: int = 3) -> dict:
+async def evaluate_anchor_calibration(
+    cases: list[dict], *, repeats: int = 3, slot_mode: str = 'all'
+) -> dict:
     results = {
         f'{rule}/{granularity}': await evaluate_cases(
             cases,
@@ -610,6 +641,7 @@ async def evaluate_anchor_calibration(cases: list[dict], *, repeats: int = 3) ->
             window_sizes=(0, 1, 2),
             binding_rule=rule,
             fact_granularity=granularity,
+            slot_mode=slot_mode,
         )
         for rule in ('substring', 'fact_scope', 'word_form_scope')
         for granularity in ('paragraph', 'sentence')
@@ -665,19 +697,35 @@ async def main() -> None:
     parser.add_argument('--dependency-ablation', action='store_true')
     parser.add_argument('--binding-calibration', action='store_true')
     parser.add_argument('--anchor-calibration', action='store_true')
+    parser.add_argument('--slot-mode', choices=('first', 'all'), default='all')
+    parser.add_argument(
+        '--binding-rule',
+        default='substring',
+        choices=('substring', 'word_boundary', 'fact_scope', 'word_form_scope'),
+    )
+    parser.add_argument(
+        '--fact-granularity', choices=('paragraph', 'sentence'), default='paragraph'
+    )
+    parser.add_argument('--sentence-locator', action='store_true')
     parser.add_argument('--output-json', type=Path, required=True)
     args = parser.parse_args()
     cases = load_cases(args.data, offset=args.offset, limit=args.limit)
     result = (
-        await evaluate_anchor_calibration(cases, repeats=args.repeats)
+        await evaluate_anchor_calibration(cases, repeats=args.repeats, slot_mode=args.slot_mode)
         if args.anchor_calibration
-        else await evaluate_binding_calibration(cases, repeats=args.repeats)
+        else await evaluate_binding_calibration(
+            cases, repeats=args.repeats, slot_mode=args.slot_mode
+        )
         if args.binding_calibration
         else await evaluate_cases(
             cases,
             repeats=args.repeats,
             window_sizes=(0, 1, 2),
             max_fact_anchors=args.max_fact_anchors,
+            slot_mode=args.slot_mode,
+            binding_rule=args.binding_rule,
+            fact_granularity=args.fact_granularity,
+            sentence_locator=args.sentence_locator,
             reading_configs=reading_configurations((0, 1, 2), ablation=args.dependency_ablation),
         )
     )

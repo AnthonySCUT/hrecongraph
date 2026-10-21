@@ -495,9 +495,35 @@ def test_sentence_facts_keep_original_offsets_and_repeated_positions():
 
 def test_word_forms_keep_temporal_variants_and_exclude_embedded_markers():
     constructor = SemanticStateConstructor('word_form_scope')
-    assert constructor._marker_index('I recently visited.', 'recent') == 2
-    assert constructor._marker_index('Atlas currently runs.', 'current') == 6
-    assert constructor._marker_index('The service connected via Redis.', 'connects') == 12
-    assert constructor._marker_index('Do you know a specific viable plan?', 'now') == -1
-    assert constructor._marker_index('Do you know a specific viable plan?', 'if') == -1
-    assert constructor._marker_index('Do you know a specific viable plan?', 'via') == -1
+    assert constructor._marker_matches('I recently visited.', 'recent') == [(2, 10)]
+    assert constructor._marker_matches('Atlas currently runs.', 'current') == [(6, 15)]
+    assert constructor._marker_matches('The service connected via Redis.', 'connects') == [(12, 21)]
+    assert constructor._marker_matches('Do you know a specific viable plan?', 'now') == []
+    assert constructor._marker_matches('Do you know a specific viable plan?', 'if') == []
+    assert constructor._marker_matches('Do you know a specific viable plan?', 'via') == []
+
+
+def test_multi_span_slots_retain_repeated_triggers_and_previous_word_boundary_evidence():
+    text = 'Atlas recently launched.\n\nAtlas now stores reports.\n\nAtlas now serves queries.'
+    memory = UnifiedMemoryUnit(user_id='u1', layer='M1', raw_content=text)
+    previous = SemanticStateConstructor('fact_scope', slot_mode='all').construct(memory)
+    first = SemanticStateConstructor('word_form_scope', slot_mode='first').construct(memory)
+    complete = SemanticStateConstructor('word_form_scope').construct(memory)
+
+    def temporal(state):
+        return {span.start for span in state.source_spans if span.field == 'temporal_scope'}
+
+    assert temporal(first) == {text.index('recently')}
+    assert temporal(complete) == temporal(previous) | {text.index('recently')}
+    assert len(temporal(complete)) == 3
+    assert all(text[span.start : span.end] == span.text for span in complete.source_spans)
+
+
+def test_clause_extraction_starts_after_actual_matched_word_form():
+    constructor = SemanticStateConstructor('word_form_scope')
+    text = 'Atlas is increasing capacity.\nAtlas increased storage.'
+    spans = []
+    value = constructor._clause_after_any(text, ['increase'], ['ev-atlas'], 'state_change', spans)
+    assert value == 'capacity.'
+    assert [span.text for span in spans] == ['capacity.', 'storage.']
+    assert all(text[span.start : span.end] == span.text for span in spans)
