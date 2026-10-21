@@ -21,6 +21,7 @@ from h_recongraph.examples.evaluate_read_context import (
     measure_render,
     pareto_analysis,
     reading_configurations,
+    select_fact_span,
     stage_source_texts,
     summarize_rows,
 )
@@ -70,13 +71,21 @@ def fact_turn_indexes(session: list[dict], query: str, *, max_anchors: int = 1) 
 
 
 async def build_context(
-    case: dict, *, max_fact_anchors: int = 1, binding_rule: str = 'substring'
+    case: dict,
+    *,
+    max_fact_anchors: int = 1,
+    binding_rule: str = 'substring',
+    fact_granularity: str = 'paragraph',
 ) -> HierarchicalMemoryContext:
     """Use only question/source text to build one fixed lexical graph adapter."""
     now = utc_now()
-    writer = HReConGraphMemory(semantic_state_constructor=SemanticStateConstructor(binding_rule))
+    writer = HReConGraphMemory(
+        semantic_state_constructor=SemanticStateConstructor(
+            binding_rule, fact_granularity=fact_granularity
+        )
+    )
     episodes, edges, states = [], [], []
-    units, fact_indices = {}, {}
+    units, fact_indices, fact_spans = {}, {}, {}
     for session_index in hit_session_indexes(case['haystack_sessions'], case['question']):
         session = case['haystack_sessions'][session_index]
         memory = UnifiedMemoryUnit(
@@ -100,6 +109,17 @@ async def build_context(
         units[episode.uuid] = [turn_text(message) for message in session]
         fact_indices[episode.uuid] = selected
         for anchor_index, turn_index in enumerate(selected):
+            fact = turn_text(session[turn_index])
+            if fact_granularity == 'sentence':
+                start = sum(len(turn_text(turn)) + 2 for turn in session[:turn_index])
+                candidates = [
+                    span
+                    for span in memory.source_spans
+                    if span.field == 'fact' and start <= span.start < start + len(fact)
+                ]
+                anchor = select_fact_span(candidates, case['question'])
+                fact_spans.setdefault(episode.uuid, []).append(anchor)
+                fact = anchor.text
             edges.append(
                 EntityEdge(
                     uuid=f'{episode.uuid}-edge' + (f'-{anchor_index}' if anchor_index else ''),
@@ -108,7 +128,7 @@ async def build_context(
                     source_node_uuid=f'{episode.uuid}-source',
                     target_node_uuid=f'{episode.uuid}-target',
                     name='RELEVANT_TURN',
-                    fact=turn_text(session[turn_index]),
+                    fact=fact,
                     episodes=[episode.uuid],
                 )
             )
@@ -122,6 +142,7 @@ async def build_context(
         source_episodes=episodes,
         source_units=units,
         source_fact_indices=fact_indices,
+        source_fact_spans=fact_spans,
     )
 
 
@@ -268,13 +289,17 @@ async def evaluate_cases(
     max_fact_anchors: int = 1,
     reading_configs: dict | None = None,
     binding_rule: str = 'substring',
+    fact_granularity: str = 'paragraph',
 ) -> dict:
     rows, fixed_retrieval = [], []
     configs = reading_configs or reading_configurations(window_sizes)
     names = list(configs)
     for case in cases:
         context = await build_context(
-            case, max_fact_anchors=max_fact_anchors, binding_rule=binding_rule
+            case,
+            max_fact_anchors=max_fact_anchors,
+            binding_rule=binding_rule,
+            fact_granularity=fact_granularity,
         )
         hit_indexes = hit_session_indexes(case['haystack_sessions'], case['question'])
         # All configurations render before answer/has_answer labels are read.
@@ -309,6 +334,14 @@ async def evaluate_cases(
                         'episode_id': episode.uuid,
                         'turn_count': len(context.source_units[episode.uuid]),
                         'graph_fact_turn_indices': context.source_fact_indices[episode.uuid],
+                        'fact_anchors': [
+                            {'turn_index': turn_index, **span.model_dump()}
+                            for turn_index, span in zip(
+                                context.source_fact_indices[episode.uuid],
+                                context.source_fact_spans.get(episode.uuid, []),
+                                strict=False,
+                            )
+                        ],
                         'graph_fact': next(
                             edge.fact
                             for edge in context.graph_edges
@@ -410,6 +443,7 @@ async def evaluate_cases(
     return {
         'protocol': 'fixed retrieval; original message-index evidence/window ablation',
         'binding_rule': binding_rule,
+        'fact_granularity': fact_granularity,
         'experiment_role': 'configuration exploration on oracle 500',
         'selection': 'all positive lexical-overlap sessions; Top-1 per session; optional Top-2 with relative score >= 0.5 and >= 2 distinct content-word matches; ties use earliest turn',
         'anchor_policy': {
@@ -568,6 +602,54 @@ async def evaluate_binding_calibration(cases: list[dict], *, repeats: int = 3) -
     }
 
 
+async def evaluate_anchor_calibration(cases: list[dict], *, repeats: int = 3) -> dict:
+    results = {
+        f'{rule}/{granularity}': await evaluate_cases(
+            cases,
+            repeats=repeats,
+            window_sizes=(0, 1, 2),
+            binding_rule=rule,
+            fact_granularity=granularity,
+        )
+        for rule in ('substring', 'fact_scope', 'word_form_scope')
+        for granularity in ('paragraph', 'sentence')
+    }
+    retrieval = [
+        [
+            (
+                item['question_id'],
+                item['hit_session_indices'],
+                [binding['graph_fact_turn_indices'] for binding in item['source_bindings']],
+            )
+            for item in result['fixed_retrieval']
+        ]
+        for result in results.values()
+    ]
+    summaries = {
+        f'{variant}/{name}': summary
+        for variant, result in results.items()
+        for name, summary in result['summary'].items()
+        if name != 'evidence_bundle'
+    }
+    return {
+        'protocol': 'sentence-anchor and word-form ablation; fixed Sessions and Top-1 turns',
+        'experiment_role': 'exploratory reuse of oracle 500',
+        'fixed_retrieval_equal': all(item == retrieval[0] for item in retrieval),
+        'summary': summaries,
+        'anchor_calibration': results,
+        'comparison_w1': {
+            granularity: binding_diagnostic(
+                {
+                    rule: results[f'{rule}/{granularity}']
+                    for rule in ('substring', 'fact_scope', 'word_form_scope')
+                }
+            )
+            for granularity in ('paragraph', 'sentence')
+        },
+        'joint_pareto': pareto_analysis(summaries, list(summaries)),
+    }
+
+
 async def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -582,11 +664,14 @@ async def main() -> None:
     parser.add_argument('--max-fact-anchors', type=int, choices=(1, 2), default=1)
     parser.add_argument('--dependency-ablation', action='store_true')
     parser.add_argument('--binding-calibration', action='store_true')
+    parser.add_argument('--anchor-calibration', action='store_true')
     parser.add_argument('--output-json', type=Path, required=True)
     args = parser.parse_args()
     cases = load_cases(args.data, offset=args.offset, limit=args.limit)
     result = (
-        await evaluate_binding_calibration(cases, repeats=args.repeats)
+        await evaluate_anchor_calibration(cases, repeats=args.repeats)
+        if args.anchor_calibration
+        else await evaluate_binding_calibration(cases, repeats=args.repeats)
         if args.binding_calibration
         else await evaluate_cases(
             cases,

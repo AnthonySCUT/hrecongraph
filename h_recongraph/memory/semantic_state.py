@@ -49,11 +49,25 @@ class SemanticStateConstructor:
     )
     CHANGE_MARKERS = ('开始', '变得', '不再', '最近', 'increase', 'decrease', 'more often')
     TEMPORAL_MARKERS = ('最近', '今天', '昨天', '明天', 'current', 'recent', 'now', '下午')
+    MARKER_FORMS = {
+        'recent': ('recent', 'recently'),
+        'current': ('current', 'currently'),
+        'increase': ('increase', 'increases', 'increased', 'increasing'),
+        'decrease': ('decrease', 'decreases', 'decreased', 'decreasing'),
+        'connects': ('connect', 'connects', 'connected', 'connecting'),
+        'routes': ('route', 'routes', 'routed', 'routing'),
+    }
 
     def __init__(
-        self, binding_rule: Literal['substring', 'word_boundary', 'fact_scope'] = 'substring'
+        self,
+        binding_rule: Literal[
+            'substring', 'word_boundary', 'fact_scope', 'word_form_scope'
+        ] = 'substring',
+        *,
+        fact_granularity: Literal['paragraph', 'sentence'] = 'paragraph',
     ):
         self.binding_rule = binding_rule
+        self.fact_granularity = fact_granularity
 
     def construct(
         self,
@@ -106,7 +120,7 @@ class SemanticStateConstructor:
             )
             spans.extend(span.model_copy(update={'field': 'validity'}) for span in validity_sources)
 
-        if self.binding_rule == 'fact_scope':
+        if self.binding_rule in ('fact_scope', 'word_form_scope'):
             self._bind_fact_scopes(text, memory, spans)
         spans = list(
             {
@@ -141,9 +155,12 @@ class SemanticStateConstructor:
         bound = {span.field for span in spans}
         paragraphs = self._paragraphs(text, memory.evidence_ids)
         if 'fact' not in bound:
-            spans.extend(
-                span.model_copy(update={'field': 'fact'}, deep=True) for span in paragraphs
+            facts = (
+                self._sentences(text, memory.evidence_ids)
+                if self.fact_granularity == 'sentence'
+                else paragraphs
             )
+            spans.extend(span.model_copy(update={'field': 'fact'}, deep=True) for span in facts)
         if 'path' not in bound:
             spans.extend(
                 span.model_copy(update={'field': 'path'}, deep=True)
@@ -185,10 +202,39 @@ class SemanticStateConstructor:
             )
         return paragraphs
 
+    @classmethod
+    def _sentences(cls, text: str, evidence_ids: list[str]) -> list[SourceSpan]:
+        """Index source sentences with offsets in the original interaction."""
+        sentences = []
+        for paragraph in cls._paragraphs(text, evidence_ids):
+            for match in re.finditer(
+                r'.+?(?:[。！？]|[.!?](?=\s|$)|\n|$)', paragraph.text, flags=re.S
+            ):
+                raw = match.group()
+                value = raw.strip()
+                if value:
+                    start = paragraph.start + match.start() + len(raw) - len(raw.lstrip())
+                    sentences.append(
+                        SourceSpan(
+                            evidence_id=paragraph.evidence_id,
+                            text=value,
+                            start=start,
+                            end=start + len(value),
+                            field='fact',
+                        )
+                    )
+        return sentences
+
     def _marker_index(self, text: str, marker: str) -> int:
         if self.binding_rule == 'substring' or not marker.isascii():
             return text.lower().find(marker.lower())
-        match = re.search(r'(?<!\w)' + re.escape(marker) + r'(?!\w)', text, flags=re.I)
+        forms = (
+            self.MARKER_FORMS.get(marker, (marker,))
+            if self.binding_rule == 'word_form_scope'
+            else (marker,)
+        )
+        pattern = r'(?<!\w)(?:' + '|'.join(map(re.escape, forms)) + r')(?!\w)'
+        match = re.search(pattern, text, flags=re.I)
         return match.start() if match else -1
 
     def _contains_marker(self, text: str, markers: Iterable[str]) -> bool:
@@ -204,6 +250,11 @@ class SemanticStateConstructor:
             ranker.tokenize(re.sub(r'^(?:user|assistant|system):\s*', '', span.text, flags=re.I))
             for span in paragraphs
         ]
+        facts = [span for span in spans if span.field == 'fact' and span.start is not None]
+        fact_tokens = [
+            ranker.tokenize(re.sub(r'^(?:user|assistant|system):\s*', '', span.text, flags=re.I))
+            for span in facts
+        ]
         explicit = {(span.field, span.start, span.end, span.text) for span in memory.source_spans}
         for span in spans:
             if span.field == 'fact' or (span.field, span.start, span.end, span.text) in explicit:
@@ -218,9 +269,10 @@ class SemanticStateConstructor:
             )
             if owner is not None:
                 span.fact_starts = [
-                    paragraph.start
-                    for i, paragraph in enumerate(paragraphs)
-                    if i == owner or tokens[owner] & tokens[i]
+                    fact.start
+                    for fact, words in zip(facts, fact_tokens, strict=True)
+                    if paragraphs[owner].start <= fact.start < paragraphs[owner].end
+                    or tokens[owner] & words
                 ]
 
     def _span_for_any(

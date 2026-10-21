@@ -1,0 +1,2322 @@
+{
+  "protocol": "sentence-anchor and word-form ablation; fixed Sessions and Top-1 turns",
+  "experiment_role": "exploratory reuse of oracle 500",
+  "fixed_retrieval_equal": true,
+  "summary": {
+    "substring/paragraph/full_source": {
+      "case_count": 500,
+      "mean_context_chars": 26815.07,
+      "mean_context_tokens": 6703.392,
+      "total_chars": 13407535,
+      "total_tokens": 3351696,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1,
+        "micro": 1,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.029799994081258774,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 676,
+        "final": 676
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3033556,
+        "final": 3033556
+      },
+      "token_reduction_vs_full_source": 0,
+      "char_reduction_vs_full_source": 0,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.9821428571428571,
+      "losses": {
+        "affected_cases": 10,
+        "missing_support_count": 16,
+        "by_reason": {
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 16
+        },
+        "cropping_distance": {}
+      }
+    },
+    "substring/paragraph/evidence_bundle_w0": {
+      "case_count": 500,
+      "mean_context_chars": 24738.678,
+      "mean_context_tokens": 6184.294,
+      "total_chars": 12369339,
+      "total_tokens": 3092147,
+      "overall_recall": {
+        "macro": 0.7720250521920669,
+        "micro": 0.7544642857142857,
+        "retained": 676,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.7814035087719299,
+        "micro": 0.7681818181818182,
+        "retained": 676,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 301,
+      "complete_rate": 0.6283924843423799,
+      "answer_visible_rate": 0.446,
+      "median_render_ms": 1.5656999894417822,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 676,
+        "final": 676
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3033556,
+        "final": 3033556
+      },
+      "token_reduction_vs_full_source": 0.07743810894544134,
+      "char_reduction_vs_full_source": 0.07743377138303198,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.7544642857142857,
+      "losses": {
+        "affected_cases": 178,
+        "missing_support_count": 220,
+        "by_reason": {
+          "outside_evidence_bundle": 204,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 216,
+          "assistant": 4
+        },
+        "cropping_distance": {
+          "1": 197,
+          "2": 4,
+          "3": 2,
+          "4": 1
+        }
+      }
+    },
+    "substring/paragraph/evidence_bundle_w1": {
+      "case_count": 500,
+      "mean_context_chars": 26426.654,
+      "mean_context_tokens": 6606.278,
+      "total_chars": 13213327,
+      "total_tokens": 3303139,
+      "overall_recall": {
+        "macro": 0.9770702853166319,
+        "micro": 0.9743303571428571,
+        "retained": 873,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9898245614035087,
+        "micro": 0.9920454545454546,
+        "retained": 873,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 462,
+      "complete_rate": 0.964509394572025,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 1.5278000064427033,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 873,
+        "final": 873
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 197,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3244544,
+        "final": 3244544
+      },
+      "token_reduction_vs_full_source": 0.014487292403607022,
+      "char_reduction_vs_full_source": 0.014484989224342826,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 210988,
+      "supporting_turn_recall": 0.9743303571428571,
+      "losses": {
+        "affected_cases": 17,
+        "missing_support_count": 23,
+        "by_reason": {
+          "session_not_retrieved": 16,
+          "outside_evidence_bundle": 7
+        },
+        "by_role": {
+          "user": 20,
+          "assistant": 3
+        },
+        "cropping_distance": {
+          "2": 4,
+          "3": 2,
+          "4": 1
+        }
+      }
+    },
+    "substring/paragraph/evidence_bundle_w2": {
+      "case_count": 500,
+      "mean_context_chars": 26774.67,
+      "mean_context_tokens": 6693.296,
+      "total_chars": 13387335,
+      "total_tokens": 3346648,
+      "overall_recall": {
+        "macro": 0.9829853862212944,
+        "micro": 0.9787946428571429,
+        "retained": 877,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9957894736842106,
+        "micro": 0.9965909090909091,
+        "retained": 877,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 466,
+      "complete_rate": 0.9728601252609603,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 1.5065500047057867,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 877,
+        "final": 877
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 201,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3288048,
+        "final": 3288048
+      },
+      "token_reduction_vs_full_source": 0.0015061031788086154,
+      "char_reduction_vs_full_source": 0.0015066154964353817,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 254492,
+      "supporting_turn_recall": 0.9787946428571429,
+      "losses": {
+        "affected_cases": 13,
+        "missing_support_count": 19,
+        "by_reason": {
+          "session_not_retrieved": 16,
+          "outside_evidence_bundle": 3
+        },
+        "by_role": {
+          "user": 18,
+          "assistant": 1
+        },
+        "cropping_distance": {
+          "3": 2,
+          "4": 1
+        }
+      }
+    },
+    "substring/sentence/full_source": {
+      "case_count": 500,
+      "mean_context_chars": 26814.552,
+      "mean_context_tokens": 6703.268,
+      "total_chars": 13407276,
+      "total_tokens": 3351634,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1,
+        "micro": 1,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.025950008421204984,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 676,
+        "final": 676
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3033556,
+        "final": 3033556
+      },
+      "token_reduction_vs_full_source": 0,
+      "char_reduction_vs_full_source": 0,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.9821428571428571,
+      "losses": {
+        "affected_cases": 10,
+        "missing_support_count": 16,
+        "by_reason": {
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 16
+        },
+        "cropping_distance": {}
+      }
+    },
+    "substring/sentence/evidence_bundle_w0": {
+      "case_count": 500,
+      "mean_context_chars": 24737.71,
+      "mean_context_tokens": 6184.048,
+      "total_chars": 12368855,
+      "total_tokens": 3092024,
+      "overall_recall": {
+        "macro": 0.7720250521920669,
+        "micro": 0.7544642857142857,
+        "retained": 676,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.7814035087719299,
+        "micro": 0.7681818181818182,
+        "retained": 676,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 301,
+      "complete_rate": 0.6283924843423799,
+      "answer_visible_rate": 0.446,
+      "median_render_ms": 3.5088500007987022,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 676,
+        "final": 676
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3033556,
+        "final": 3033556
+      },
+      "token_reduction_vs_full_source": 0.07745774150757512,
+      "char_reduction_vs_full_source": 0.07745204917091286,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.7544642857142857,
+      "losses": {
+        "affected_cases": 178,
+        "missing_support_count": 220,
+        "by_reason": {
+          "outside_evidence_bundle": 204,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 216,
+          "assistant": 4
+        },
+        "cropping_distance": {
+          "1": 197,
+          "2": 4,
+          "3": 2,
+          "4": 1
+        }
+      }
+    },
+    "substring/sentence/evidence_bundle_w1": {
+      "case_count": 500,
+      "mean_context_chars": 26425.686,
+      "mean_context_tokens": 6606.038,
+      "total_chars": 13212843,
+      "total_tokens": 3303019,
+      "overall_recall": {
+        "macro": 0.9770702853166319,
+        "micro": 0.9743303571428571,
+        "retained": 873,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9898245614035087,
+        "micro": 0.9920454545454546,
+        "retained": 873,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 462,
+      "complete_rate": 0.964509394572025,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 3.4955999872181565,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 873,
+        "final": 873
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 197,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3244544,
+        "final": 3244544
+      },
+      "token_reduction_vs_full_source": 0.014504865388046517,
+      "char_reduction_vs_full_source": 0.014502050975902958,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 210988,
+      "supporting_turn_recall": 0.9743303571428571,
+      "losses": {
+        "affected_cases": 17,
+        "missing_support_count": 23,
+        "by_reason": {
+          "session_not_retrieved": 16,
+          "outside_evidence_bundle": 7
+        },
+        "by_role": {
+          "user": 20,
+          "assistant": 3
+        },
+        "cropping_distance": {
+          "2": 4,
+          "3": 2,
+          "4": 1
+        }
+      }
+    },
+    "substring/sentence/evidence_bundle_w2": {
+      "case_count": 500,
+      "mean_context_chars": 26773.702,
+      "mean_context_tokens": 6693.062,
+      "total_chars": 13386851,
+      "total_tokens": 3346531,
+      "overall_recall": {
+        "macro": 0.9829853862212944,
+        "micro": 0.9787946428571429,
+        "retained": 877,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9957894736842106,
+        "micro": 0.9965909090909091,
+        "retained": 877,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 466,
+      "complete_rate": 0.9728601252609603,
+      "answer_visible_rate": 0.464,
+      "median_render_ms": 3.5097500076517463,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 676,
+        "window": 877,
+        "final": 877
+      },
+      "dependency_added_supports": 266,
+      "window_added_supports": 201,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 3033556,
+        "window": 3288048,
+        "final": 3288048
+      },
+      "token_reduction_vs_full_source": 0.001522540945699924,
+      "char_reduction_vs_full_source": 0.001523426533473371,
+      "dependency_added_source_tokens": 2750008,
+      "window_added_source_tokens": 254492,
+      "supporting_turn_recall": 0.9787946428571429,
+      "losses": {
+        "affected_cases": 13,
+        "missing_support_count": 19,
+        "by_reason": {
+          "session_not_retrieved": 16,
+          "outside_evidence_bundle": 3
+        },
+        "by_role": {
+          "user": 18,
+          "assistant": 1
+        },
+        "cropping_distance": {
+          "3": 2,
+          "4": 1
+        }
+      }
+    },
+    "fact_scope/paragraph/full_source": {
+      "case_count": 500,
+      "mean_context_chars": 26797.904,
+      "mean_context_tokens": 6699.094,
+      "total_chars": 13398952,
+      "total_tokens": 3349547,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1,
+        "micro": 1,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.032400013878941536,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 576,
+        "window": 576,
+        "final": 576
+      },
+      "dependency_added_supports": 166,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2449477,
+        "window": 2449477,
+        "final": 2449477
+      },
+      "token_reduction_vs_full_source": 0,
+      "char_reduction_vs_full_source": 0,
+      "dependency_added_source_tokens": 2165929,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.9821428571428571,
+      "losses": {
+        "affected_cases": 10,
+        "missing_support_count": 16,
+        "by_reason": {
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 16
+        },
+        "cropping_distance": {}
+      }
+    },
+    "fact_scope/paragraph/evidence_bundle_w0": {
+      "case_count": 500,
+      "mean_context_chars": 20048.974,
+      "mean_context_tokens": 5011.88,
+      "total_chars": 10024487,
+      "total_tokens": 2505940,
+      "overall_recall": {
+        "macro": 0.6694154488517745,
+        "micro": 0.6428571428571429,
+        "retained": 576,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.6768771929824562,
+        "micro": 0.6545454545454545,
+        "retained": 576,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 244,
+      "complete_rate": 0.5093945720250522,
+      "answer_visible_rate": 0.438,
+      "median_render_ms": 1.6472499846713617,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 576,
+        "window": 576,
+        "final": 576
+      },
+      "dependency_added_supports": 166,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2449477,
+        "window": 2449477,
+        "final": 2449477
+      },
+      "token_reduction_vs_full_source": 0.2518570421612236,
+      "char_reduction_vs_full_source": 0.2518454428376189,
+      "dependency_added_source_tokens": 2165929,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.6428571428571429,
+      "losses": {
+        "affected_cases": 235,
+        "missing_support_count": 320,
+        "by_reason": {
+          "outside_evidence_bundle": 304,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 311,
+          "assistant": 9
+        },
+        "cropping_distance": {
+          "1": 264,
+          "2": 13,
+          "3": 21,
+          "4": 2,
+          "5": 4
+        }
+      }
+    },
+    "fact_scope/paragraph/evidence_bundle_w1": {
+      "case_count": 500,
+      "mean_context_chars": 23522.504,
+      "mean_context_tokens": 5880.244,
+      "total_chars": 11761252,
+      "total_tokens": 2940122,
+      "overall_recall": {
+        "macro": 0.9446764091858038,
+        "micro": 0.9375,
+        "retained": 840,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9568771929824561,
+        "micro": 0.9545454545454546,
+        "retained": 840,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 434,
+      "complete_rate": 0.906054279749478,
+      "answer_visible_rate": 0.458,
+      "median_render_ms": 1.6784499894129112,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 576,
+        "window": 840,
+        "final": 840
+      },
+      "dependency_added_supports": 166,
+      "window_added_supports": 264,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2449477,
+        "window": 2883674,
+        "final": 2883674
+      },
+      "token_reduction_vs_full_source": 0.12223294672384055,
+      "char_reduction_vs_full_source": 0.12222597707641614,
+      "dependency_added_source_tokens": 2165929,
+      "window_added_source_tokens": 434197,
+      "supporting_turn_recall": 0.9375,
+      "losses": {
+        "affected_cases": 45,
+        "missing_support_count": 56,
+        "by_reason": {
+          "outside_evidence_bundle": 40,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 50,
+          "assistant": 6
+        },
+        "cropping_distance": {
+          "2": 13,
+          "3": 21,
+          "4": 2,
+          "5": 4
+        }
+      }
+    },
+    "fact_scope/paragraph/evidence_bundle_w2": {
+      "case_count": 500,
+      "mean_context_chars": 26008.964,
+      "mean_context_tokens": 6501.866,
+      "total_chars": 13004482,
+      "total_tokens": 3250933,
+      "overall_recall": {
+        "macro": 0.9633611691022964,
+        "micro": 0.9520089285714286,
+        "retained": 853,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9758245614035088,
+        "micro": 0.9693181818181819,
+        "retained": 853,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 446,
+      "complete_rate": 0.9311064718162839,
+      "answer_visible_rate": 0.462,
+      "median_render_ms": 1.6616000066278502,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 576,
+        "window": 853,
+        "final": 853
+      },
+      "dependency_added_supports": 166,
+      "window_added_supports": 277,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2449477,
+        "window": 3194479,
+        "final": 3194479
+      },
+      "token_reduction_vs_full_source": 0.029440996051107837,
+      "char_reduction_vs_full_source": 0.029440362201461734,
+      "dependency_added_source_tokens": 2165929,
+      "window_added_source_tokens": 745002,
+      "supporting_turn_recall": 0.9520089285714286,
+      "losses": {
+        "affected_cases": 33,
+        "missing_support_count": 43,
+        "by_reason": {
+          "outside_evidence_bundle": 27,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 42,
+          "assistant": 1
+        },
+        "cropping_distance": {
+          "3": 21,
+          "4": 2,
+          "5": 4
+        }
+      }
+    },
+    "fact_scope/sentence/full_source": {
+      "case_count": 500,
+      "mean_context_chars": 26797.386,
+      "mean_context_tokens": 6698.964,
+      "total_chars": 13398693,
+      "total_tokens": 3349482,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1,
+        "micro": 1,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.025599991204217076,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 550,
+        "window": 550,
+        "final": 550
+      },
+      "dependency_added_supports": 140,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1868406,
+        "window": 1868406,
+        "final": 1868406
+      },
+      "token_reduction_vs_full_source": 0,
+      "char_reduction_vs_full_source": 0,
+      "dependency_added_source_tokens": 1584858,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.9821428571428571,
+      "losses": {
+        "affected_cases": 10,
+        "missing_support_count": 16,
+        "by_reason": {
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 16
+        },
+        "cropping_distance": {}
+      }
+    },
+    "fact_scope/sentence/evidence_bundle_w0": {
+      "case_count": 500,
+      "mean_context_chars": 15399.342,
+      "mean_context_tokens": 3849.462,
+      "total_chars": 7699671,
+      "total_tokens": 1924731,
+      "overall_recall": {
+        "macro": 0.647981906750174,
+        "micro": 0.6138392857142857,
+        "retained": 550,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.6552631578947369,
+        "micro": 0.625,
+        "retained": 550,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 233,
+      "complete_rate": 0.48643006263048016,
+      "answer_visible_rate": 0.43,
+      "median_render_ms": 3.4432999964337796,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 550,
+        "window": 550,
+        "final": 550
+      },
+      "dependency_added_supports": 140,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1868406,
+        "window": 1868406,
+        "final": 1868406
+      },
+      "token_reduction_vs_full_source": 0.42536457876173095,
+      "char_reduction_vs_full_source": 0.4253416359341915,
+      "dependency_added_source_tokens": 1584858,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.6138392857142857,
+      "losses": {
+        "affected_cases": 246,
+        "missing_support_count": 346,
+        "by_reason": {
+          "outside_evidence_bundle": 330,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 335,
+          "assistant": 11
+        },
+        "cropping_distance": {
+          "1": 251,
+          "2": 18,
+          "3": 35,
+          "4": 3,
+          "5": 14,
+          "6": 4,
+          "7": 2,
+          "8": 1,
+          "9": 1,
+          "11": 1
+        }
+      }
+    },
+    "fact_scope/sentence/evidence_bundle_w1": {
+      "case_count": 500,
+      "mean_context_chars": 19615.024,
+      "mean_context_tokens": 4903.394,
+      "total_chars": 9807512,
+      "total_tokens": 2451697,
+      "overall_recall": {
+        "macro": 0.9102296450939458,
+        "micro": 0.8939732142857143,
+        "retained": 801,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9216842105263158,
+        "micro": 0.9102272727272728,
+        "retained": 801,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 407,
+      "complete_rate": 0.8496868475991649,
+      "answer_visible_rate": 0.452,
+      "median_render_ms": 3.4111499844584614,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 550,
+        "window": 801,
+        "final": 801
+      },
+      "dependency_added_supports": 140,
+      "window_added_supports": 251,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1868406,
+        "window": 2395345,
+        "final": 2395345
+      },
+      "token_reduction_vs_full_source": 0.26803696810432176,
+      "char_reduction_vs_full_source": 0.2680247245011137,
+      "dependency_added_source_tokens": 1584858,
+      "window_added_source_tokens": 526939,
+      "supporting_turn_recall": 0.8939732142857143,
+      "losses": {
+        "affected_cases": 72,
+        "missing_support_count": 95,
+        "by_reason": {
+          "outside_evidence_bundle": 79,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 88,
+          "assistant": 7
+        },
+        "cropping_distance": {
+          "2": 18,
+          "3": 35,
+          "4": 3,
+          "5": 14,
+          "6": 4,
+          "7": 2,
+          "8": 1,
+          "9": 1,
+          "11": 1
+        }
+      }
+    },
+    "fact_scope/sentence/evidence_bundle_w2": {
+      "case_count": 500,
+      "mean_context_chars": 23731.454,
+      "mean_context_tokens": 5932.492,
+      "total_chars": 11865727,
+      "total_tokens": 2966246,
+      "overall_recall": {
+        "macro": 0.9346555323590814,
+        "micro": 0.9140625,
+        "retained": 819,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9464210526315789,
+        "micro": 0.9306818181818182,
+        "retained": 819,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 422,
+      "complete_rate": 0.8810020876826722,
+      "answer_visible_rate": 0.46,
+      "median_render_ms": 3.433800011407584,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 550,
+        "window": 819,
+        "final": 819
+      },
+      "dependency_added_supports": 140,
+      "window_added_supports": 269,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1868406,
+        "window": 2909918,
+        "final": 2909918
+      },
+      "token_reduction_vs_full_source": 0.11441649783459051,
+      "char_reduction_vs_full_source": 0.11441160716198218,
+      "dependency_added_source_tokens": 1584858,
+      "window_added_source_tokens": 1041512,
+      "supporting_turn_recall": 0.9140625,
+      "losses": {
+        "affected_cases": 57,
+        "missing_support_count": 77,
+        "by_reason": {
+          "outside_evidence_bundle": 61,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 76,
+          "assistant": 1
+        },
+        "cropping_distance": {
+          "3": 35,
+          "4": 3,
+          "5": 14,
+          "6": 4,
+          "7": 2,
+          "8": 1,
+          "9": 1,
+          "11": 1
+        }
+      }
+    },
+    "word_form_scope/paragraph/full_source": {
+      "case_count": 500,
+      "mean_context_chars": 26805.474,
+      "mean_context_tokens": 6700.982,
+      "total_chars": 13402737,
+      "total_tokens": 3350491,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1,
+        "micro": 1,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.029750008252449334,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 617,
+        "window": 617,
+        "final": 617
+      },
+      "dependency_added_supports": 207,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2504454,
+        "window": 2504454,
+        "final": 2504454
+      },
+      "token_reduction_vs_full_source": 0,
+      "char_reduction_vs_full_source": 0,
+      "dependency_added_source_tokens": 2220906,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.9821428571428571,
+      "losses": {
+        "affected_cases": 10,
+        "missing_support_count": 16,
+        "by_reason": {
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 16
+        },
+        "cropping_distance": {}
+      }
+    },
+    "word_form_scope/paragraph/evidence_bundle_w0": {
+      "case_count": 500,
+      "mean_context_chars": 20496.342,
+      "mean_context_tokens": 5123.702,
+      "total_chars": 10248171,
+      "total_tokens": 2561851,
+      "overall_recall": {
+        "macro": 0.7067849686847599,
+        "micro": 0.6886160714285714,
+        "retained": 617,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.7149122807017544,
+        "micro": 0.7011363636363637,
+        "retained": 617,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 262,
+      "complete_rate": 0.5469728601252609,
+      "answer_visible_rate": 0.442,
+      "median_render_ms": 1.6247500025201589,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 617,
+        "window": 617,
+        "final": 617
+      },
+      "dependency_added_supports": 207,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2504454,
+        "window": 2504454,
+        "final": 2504454
+      },
+      "token_reduction_vs_full_source": 0.23538042633154366,
+      "char_reduction_vs_full_source": 0.23536729848537652,
+      "dependency_added_source_tokens": 2220906,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.6886160714285714,
+      "losses": {
+        "affected_cases": 217,
+        "missing_support_count": 279,
+        "by_reason": {
+          "outside_evidence_bundle": 263,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 271,
+          "assistant": 8
+        },
+        "cropping_distance": {
+          "1": 236,
+          "2": 11,
+          "3": 14,
+          "4": 1,
+          "5": 1
+        }
+      }
+    },
+    "word_form_scope/paragraph/evidence_bundle_w1": {
+      "case_count": 500,
+      "mean_context_chars": 23948.314,
+      "mean_context_tokens": 5986.676,
+      "total_chars": 11974157,
+      "total_tokens": 2993338,
+      "overall_recall": {
+        "macro": 0.9564022268615171,
+        "micro": 0.9520089285714286,
+        "retained": 853,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9688771929824561,
+        "micro": 0.9693181818181819,
+        "retained": 853,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 443,
+      "complete_rate": 0.9248434237995825,
+      "answer_visible_rate": 0.458,
+      "median_render_ms": 1.6284000012092292,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 617,
+        "window": 853,
+        "final": 853
+      },
+      "dependency_added_supports": 207,
+      "window_added_supports": 236,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2504454,
+        "window": 2935954,
+        "final": 2935954
+      },
+      "token_reduction_vs_full_source": 0.10659721216979845,
+      "char_reduction_vs_full_source": 0.10658867662627414,
+      "dependency_added_source_tokens": 2220906,
+      "window_added_source_tokens": 431500,
+      "supporting_turn_recall": 0.9520089285714286,
+      "losses": {
+        "affected_cases": 36,
+        "missing_support_count": 43,
+        "by_reason": {
+          "outside_evidence_bundle": 27,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 38,
+          "assistant": 5
+        },
+        "cropping_distance": {
+          "2": 11,
+          "3": 14,
+          "4": 1,
+          "5": 1
+        }
+      }
+    },
+    "word_form_scope/paragraph/evidence_bundle_w2": {
+      "case_count": 500,
+      "mean_context_chars": 26227.606,
+      "mean_context_tokens": 6556.52,
+      "total_chars": 13113803,
+      "total_tokens": 3278260,
+      "overall_recall": {
+        "macro": 0.9710855949895616,
+        "micro": 0.9642857142857143,
+        "retained": 864,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9837894736842105,
+        "micro": 0.9818181818181818,
+        "retained": 864,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 453,
+      "complete_rate": 0.9457202505219207,
+      "answer_visible_rate": 0.462,
+      "median_render_ms": 1.5695000038249418,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 617,
+        "window": 864,
+        "final": 864
+      },
+      "dependency_added_supports": 207,
+      "window_added_supports": 247,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 2504454,
+        "window": 3220865,
+        "final": 3220865
+      },
+      "token_reduction_vs_full_source": 0.021558332793611412,
+      "char_reduction_vs_full_source": 0.021557835537621917,
+      "dependency_added_source_tokens": 2220906,
+      "window_added_source_tokens": 716411,
+      "supporting_turn_recall": 0.9642857142857143,
+      "losses": {
+        "affected_cases": 26,
+        "missing_support_count": 32,
+        "by_reason": {
+          "outside_evidence_bundle": 16,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 31,
+          "assistant": 1
+        },
+        "cropping_distance": {
+          "3": 14,
+          "4": 1,
+          "5": 1
+        }
+      }
+    },
+    "word_form_scope/sentence/full_source": {
+      "case_count": 500,
+      "mean_context_chars": 26804.956,
+      "mean_context_tokens": 6700.856,
+      "total_chars": 13402478,
+      "total_tokens": 3350428,
+      "overall_recall": {
+        "macro": 0.987160751565762,
+        "micro": 0.9821428571428571,
+        "retained": 880,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 1,
+        "micro": 1,
+        "retained": 880,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 469,
+      "complete_rate": 0.9791231732776617,
+      "answer_visible_rate": 0.466,
+      "median_render_ms": 0.02549999044276774,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 583,
+        "window": 583,
+        "final": 583
+      },
+      "dependency_added_supports": 173,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1913330,
+        "window": 1913330,
+        "final": 1913330
+      },
+      "token_reduction_vs_full_source": 0,
+      "char_reduction_vs_full_source": 0,
+      "dependency_added_source_tokens": 1629782,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.9821428571428571,
+      "losses": {
+        "affected_cases": 10,
+        "missing_support_count": 16,
+        "by_reason": {
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 16
+        },
+        "cropping_distance": {}
+      }
+    },
+    "word_form_scope/sentence/evidence_bundle_w0": {
+      "case_count": 500,
+      "mean_context_chars": 15766.234,
+      "mean_context_tokens": 3941.18,
+      "total_chars": 7883117,
+      "total_tokens": 1970590,
+      "overall_recall": {
+        "macro": 0.6788448155880307,
+        "micro": 0.6506696428571429,
+        "retained": 583,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.6867368421052632,
+        "micro": 0.6625,
+        "retained": 583,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 246,
+      "complete_rate": 0.5135699373695198,
+      "answer_visible_rate": 0.434,
+      "median_render_ms": 3.5409500123932958,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 583,
+        "window": 583,
+        "final": 583
+      },
+      "dependency_added_supports": 173,
+      "window_added_supports": 0,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1913330,
+        "window": 1913330,
+        "final": 1913330
+      },
+      "token_reduction_vs_full_source": 0.4118393232148251,
+      "char_reduction_vs_full_source": 0.4118164566283936,
+      "dependency_added_source_tokens": 1629782,
+      "window_added_source_tokens": 0,
+      "supporting_turn_recall": 0.6506696428571429,
+      "losses": {
+        "affected_cases": 233,
+        "missing_support_count": 313,
+        "by_reason": {
+          "outside_evidence_bundle": 297,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 302,
+          "assistant": 11
+        },
+        "cropping_distance": {
+          "1": 226,
+          "2": 18,
+          "3": 34,
+          "4": 3,
+          "5": 11,
+          "6": 2,
+          "8": 1,
+          "9": 1,
+          "11": 1
+        }
+      }
+    },
+    "word_form_scope/sentence/evidence_bundle_w1": {
+      "case_count": 500,
+      "mean_context_chars": 20023.37,
+      "mean_context_tokens": 5005.484,
+      "total_chars": 10011685,
+      "total_tokens": 2502742,
+      "overall_recall": {
+        "macro": 0.9161447459986082,
+        "micro": 0.9029017857142857,
+        "retained": 809,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.928,
+        "micro": 0.9193181818181818,
+        "retained": 809,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 410,
+      "complete_rate": 0.8559498956158664,
+      "answer_visible_rate": 0.452,
+      "median_render_ms": 3.3518000127514824,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 583,
+        "window": 809,
+        "final": 809
+      },
+      "dependency_added_supports": 173,
+      "window_added_supports": 226,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1913330,
+        "window": 2445448,
+        "final": 2445448
+      },
+      "token_reduction_vs_full_source": 0.25300827237594714,
+      "char_reduction_vs_full_source": 0.25299746808015655,
+      "dependency_added_source_tokens": 1629782,
+      "window_added_source_tokens": 532118,
+      "supporting_turn_recall": 0.9029017857142857,
+      "losses": {
+        "affected_cases": 69,
+        "missing_support_count": 87,
+        "by_reason": {
+          "outside_evidence_bundle": 71,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 80,
+          "assistant": 7
+        },
+        "cropping_distance": {
+          "2": 18,
+          "3": 34,
+          "4": 3,
+          "5": 11,
+          "6": 2,
+          "8": 1,
+          "9": 1,
+          "11": 1
+        }
+      }
+    },
+    "word_form_scope/sentence/evidence_bundle_w2": {
+      "case_count": 500,
+      "mean_context_chars": 24074.262,
+      "mean_context_tokens": 6018.196,
+      "total_chars": 12037131,
+      "total_tokens": 3009098,
+      "overall_recall": {
+        "macro": 0.939178844815588,
+        "micro": 0.9229910714285714,
+        "retained": 827,
+        "total": 896,
+        "valid_cases": 479
+      },
+      "conditional_recall": {
+        "macro": 0.9513333333333334,
+        "micro": 0.9397727272727273,
+        "retained": 827,
+        "total": 880,
+        "valid_cases": 475
+      },
+      "complete_cases": 425,
+      "complete_rate": 0.8872651356993737,
+      "answer_visible_rate": 0.46,
+      "median_render_ms": 3.390500001842156,
+      "stage_counts": {
+        "fact": 410,
+        "dependencies": 583,
+        "window": 827,
+        "final": 827
+      },
+      "dependency_added_supports": 173,
+      "window_added_supports": 244,
+      "fallback_added_supports": 0,
+      "stage_source_tokens": {
+        "fact": 283548,
+        "dependencies": 1913330,
+        "window": 2951822,
+        "final": 2951822
+      },
+      "token_reduction_vs_full_source": 0.10187653637087557,
+      "char_reduction_vs_full_source": 0.10187272831188376,
+      "dependency_added_source_tokens": 1629782,
+      "window_added_source_tokens": 1038492,
+      "supporting_turn_recall": 0.9229910714285714,
+      "losses": {
+        "affected_cases": 54,
+        "missing_support_count": 69,
+        "by_reason": {
+          "outside_evidence_bundle": 53,
+          "session_not_retrieved": 16
+        },
+        "by_role": {
+          "user": 68,
+          "assistant": 1
+        },
+        "cropping_distance": {
+          "3": 34,
+          "4": 3,
+          "5": 11,
+          "6": 2,
+          "8": 1,
+          "9": 1,
+          "11": 1
+        }
+      }
+    }
+  },
+  "comparison_w1": {
+    "paragraph": {
+      "substring": {
+        "removed_dependency_turns": 0,
+        "removed_annotated_support_turns": 0,
+        "removed_supports_still_retained": 0,
+        "removed_supports_lost": 0,
+        "baseline_retained_supports_lost": 0,
+        "new_supports_gained": 0,
+        "window_supports_lost_after_dependency_removal": 0,
+        "reference_far_supports": 159,
+        "far_supports_retained": 159,
+        "far_support_recall": 1,
+        "by_support_distance": {
+          "0": {
+            "total": 410,
+            "retained": 410,
+            "recall": 1
+          },
+          "1": {
+            "total": 179,
+            "retained": 179,
+            "recall": 1
+          },
+          "2": {
+            "total": 48,
+            "retained": 47,
+            "recall": 0.9791666666666666
+          },
+          "6+": {
+            "total": 106,
+            "retained": 105,
+            "recall": 0.9905660377358491
+          },
+          "3-5": {
+            "total": 137,
+            "retained": 132,
+            "recall": 0.9635036496350365
+          },
+          "unretrieved": {
+            "total": 16,
+            "retained": 0,
+            "recall": 0
+          }
+        },
+        "loss_examples": [],
+        "source_envelope_tokens": 17681285
+      },
+      "fact_scope": {
+        "removed_dependency_turns": 1878,
+        "removed_annotated_support_turns": 102,
+        "removed_supports_still_retained": 86,
+        "removed_supports_lost": 16,
+        "baseline_retained_supports_lost": 34,
+        "new_supports_gained": 1,
+        "window_supports_lost_after_dependency_removal": 18,
+        "reference_far_supports": 159,
+        "far_supports_retained": 143,
+        "far_support_recall": 0.89937106918239,
+        "by_support_distance": {
+          "0": {
+            "total": 410,
+            "retained": 410,
+            "recall": 1
+          },
+          "1": {
+            "total": 179,
+            "retained": 179,
+            "recall": 1
+          },
+          "2": {
+            "total": 48,
+            "retained": 40,
+            "recall": 0.8333333333333334
+          },
+          "6+": {
+            "total": 106,
+            "retained": 90,
+            "recall": 0.8490566037735849
+          },
+          "3-5": {
+            "total": 137,
+            "retained": 121,
+            "recall": 0.8832116788321168
+          },
+          "unretrieved": {
+            "total": 16,
+            "retained": 0,
+            "recall": 0
+          }
+        },
+        "loss_examples": [
+          {
+            "question_id": "a3838d2b",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "c4a1ceb8",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d23cf73b",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d682f1a2",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_ab202e7f",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_731e37d7",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "10d9b85a",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "cc539528",
+            "question_type": "single-session-assistant",
+            "lost_removed_supports": [
+              [
+                0,
+                7
+              ]
+            ]
+          },
+          {
+            "question_id": "3249768e",
+            "question_type": "single-session-assistant",
+            "lost_removed_supports": [
+              [
+                0,
+                3
+              ]
+            ]
+          },
+          {
+            "question_id": "6222b6eb",
+            "question_type": "single-session-assistant",
+            "lost_removed_supports": [
+              [
+                0,
+                11
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_7f6b06db",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "85fa3a3f",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                4
+              ]
+            ]
+          }
+        ],
+        "source_envelope_tokens": 17023388
+      },
+      "word_form_scope": {
+        "removed_dependency_turns": 1701,
+        "removed_annotated_support_turns": 61,
+        "removed_supports_still_retained": 55,
+        "removed_supports_lost": 6,
+        "baseline_retained_supports_lost": 20,
+        "new_supports_gained": 0,
+        "window_supports_lost_after_dependency_removal": 14,
+        "reference_far_supports": 159,
+        "far_supports_retained": 153,
+        "far_support_recall": 0.9622641509433962,
+        "by_support_distance": {
+          "0": {
+            "total": 410,
+            "retained": 410,
+            "recall": 1
+          },
+          "1": {
+            "total": 179,
+            "retained": 179,
+            "recall": 1
+          },
+          "2": {
+            "total": 48,
+            "retained": 43,
+            "recall": 0.8958333333333334
+          },
+          "6+": {
+            "total": 106,
+            "retained": 96,
+            "recall": 0.9056603773584906
+          },
+          "3-5": {
+            "total": 137,
+            "retained": 125,
+            "recall": 0.9124087591240876
+          },
+          "unretrieved": {
+            "total": 16,
+            "retained": 0,
+            "recall": 0
+          }
+        },
+        "loss_examples": [
+          {
+            "question_id": "a3838d2b",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d682f1a2",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "3249768e",
+            "question_type": "single-session-assistant",
+            "lost_removed_supports": [
+              [
+                0,
+                3
+              ]
+            ]
+          },
+          {
+            "question_id": "6222b6eb",
+            "question_type": "single-session-assistant",
+            "lost_removed_supports": [
+              [
+                0,
+                11
+              ]
+            ]
+          },
+          {
+            "question_id": "c18a7dc8",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "55241a1f",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                4
+              ]
+            ]
+          }
+        ],
+        "source_envelope_tokens": 17365300
+      }
+    },
+    "sentence": {
+      "substring": {
+        "removed_dependency_turns": 0,
+        "removed_annotated_support_turns": 0,
+        "removed_supports_still_retained": 0,
+        "removed_supports_lost": 0,
+        "baseline_retained_supports_lost": 0,
+        "new_supports_gained": 0,
+        "window_supports_lost_after_dependency_removal": 0,
+        "reference_far_supports": 159,
+        "far_supports_retained": 159,
+        "far_support_recall": 1,
+        "by_support_distance": {
+          "0": {
+            "total": 410,
+            "retained": 410,
+            "recall": 1
+          },
+          "1": {
+            "total": 179,
+            "retained": 179,
+            "recall": 1
+          },
+          "2": {
+            "total": 48,
+            "retained": 47,
+            "recall": 0.9791666666666666
+          },
+          "6+": {
+            "total": 106,
+            "retained": 105,
+            "recall": 0.9905660377358491
+          },
+          "3-5": {
+            "total": 137,
+            "retained": 132,
+            "recall": 0.9635036496350365
+          },
+          "unretrieved": {
+            "total": 16,
+            "retained": 0,
+            "recall": 0
+          }
+        },
+        "loss_examples": [],
+        "source_envelope_tokens": 23995340
+      },
+      "fact_scope": {
+        "removed_dependency_turns": 3232,
+        "removed_annotated_support_turns": 128,
+        "removed_supports_still_retained": 92,
+        "removed_supports_lost": 36,
+        "baseline_retained_supports_lost": 73,
+        "new_supports_gained": 1,
+        "window_supports_lost_after_dependency_removal": 37,
+        "reference_far_supports": 159,
+        "far_supports_retained": 123,
+        "far_support_recall": 0.7735849056603774,
+        "by_support_distance": {
+          "0": {
+            "total": 410,
+            "retained": 410,
+            "recall": 1
+          },
+          "1": {
+            "total": 179,
+            "retained": 179,
+            "recall": 1
+          },
+          "2": {
+            "total": 48,
+            "retained": 36,
+            "recall": 0.75
+          },
+          "6+": {
+            "total": 106,
+            "retained": 75,
+            "recall": 0.7075471698113207
+          },
+          "3-5": {
+            "total": 137,
+            "retained": 101,
+            "recall": 0.7372262773722628
+          },
+          "unretrieved": {
+            "total": 16,
+            "retained": 0,
+            "recall": 0
+          }
+        },
+        "loss_examples": [
+          {
+            "question_id": "bbf86515",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "a3838d2b",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_9a159967",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_2f56ae70",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_5438fa52",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                0,
+                4
+              ]
+            ]
+          },
+          {
+            "question_id": "dd2973ad",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "c4a1ceb8",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_a56e767c",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                6
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_2f8be40d",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d23cf73b",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_7fce9456",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d682f1a2",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          }
+        ],
+        "source_envelope_tokens": 24985165
+      },
+      "word_form_scope": {
+        "removed_dependency_turns": 3084,
+        "removed_annotated_support_turns": 95,
+        "removed_supports_still_retained": 67,
+        "removed_supports_lost": 28,
+        "baseline_retained_supports_lost": 64,
+        "new_supports_gained": 0,
+        "window_supports_lost_after_dependency_removal": 36,
+        "reference_far_supports": 159,
+        "far_supports_retained": 131,
+        "far_support_recall": 0.8238993710691824,
+        "by_support_distance": {
+          "0": {
+            "total": 410,
+            "retained": 410,
+            "recall": 1
+          },
+          "1": {
+            "total": 179,
+            "retained": 179,
+            "recall": 1
+          },
+          "2": {
+            "total": 48,
+            "retained": 37,
+            "recall": 0.7708333333333334
+          },
+          "6+": {
+            "total": 106,
+            "retained": 79,
+            "recall": 0.7452830188679245
+          },
+          "3-5": {
+            "total": 137,
+            "retained": 104,
+            "recall": 0.7591240875912408
+          },
+          "unretrieved": {
+            "total": 16,
+            "retained": 0,
+            "recall": 0
+          }
+        },
+        "loss_examples": [
+          {
+            "question_id": "a3838d2b",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_9a159967",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_2f56ae70",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_5438fa52",
+            "question_type": "temporal-reasoning",
+            "lost_removed_supports": [
+              [
+                0,
+                4
+              ]
+            ]
+          },
+          {
+            "question_id": "dd2973ad",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_2f8be40d",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d23cf73b",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_7fce9456",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "d682f1a2",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_2ba83207",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_ab202e7f",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "question_id": "gpt4_731e37d7",
+            "question_type": "multi-session",
+            "lost_removed_supports": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          }
+        ],
+        "source_envelope_tokens": 25454103
+      }
+    }
+  },
+  "joint_pareto": {
+    "overall_recall": {
+      "micro": {
+        "frontier": [
+          "substring/sentence/evidence_bundle_w1",
+          "substring/sentence/evidence_bundle_w2",
+          "fact_scope/paragraph/evidence_bundle_w1",
+          "fact_scope/sentence/full_source",
+          "fact_scope/sentence/evidence_bundle_w0",
+          "fact_scope/sentence/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w2",
+          "word_form_scope/sentence/evidence_bundle_w0",
+          "word_form_scope/sentence/evidence_bundle_w1"
+        ],
+        "reference_lines": {
+          "0.9": "word_form_scope/sentence/evidence_bundle_w1",
+          "0.95": "word_form_scope/paragraph/evidence_bundle_w1"
+        }
+      },
+      "macro": {
+        "frontier": [
+          "substring/sentence/evidence_bundle_w1",
+          "substring/sentence/evidence_bundle_w2",
+          "fact_scope/paragraph/evidence_bundle_w1",
+          "fact_scope/paragraph/evidence_bundle_w2",
+          "fact_scope/sentence/full_source",
+          "fact_scope/sentence/evidence_bundle_w0",
+          "fact_scope/sentence/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w2",
+          "word_form_scope/sentence/evidence_bundle_w0",
+          "word_form_scope/sentence/evidence_bundle_w1"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/sentence/evidence_bundle_w1",
+          "0.95": "word_form_scope/paragraph/evidence_bundle_w1"
+        }
+      }
+    },
+    "conditional_recall": {
+      "micro": {
+        "frontier": [
+          "substring/sentence/evidence_bundle_w1",
+          "substring/sentence/evidence_bundle_w2",
+          "fact_scope/paragraph/evidence_bundle_w1",
+          "fact_scope/sentence/full_source",
+          "fact_scope/sentence/evidence_bundle_w0",
+          "fact_scope/sentence/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w2",
+          "word_form_scope/sentence/evidence_bundle_w0",
+          "word_form_scope/sentence/evidence_bundle_w1"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/sentence/evidence_bundle_w1",
+          "0.95": "fact_scope/paragraph/evidence_bundle_w1"
+        }
+      },
+      "macro": {
+        "frontier": [
+          "substring/sentence/evidence_bundle_w1",
+          "substring/sentence/evidence_bundle_w2",
+          "fact_scope/paragraph/evidence_bundle_w1",
+          "fact_scope/paragraph/evidence_bundle_w2",
+          "fact_scope/sentence/full_source",
+          "fact_scope/sentence/evidence_bundle_w0",
+          "fact_scope/sentence/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w1",
+          "word_form_scope/paragraph/evidence_bundle_w2",
+          "word_form_scope/sentence/evidence_bundle_w0",
+          "word_form_scope/sentence/evidence_bundle_w1"
+        ],
+        "reference_lines": {
+          "0.9": "fact_scope/sentence/evidence_bundle_w1",
+          "0.95": "fact_scope/paragraph/evidence_bundle_w1"
+        }
+      }
+    }
+  },
+  "dataset": {
+    "path": "tests\\evals\\data\\longmemeval_data\\longmemeval_oracle.json",
+    "sha256": "821a2034d219ab45846873dd14c14f12cfe7776e73527a483f9dac095d38620c",
+    "offset": 0,
+    "case_count": 500
+  },
+  "result_files": {
+    "substring/paragraph": "15-LongMemEval-substring-paragraph.json",
+    "substring/sentence": "15-LongMemEval-substring-sentence.json",
+    "fact_scope/paragraph": "15-LongMemEval-fact_scope-paragraph.json",
+    "fact_scope/sentence": "15-LongMemEval-fact_scope-sentence.json",
+    "word_form_scope/paragraph": "15-LongMemEval-word_form_scope-paragraph.json",
+    "word_form_scope/sentence": "15-LongMemEval-word_form_scope-sentence.json"
+  }
+}

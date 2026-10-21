@@ -1,0 +1,557 @@
+diff --git a/h_recongraph/examples/evaluate_longmemeval_read.py b/h_recongraph/examples/evaluate_longmemeval_read.py
+index 7169c47..6eb082b 100644
+--- a/h_recongraph/examples/evaluate_longmemeval_read.py
++++ b/h_recongraph/examples/evaluate_longmemeval_read.py
+@@ -21,6 +21,7 @@ from h_recongraph.examples.evaluate_read_context import (
+     measure_render,
+     pareto_analysis,
+     reading_configurations,
++    select_fact_span,
+     stage_source_texts,
+     summarize_rows,
+ )
+@@ -70,13 +71,21 @@ def fact_turn_indexes(session: list[dict], query: str, *, max_anchors: int = 1)
+ 
+ 
+ async def build_context(
+-    case: dict, *, max_fact_anchors: int = 1, binding_rule: str = 'substring'
++    case: dict,
++    *,
++    max_fact_anchors: int = 1,
++    binding_rule: str = 'substring',
++    fact_granularity: str = 'paragraph',
+ ) -> HierarchicalMemoryContext:
+     """Use only question/source text to build one fixed lexical graph adapter."""
+     now = utc_now()
+-    writer = HReConGraphMemory(semantic_state_constructor=SemanticStateConstructor(binding_rule))
++    writer = HReConGraphMemory(
++        semantic_state_constructor=SemanticStateConstructor(
++            binding_rule, fact_granularity=fact_granularity
++        )
++    )
+     episodes, edges, states = [], [], []
+-    units, fact_indices = {}, {}
++    units, fact_indices, fact_spans = {}, {}, {}
+     for session_index in hit_session_indexes(case['haystack_sessions'], case['question']):
+         session = case['haystack_sessions'][session_index]
+         memory = UnifiedMemoryUnit(
+@@ -100,6 +109,17 @@ async def build_context(
+         units[episode.uuid] = [turn_text(message) for message in session]
+         fact_indices[episode.uuid] = selected
+         for anchor_index, turn_index in enumerate(selected):
++            fact = turn_text(session[turn_index])
++            if fact_granularity == 'sentence':
++                start = sum(len(turn_text(turn)) + 2 for turn in session[:turn_index])
++                candidates = [
++                    span
++                    for span in memory.source_spans
++                    if span.field == 'fact' and start <= span.start < start + len(fact)
++                ]
++                anchor = select_fact_span(candidates, case['question'])
++                fact_spans.setdefault(episode.uuid, []).append(anchor)
++                fact = anchor.text
+             edges.append(
+                 EntityEdge(
+                     uuid=f'{episode.uuid}-edge' + (f'-{anchor_index}' if anchor_index else ''),
+@@ -108,7 +128,7 @@ async def build_context(
+                     source_node_uuid=f'{episode.uuid}-source',
+                     target_node_uuid=f'{episode.uuid}-target',
+                     name='RELEVANT_TURN',
+-                    fact=turn_text(session[turn_index]),
++                    fact=fact,
+                     episodes=[episode.uuid],
+                 )
+             )
+@@ -122,6 +142,7 @@ async def build_context(
+         source_episodes=episodes,
+         source_units=units,
+         source_fact_indices=fact_indices,
++        source_fact_spans=fact_spans,
+     )
+ 
+ 
+@@ -268,13 +289,17 @@ async def evaluate_cases(
+     max_fact_anchors: int = 1,
+     reading_configs: dict | None = None,
+     binding_rule: str = 'substring',
++    fact_granularity: str = 'paragraph',
+ ) -> dict:
+     rows, fixed_retrieval = [], []
+     configs = reading_configs or reading_configurations(window_sizes)
+     names = list(configs)
+     for case in cases:
+         context = await build_context(
+-            case, max_fact_anchors=max_fact_anchors, binding_rule=binding_rule
++            case,
++            max_fact_anchors=max_fact_anchors,
++            binding_rule=binding_rule,
++            fact_granularity=fact_granularity,
+         )
+         hit_indexes = hit_session_indexes(case['haystack_sessions'], case['question'])
+         # All configurations render before answer/has_answer labels are read.
+@@ -309,6 +334,14 @@ async def evaluate_cases(
+                         'episode_id': episode.uuid,
+                         'turn_count': len(context.source_units[episode.uuid]),
+                         'graph_fact_turn_indices': context.source_fact_indices[episode.uuid],
++                        'fact_anchors': [
++                            {'turn_index': turn_index, **span.model_dump()}
++                            for turn_index, span in zip(
++                                context.source_fact_indices[episode.uuid],
++                                context.source_fact_spans.get(episode.uuid, []),
++                                strict=False,
++                            )
++                        ],
+                         'graph_fact': next(
+                             edge.fact
+                             for edge in context.graph_edges
+@@ -410,6 +443,7 @@ async def evaluate_cases(
+     return {
+         'protocol': 'fixed retrieval; original message-index evidence/window ablation',
+         'binding_rule': binding_rule,
++        'fact_granularity': fact_granularity,
+         'experiment_role': 'configuration exploration on oracle 500',
+         'selection': 'all positive lexical-overlap sessions; Top-1 per session; optional Top-2 with relative score >= 0.5 and >= 2 distinct content-word matches; ties use earliest turn',
+         'anchor_policy': {
+@@ -568,6 +602,54 @@ async def evaluate_binding_calibration(cases: list[dict], *, repeats: int = 3) -
+     }
+ 
+ 
++async def evaluate_anchor_calibration(cases: list[dict], *, repeats: int = 3) -> dict:
++    results = {
++        f'{rule}/{granularity}': await evaluate_cases(
++            cases,
++            repeats=repeats,
++            window_sizes=(0, 1, 2),
++            binding_rule=rule,
++            fact_granularity=granularity,
++        )
++        for rule in ('substring', 'fact_scope', 'word_form_scope')
++        for granularity in ('paragraph', 'sentence')
++    }
++    retrieval = [
++        [
++            (
++                item['question_id'],
++                item['hit_session_indices'],
++                [binding['graph_fact_turn_indices'] for binding in item['source_bindings']],
++            )
++            for item in result['fixed_retrieval']
++        ]
++        for result in results.values()
++    ]
++    summaries = {
++        f'{variant}/{name}': summary
++        for variant, result in results.items()
++        for name, summary in result['summary'].items()
++        if name != 'evidence_bundle'
++    }
++    return {
++        'protocol': 'sentence-anchor and word-form ablation; fixed Sessions and Top-1 turns',
++        'experiment_role': 'exploratory reuse of oracle 500',
++        'fixed_retrieval_equal': all(item == retrieval[0] for item in retrieval),
++        'summary': summaries,
++        'anchor_calibration': results,
++        'comparison_w1': {
++            granularity: binding_diagnostic(
++                {
++                    rule: results[f'{rule}/{granularity}']
++                    for rule in ('substring', 'fact_scope', 'word_form_scope')
++                }
++            )
++            for granularity in ('paragraph', 'sentence')
++        },
++        'joint_pareto': pareto_analysis(summaries, list(summaries)),
++    }
++
++
+ async def main() -> None:
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument(
+@@ -582,11 +664,14 @@ async def main() -> None:
+     parser.add_argument('--max-fact-anchors', type=int, choices=(1, 2), default=1)
+     parser.add_argument('--dependency-ablation', action='store_true')
+     parser.add_argument('--binding-calibration', action='store_true')
++    parser.add_argument('--anchor-calibration', action='store_true')
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     cases = load_cases(args.data, offset=args.offset, limit=args.limit)
+     result = (
+-        await evaluate_binding_calibration(cases, repeats=args.repeats)
++        await evaluate_anchor_calibration(cases, repeats=args.repeats)
++        if args.anchor_calibration
++        else await evaluate_binding_calibration(cases, repeats=args.repeats)
+         if args.binding_calibration
+         else await evaluate_cases(
+             cases,
+diff --git a/h_recongraph/examples/evaluate_read_context.py b/h_recongraph/examples/evaluate_read_context.py
+index d63565c..532944a 100644
+--- a/h_recongraph/examples/evaluate_read_context.py
++++ b/h_recongraph/examples/evaluate_read_context.py
+@@ -15,6 +15,7 @@ from graphiti_core.utils.content_chunking import estimate_tokens
+ from graphiti_core.utils.datetime_utils import utc_now
+ from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
+ from h_recongraph.memory.manager import HReConGraphMemory
++from h_recongraph.memory.ranker import MemoryUtilityRanker
+ from h_recongraph.memory.relinking import HierarchicalMemoryContext
+ from h_recongraph.memory.semantic_state import SemanticStateConstructor
+ from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
+@@ -98,14 +99,17 @@ async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
+ 
+ 
+ async def build_naturally_bound_contexts(
+-    cases: list[dict], *, binding_rule: str = 'substring'
++    cases: list[dict], *, binding_rule: str = 'substring', fact_granularity: str = 'paragraph'
+ ) -> dict:
+     """Write source text without external spans and recover automatic bindings."""
+     contexts = {}
+     for case in cases:
+         context = build_context({**case, 'spans': []})
++        sentence_facts = {}
+         writer = HReConGraphMemory(
+-            semantic_state_constructor=SemanticStateConstructor(binding_rule)
++            semantic_state_constructor=SemanticStateConstructor(
++                binding_rule, fact_granularity=fact_granularity
++            )
+         )
+         for source in context.source_episodes:
+             memory = UnifiedMemoryUnit(
+@@ -117,15 +121,39 @@ async def build_naturally_bound_contexts(
+             )
+             await writer.add_memory(memory)
+             source.content = GraphitiMemoryStore(None)._episode_body(memory)
++            if fact_granularity == 'sentence':
++                sentence_facts[source.uuid] = [
++                    span for span in memory.source_spans if span.field == 'fact'
++                ]
+         reader = HReConGraphMemory(store=GraphitiMemoryStore(None))
+         reader._restore_source_memories(
+             context.source_episodes, context.graph_edges, 'eval', ['M1', 'M2']
+         )
+         context.semantic_states = list(reader.semantic_states.values())
++        for source in context.source_episodes if fact_granularity == 'sentence' else []:
++            text = context._source_text(source.content)
++            paragraphs = SemanticStateConstructor._paragraphs(text, [])
++            selected = context.source_indices(source)['fact']
++            facts = [
++                span
++                for span in sentence_facts[source.uuid]
++                if any(
++                    paragraphs[index].start <= span.start < paragraphs[index].end
++                    for index in selected
++                )
++            ]
++            context.source_fact_spans[source.uuid] = [select_fact_span(facts, case['question'])]
+         contexts[case['id']] = context
+     return contexts
+ 
+ 
++def select_fact_span(spans: list[SourceSpan], query: str) -> SourceSpan:
++    """Keep the earliest sentence with the most distinct query-word matches."""
++    ranker = MemoryUtilityRanker()
++    words = ranker.tokenize(query)
++    return max(spans, key=lambda span: len(ranker.tokenize(span.text) & words))
++
++
+ def reading_configurations(window_sizes: tuple[int, ...], *, ablation: bool = False) -> dict:
+     """Separate repeated edges, window scope and dependency filtering in paired runs."""
+     configs = {'full_source': {'mode': 'full_source', 'window_size': 0}}
+@@ -445,12 +473,25 @@ def main() -> None:
+     parser.add_argument('--natural-bindings', action='store_true')
+     parser.add_argument('--dependency-ablation', action='store_true')
+     parser.add_argument('--binding-calibration', action='store_true')
++    parser.add_argument('--anchor-calibration', action='store_true')
+     parser.add_argument('--output-json', type=Path, required=True)
+     args = parser.parse_args()
+     cases = json.loads(args.cases.read_text(encoding='utf-8'))
+     sizes = (0, 1, 2)
+     configs = reading_configurations(sizes, ablation=args.dependency_ablation)
+-    if args.binding_calibration:
++    if args.anchor_calibration:
++        result = {'anchor_calibration': {}}
++        for rule in ('substring', 'fact_scope', 'word_form_scope'):
++            for granularity in ('paragraph', 'sentence'):
++                contexts = asyncio.run(
++                    build_naturally_bound_contexts(
++                        cases, binding_rule=rule, fact_granularity=granularity
++                    )
++                )
++                result['anchor_calibration'][f'{rule}/{granularity}'] = evaluate_cases(
++                    cases, args.repeats, contexts, sizes, reading_configs=configs
++                )
++    elif args.binding_calibration:
+         result = {'binding_calibration': {}}
+         for rule in ('substring', 'word_boundary', 'fact_scope'):
+             contexts = asyncio.run(build_naturally_bound_contexts(cases, binding_rule=rule))
+@@ -492,6 +533,10 @@ def main() -> None:
+                 rule: value['summary']
+                 for rule, value in result.get('binding_calibration', {}).items()
+             }
++            or {
++                name: value['summary']
++                for name, value in result.get('anchor_calibration', {}).items()
++            }
+             or result['summary'],
+             ensure_ascii=False,
+             indent=2,
+diff --git a/h_recongraph/memory/relinking.py b/h_recongraph/memory/relinking.py
+index 0770a48..277f10e 100644
+--- a/h_recongraph/memory/relinking.py
++++ b/h_recongraph/memory/relinking.py
+@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
+ from graphiti_core.nodes import EpisodicNode
+ from h_recongraph.memory.ranker import MemoryUtilityRanker
+ from h_recongraph.schemas.memory_edge import ReConMemoryEdge
+-from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
++from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
+ from h_recongraph.schemas.semantic_state import MemorySemanticState
+ 
+ 
+@@ -26,6 +26,7 @@ class HierarchicalMemoryContext(BaseModel):
+     source_episodes: list[EpisodicNode] = Field(default_factory=list)
+     source_units: dict[str, list[str]] = Field(default_factory=dict)
+     source_fact_indices: dict[str, list[int]] = Field(default_factory=dict)
++    source_fact_spans: dict[str, list[SourceSpan]] = Field(default_factory=dict)
+     source_origin_ids: dict[str, str] = Field(default_factory=dict)
+     context_text: str = ''
+     source_mode: Literal['full_source', 'evidence_bundle'] = 'full_source'
+@@ -181,6 +182,8 @@ class HierarchicalMemoryContext(BaseModel):
+             and span.start is not None
+             and any(offsets[index][0] <= span.start < offsets[index][1] for index in fact_indexes)
+         }
++        if episode.uuid in self.source_fact_spans:
++            active_fact_starts = {span.start for span in self.source_fact_spans[episode.uuid]}
+         spans = [
+             span
+             for span in spans
+diff --git a/h_recongraph/memory/semantic_state.py b/h_recongraph/memory/semantic_state.py
+index a21a7c7..4ff11f4 100644
+--- a/h_recongraph/memory/semantic_state.py
++++ b/h_recongraph/memory/semantic_state.py
+@@ -49,11 +49,25 @@ class SemanticStateConstructor:
+     )
+     CHANGE_MARKERS = ('开始', '变得', '不再', '最近', 'increase', 'decrease', 'more often')
+     TEMPORAL_MARKERS = ('最近', '今天', '昨天', '明天', 'current', 'recent', 'now', '下午')
++    MARKER_FORMS = {
++        'recent': ('recent', 'recently'),
++        'current': ('current', 'currently'),
++        'increase': ('increase', 'increases', 'increased', 'increasing'),
++        'decrease': ('decrease', 'decreases', 'decreased', 'decreasing'),
++        'connects': ('connect', 'connects', 'connected', 'connecting'),
++        'routes': ('route', 'routes', 'routed', 'routing'),
++    }
+ 
+     def __init__(
+-        self, binding_rule: Literal['substring', 'word_boundary', 'fact_scope'] = 'substring'
++        self,
++        binding_rule: Literal[
++            'substring', 'word_boundary', 'fact_scope', 'word_form_scope'
++        ] = 'substring',
++        *,
++        fact_granularity: Literal['paragraph', 'sentence'] = 'paragraph',
+     ):
+         self.binding_rule = binding_rule
++        self.fact_granularity = fact_granularity
+ 
+     def construct(
+         self,
+@@ -106,7 +120,7 @@ class SemanticStateConstructor:
+             )
+             spans.extend(span.model_copy(update={'field': 'validity'}) for span in validity_sources)
+ 
+-        if self.binding_rule == 'fact_scope':
++        if self.binding_rule in ('fact_scope', 'word_form_scope'):
+             self._bind_fact_scopes(text, memory, spans)
+         spans = list(
+             {
+@@ -141,9 +155,12 @@ class SemanticStateConstructor:
+         bound = {span.field for span in spans}
+         paragraphs = self._paragraphs(text, memory.evidence_ids)
+         if 'fact' not in bound:
+-            spans.extend(
+-                span.model_copy(update={'field': 'fact'}, deep=True) for span in paragraphs
++            facts = (
++                self._sentences(text, memory.evidence_ids)
++                if self.fact_granularity == 'sentence'
++                else paragraphs
+             )
++            spans.extend(span.model_copy(update={'field': 'fact'}, deep=True) for span in facts)
+         if 'path' not in bound:
+             spans.extend(
+                 span.model_copy(update={'field': 'path'}, deep=True)
+@@ -185,10 +202,39 @@ class SemanticStateConstructor:
+             )
+         return paragraphs
+ 
++    @classmethod
++    def _sentences(cls, text: str, evidence_ids: list[str]) -> list[SourceSpan]:
++        """Index source sentences with offsets in the original interaction."""
++        sentences = []
++        for paragraph in cls._paragraphs(text, evidence_ids):
++            for match in re.finditer(
++                r'.+?(?:[。！？]|[.!?](?=\s|$)|\n|$)', paragraph.text, flags=re.S
++            ):
++                raw = match.group()
++                value = raw.strip()
++                if value:
++                    start = paragraph.start + match.start() + len(raw) - len(raw.lstrip())
++                    sentences.append(
++                        SourceSpan(
++                            evidence_id=paragraph.evidence_id,
++                            text=value,
++                            start=start,
++                            end=start + len(value),
++                            field='fact',
++                        )
++                    )
++        return sentences
++
+     def _marker_index(self, text: str, marker: str) -> int:
+         if self.binding_rule == 'substring' or not marker.isascii():
+             return text.lower().find(marker.lower())
+-        match = re.search(r'(?<!\w)' + re.escape(marker) + r'(?!\w)', text, flags=re.I)
++        forms = (
++            self.MARKER_FORMS.get(marker, (marker,))
++            if self.binding_rule == 'word_form_scope'
++            else (marker,)
++        )
++        pattern = r'(?<!\w)(?:' + '|'.join(map(re.escape, forms)) + r')(?!\w)'
++        match = re.search(pattern, text, flags=re.I)
+         return match.start() if match else -1
+ 
+     def _contains_marker(self, text: str, markers: Iterable[str]) -> bool:
+@@ -204,6 +250,11 @@ class SemanticStateConstructor:
+             ranker.tokenize(re.sub(r'^(?:user|assistant|system):\s*', '', span.text, flags=re.I))
+             for span in paragraphs
+         ]
++        facts = [span for span in spans if span.field == 'fact' and span.start is not None]
++        fact_tokens = [
++            ranker.tokenize(re.sub(r'^(?:user|assistant|system):\s*', '', span.text, flags=re.I))
++            for span in facts
++        ]
+         explicit = {(span.field, span.start, span.end, span.text) for span in memory.source_spans}
+         for span in spans:
+             if span.field == 'fact' or (span.field, span.start, span.end, span.text) in explicit:
+@@ -218,9 +269,10 @@ class SemanticStateConstructor:
+             )
+             if owner is not None:
+                 span.fact_starts = [
+-                    paragraph.start
+-                    for i, paragraph in enumerate(paragraphs)
+-                    if i == owner or tokens[owner] & tokens[i]
++                    fact.start
++                    for fact, words in zip(facts, fact_tokens, strict=True)
++                    if paragraphs[owner].start <= fact.start < paragraphs[owner].end
++                    or tokens[owner] & words
+                 ]
+ 
+     def _span_for_any(
+diff --git a/tests/test_h_recongraph_longmemeval.py b/tests/test_h_recongraph_longmemeval.py
+index 7cf4367..53d426b 100644
+--- a/tests/test_h_recongraph_longmemeval.py
++++ b/tests/test_h_recongraph_longmemeval.py
+@@ -4,6 +4,7 @@ import pytest
+ 
+ from h_recongraph.examples.evaluate_longmemeval_read import (
+     build_context,
++    evaluate_anchor_calibration,
+     evaluate_binding_calibration,
+     evaluate_cases,
+     fact_turn_indexes,
+@@ -178,3 +179,63 @@ async def test_binding_calibration_records_distant_support_removed_by_lexical_sc
+     assert original['reference_far_supports'] == original['far_supports_retained'] == 1
+     assert scoped['removed_annotated_support_turns'] == scoped['removed_supports_lost'] == 1
+     assert scoped['far_supports_retained'] == 0
++
++
++@pytest.mark.asyncio
++async def test_sentence_anchor_keeps_turn_provenance_and_restricts_cross_topic_dependencies():
++    case = _case()
++    case['haystack_sessions'][1] = [
++        {
++            'role': 'user',
++            'content': 'The telescope is stored at the observatory.\nWe discussed weather forecasts.',
++            'has_answer': True,
++        },
++        {'role': 'assistant', 'content': 'Tea is ready.'},
++        {'role': 'user', 'content': 'The concert was fun.'},
++        {'role': 'user', 'content': 'Weather alerts apply only during storms.'},
++    ]
++    turn = await build_context(case, binding_rule='fact_scope')
++    sentence = await build_context(case, binding_rule='fact_scope', fact_granularity='sentence')
++    assert sentence.source_fact_indices == turn.source_fact_indices
++    episode = sentence.source_episodes[0]
++    anchor = sentence.source_fact_spans[episode.uuid][0]
++    raw = sentence._source_text(episode.content)
++    assert raw[anchor.start : anchor.end] == sentence.graph_edges[0].fact == anchor.text
++    assert 'weather' not in anchor.text
++    assert 3 in turn.source_indices(turn.source_episodes[0])['dependencies']
++    assert 3 not in sentence.source_indices(episode)['dependencies']
++    assert sentence.source_segments(episode)[0].count('\n') == 1
++    unlabeled = {key: value for key, value in case.items() if key != 'answer'}
++    unlabeled['haystack_sessions'] = [
++        [
++            {key: value for key, value in message.items() if key != 'has_answer'}
++            for message in session
++        ]
++        for session in case['haystack_sessions']
++    ]
++    rebuilt = await build_context(unlabeled, binding_rule='fact_scope', fact_granularity='sentence')
++    assert rebuilt.render_text('evidence_bundle') == sentence.render_text('evidence_bundle')
++
++
++@pytest.mark.asyncio
++async def test_anchor_calibration_separates_granularity_and_word_form_effects():
++    case = _case()
++    case['haystack_sessions'][1].extend(
++        [
++            {'role': 'assistant', 'content': 'Tea is ready.'},
++            {
++                'role': 'user',
++                'content': 'I recently inspected the observatory.',
++                'has_answer': True,
++            },
++        ]
++    )
++    result = await evaluate_anchor_calibration([case], repeats=1)
++    assert result['fixed_retrieval_equal']
++    assert len(result['anchor_calibration']) == 6
++    assert len(result['summary']) == 24
++    for granularity in ('paragraph', 'sentence'):
++        scoped = result['anchor_calibration'][f'fact_scope/{granularity}']
++        forms = result['anchor_calibration'][f'word_form_scope/{granularity}']
++        assert scoped['summary']['evidence_bundle_w0']['overall_recall']['retained'] == 1
++        assert forms['summary']['evidence_bundle_w0']['overall_recall']['retained'] == 2
+diff --git a/tests/test_h_recongraph_memory.py b/tests/test_h_recongraph_memory.py
+index 3cc5249..df6acd7 100644
+--- a/tests/test_h_recongraph_memory.py
++++ b/tests/test_h_recongraph_memory.py
+@@ -475,3 +475,29 @@ def test_fact_scope_binds_automatic_dependencies_by_original_paragraph_position(
+     assert 0 in constraints[0].fact_starts
+     assert 0 not in constraints[1].fact_starts
+     assert all(memory.raw_content[span.start : span.end] == span.text for span in constraints)
++
++
++def test_sentence_facts_keep_original_offsets_and_repeated_positions():
++    text = 'user: Redis costs 3.5 dollars. Atlas runs.\nAtlas runs.\n\n缓存就绪。开始读取！'
++    memory = UnifiedMemoryUnit(user_id='u1', layer='M1', raw_content=text)
++    state = SemanticStateConstructor(fact_granularity='sentence').construct(memory)
++    facts = [span for span in state.source_spans if span.field == 'fact']
++    assert [span.text for span in facts] == [
++        'user: Redis costs 3.5 dollars.',
++        'Atlas runs.',
++        'Atlas runs.',
++        '缓存就绪。',
++        '开始读取！',
++    ]
++    assert all(text[span.start : span.end] == span.text for span in facts)
++    assert facts[1].start != facts[2].start
++
++
++def test_word_forms_keep_temporal_variants_and_exclude_embedded_markers():
++    constructor = SemanticStateConstructor('word_form_scope')
++    assert constructor._marker_index('I recently visited.', 'recent') == 2
++    assert constructor._marker_index('Atlas currently runs.', 'current') == 6
++    assert constructor._marker_index('The service connected via Redis.', 'connects') == 12
++    assert constructor._marker_index('Do you know a specific viable plan?', 'now') == -1
++    assert constructor._marker_index('Do you know a specific viable plan?', 'if') == -1
++    assert constructor._marker_index('Do you know a specific viable plan?', 'via') == -1

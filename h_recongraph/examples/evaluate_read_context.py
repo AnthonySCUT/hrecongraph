@@ -15,6 +15,7 @@ from graphiti_core.utils.content_chunking import estimate_tokens
 from graphiti_core.utils.datetime_utils import utc_now
 from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
 from h_recongraph.memory.manager import HReConGraphMemory
+from h_recongraph.memory.ranker import MemoryUtilityRanker
 from h_recongraph.memory.relinking import HierarchicalMemoryContext
 from h_recongraph.memory.semantic_state import SemanticStateConstructor
 from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
@@ -98,14 +99,17 @@ async def build_written_contexts(cases: list[dict], bindings: dict) -> dict:
 
 
 async def build_naturally_bound_contexts(
-    cases: list[dict], *, binding_rule: str = 'substring'
+    cases: list[dict], *, binding_rule: str = 'substring', fact_granularity: str = 'paragraph'
 ) -> dict:
     """Write source text without external spans and recover automatic bindings."""
     contexts = {}
     for case in cases:
         context = build_context({**case, 'spans': []})
+        sentence_facts = {}
         writer = HReConGraphMemory(
-            semantic_state_constructor=SemanticStateConstructor(binding_rule)
+            semantic_state_constructor=SemanticStateConstructor(
+                binding_rule, fact_granularity=fact_granularity
+            )
         )
         for source in context.source_episodes:
             memory = UnifiedMemoryUnit(
@@ -117,13 +121,37 @@ async def build_naturally_bound_contexts(
             )
             await writer.add_memory(memory)
             source.content = GraphitiMemoryStore(None)._episode_body(memory)
+            if fact_granularity == 'sentence':
+                sentence_facts[source.uuid] = [
+                    span for span in memory.source_spans if span.field == 'fact'
+                ]
         reader = HReConGraphMemory(store=GraphitiMemoryStore(None))
         reader._restore_source_memories(
             context.source_episodes, context.graph_edges, 'eval', ['M1', 'M2']
         )
         context.semantic_states = list(reader.semantic_states.values())
+        for source in context.source_episodes if fact_granularity == 'sentence' else []:
+            text = context._source_text(source.content)
+            paragraphs = SemanticStateConstructor._paragraphs(text, [])
+            selected = context.source_indices(source)['fact']
+            facts = [
+                span
+                for span in sentence_facts[source.uuid]
+                if any(
+                    paragraphs[index].start <= span.start < paragraphs[index].end
+                    for index in selected
+                )
+            ]
+            context.source_fact_spans[source.uuid] = [select_fact_span(facts, case['question'])]
         contexts[case['id']] = context
     return contexts
+
+
+def select_fact_span(spans: list[SourceSpan], query: str) -> SourceSpan:
+    """Keep the earliest sentence with the most distinct query-word matches."""
+    ranker = MemoryUtilityRanker()
+    words = ranker.tokenize(query)
+    return max(spans, key=lambda span: len(ranker.tokenize(span.text) & words))
 
 
 def reading_configurations(window_sizes: tuple[int, ...], *, ablation: bool = False) -> dict:
@@ -445,12 +473,25 @@ def main() -> None:
     parser.add_argument('--natural-bindings', action='store_true')
     parser.add_argument('--dependency-ablation', action='store_true')
     parser.add_argument('--binding-calibration', action='store_true')
+    parser.add_argument('--anchor-calibration', action='store_true')
     parser.add_argument('--output-json', type=Path, required=True)
     args = parser.parse_args()
     cases = json.loads(args.cases.read_text(encoding='utf-8'))
     sizes = (0, 1, 2)
     configs = reading_configurations(sizes, ablation=args.dependency_ablation)
-    if args.binding_calibration:
+    if args.anchor_calibration:
+        result = {'anchor_calibration': {}}
+        for rule in ('substring', 'fact_scope', 'word_form_scope'):
+            for granularity in ('paragraph', 'sentence'):
+                contexts = asyncio.run(
+                    build_naturally_bound_contexts(
+                        cases, binding_rule=rule, fact_granularity=granularity
+                    )
+                )
+                result['anchor_calibration'][f'{rule}/{granularity}'] = evaluate_cases(
+                    cases, args.repeats, contexts, sizes, reading_configs=configs
+                )
+    elif args.binding_calibration:
         result = {'binding_calibration': {}}
         for rule in ('substring', 'word_boundary', 'fact_scope'):
             contexts = asyncio.run(build_naturally_bound_contexts(cases, binding_rule=rule))
@@ -491,6 +532,10 @@ def main() -> None:
             or {
                 rule: value['summary']
                 for rule, value in result.get('binding_calibration', {}).items()
+            }
+            or {
+                name: value['summary']
+                for name, value in result.get('anchor_calibration', {}).items()
             }
             or result['summary'],
             ensure_ascii=False,

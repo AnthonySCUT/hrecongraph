@@ -25,6 +25,15 @@
 | [14-LongMemEval写入绑定校准.json](14-LongMemEval写入绑定校准.json) | 分组与逐题记录见文件 |
 | [14-写入绑定校准汇总.json](14-写入绑定校准汇总.json) | 分组与逐题记录见文件 |
 | [14-机制样本写入绑定校准.json](14-机制样本写入绑定校准.json) | 分组与逐题记录见文件 |
+| [15-LongMemEval-fact_scope-paragraph.json](15-LongMemEval-fact_scope-paragraph.json) | 2000 |
+| [15-LongMemEval-fact_scope-sentence.json](15-LongMemEval-fact_scope-sentence.json) | 2000 |
+| [15-LongMemEval-substring-paragraph.json](15-LongMemEval-substring-paragraph.json) | 2000 |
+| [15-LongMemEval-substring-sentence.json](15-LongMemEval-substring-sentence.json) | 2000 |
+| [15-LongMemEval-word_form_scope-paragraph.json](15-LongMemEval-word_form_scope-paragraph.json) | 2000 |
+| [15-LongMemEval-word_form_scope-sentence.json](15-LongMemEval-word_form_scope-sentence.json) | 2000 |
+| [15-LongMemEval句子锚点消融.json](15-LongMemEval句子锚点消融.json) | 分组与逐题记录见文件 |
+| [15-句子锚点与词形消融汇总.json](15-句子锚点与词形消融汇总.json) | 分组与逐题记录见文件 |
+| [15-机制样本句子锚点消融.json](15-机制样本句子锚点消融.json) | 分组与逐题记录见文件 |
 
 ## 代码变更
 
@@ -40,6 +49,7 @@
 - [12补充-条件双锚点对照说明.md](../details/12补充-条件双锚点对照说明.md)
 - [13-重复渲染修复与依赖作用域消融逐文件交付.md](../details/13-重复渲染修复与依赖作用域消融逐文件交付.md)
 - [14-写入绑定校准逐文件交付.md](../details/14-写入绑定校准逐文件交付.md)
+- [15-句子锚点与词形消融逐文件交付.md](../details/15-句子锚点与词形消融逐文件交付.md)
 
 已有批次补丁：
 
@@ -58,7 +68,8 @@
 - [12补充-条件双锚点对照.patch](../patches/12补充-条件双锚点对照.patch)
 - [13-重复渲染修复与依赖作用域消融.patch](../patches/13-重复渲染修复与依赖作用域消融.patch)
 - [14-写入绑定校准.patch](../patches/14-写入绑定校准.patch)
+- [15-句子锚点与词形消融.patch](../patches/15-句子锚点与词形消融.patch)
 
 ## 验证结果
 
-19 份 JSON 解析通过；10 份完整报告及 15 份补丁均有对应文件。指标定义与实验数据 SHA256 见[复现说明](../reproduction.md)。
+28 份 JSON 解析通过；11 份完整报告及 16 份补丁均有对应文件。指标定义与实验数据 SHA256 见[复现说明](../reproduction.md)。

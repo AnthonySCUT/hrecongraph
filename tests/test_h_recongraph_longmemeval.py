@@ -4,6 +4,7 @@ import pytest
 
 from h_recongraph.examples.evaluate_longmemeval_read import (
     build_context,
+    evaluate_anchor_calibration,
     evaluate_binding_calibration,
     evaluate_cases,
     fact_turn_indexes,
@@ -178,3 +179,63 @@ async def test_binding_calibration_records_distant_support_removed_by_lexical_sc
     assert original['reference_far_supports'] == original['far_supports_retained'] == 1
     assert scoped['removed_annotated_support_turns'] == scoped['removed_supports_lost'] == 1
     assert scoped['far_supports_retained'] == 0
+
+
+@pytest.mark.asyncio
+async def test_sentence_anchor_keeps_turn_provenance_and_restricts_cross_topic_dependencies():
+    case = _case()
+    case['haystack_sessions'][1] = [
+        {
+            'role': 'user',
+            'content': 'The telescope is stored at the observatory.\nWe discussed weather forecasts.',
+            'has_answer': True,
+        },
+        {'role': 'assistant', 'content': 'Tea is ready.'},
+        {'role': 'user', 'content': 'The concert was fun.'},
+        {'role': 'user', 'content': 'Weather alerts apply only during storms.'},
+    ]
+    turn = await build_context(case, binding_rule='fact_scope')
+    sentence = await build_context(case, binding_rule='fact_scope', fact_granularity='sentence')
+    assert sentence.source_fact_indices == turn.source_fact_indices
+    episode = sentence.source_episodes[0]
+    anchor = sentence.source_fact_spans[episode.uuid][0]
+    raw = sentence._source_text(episode.content)
+    assert raw[anchor.start : anchor.end] == sentence.graph_edges[0].fact == anchor.text
+    assert 'weather' not in anchor.text
+    assert 3 in turn.source_indices(turn.source_episodes[0])['dependencies']
+    assert 3 not in sentence.source_indices(episode)['dependencies']
+    assert sentence.source_segments(episode)[0].count('\n') == 1
+    unlabeled = {key: value for key, value in case.items() if key != 'answer'}
+    unlabeled['haystack_sessions'] = [
+        [
+            {key: value for key, value in message.items() if key != 'has_answer'}
+            for message in session
+        ]
+        for session in case['haystack_sessions']
+    ]
+    rebuilt = await build_context(unlabeled, binding_rule='fact_scope', fact_granularity='sentence')
+    assert rebuilt.render_text('evidence_bundle') == sentence.render_text('evidence_bundle')
+
+
+@pytest.mark.asyncio
+async def test_anchor_calibration_separates_granularity_and_word_form_effects():
+    case = _case()
+    case['haystack_sessions'][1].extend(
+        [
+            {'role': 'assistant', 'content': 'Tea is ready.'},
+            {
+                'role': 'user',
+                'content': 'I recently inspected the observatory.',
+                'has_answer': True,
+            },
+        ]
+    )
+    result = await evaluate_anchor_calibration([case], repeats=1)
+    assert result['fixed_retrieval_equal']
+    assert len(result['anchor_calibration']) == 6
+    assert len(result['summary']) == 24
+    for granularity in ('paragraph', 'sentence'):
+        scoped = result['anchor_calibration'][f'fact_scope/{granularity}']
+        forms = result['anchor_calibration'][f'word_form_scope/{granularity}']
+        assert scoped['summary']['evidence_bundle_w0']['overall_recall']['retained'] == 1
+        assert forms['summary']['evidence_bundle_w0']['overall_recall']['retained'] == 2

@@ -475,3 +475,29 @@ def test_fact_scope_binds_automatic_dependencies_by_original_paragraph_position(
     assert 0 in constraints[0].fact_starts
     assert 0 not in constraints[1].fact_starts
     assert all(memory.raw_content[span.start : span.end] == span.text for span in constraints)
+
+
+def test_sentence_facts_keep_original_offsets_and_repeated_positions():
+    text = 'user: Redis costs 3.5 dollars. Atlas runs.\nAtlas runs.\n\n缓存就绪。开始读取！'
+    memory = UnifiedMemoryUnit(user_id='u1', layer='M1', raw_content=text)
+    state = SemanticStateConstructor(fact_granularity='sentence').construct(memory)
+    facts = [span for span in state.source_spans if span.field == 'fact']
+    assert [span.text for span in facts] == [
+        'user: Redis costs 3.5 dollars.',
+        'Atlas runs.',
+        'Atlas runs.',
+        '缓存就绪。',
+        '开始读取！',
+    ]
+    assert all(text[span.start : span.end] == span.text for span in facts)
+    assert facts[1].start != facts[2].start
+
+
+def test_word_forms_keep_temporal_variants_and_exclude_embedded_markers():
+    constructor = SemanticStateConstructor('word_form_scope')
+    assert constructor._marker_index('I recently visited.', 'recent') == 2
+    assert constructor._marker_index('Atlas currently runs.', 'current') == 6
+    assert constructor._marker_index('The service connected via Redis.', 'connects') == 12
+    assert constructor._marker_index('Do you know a specific viable plan?', 'now') == -1
+    assert constructor._marker_index('Do you know a specific viable plan?', 'if') == -1
+    assert constructor._marker_index('Do you know a specific viable plan?', 'via') == -1

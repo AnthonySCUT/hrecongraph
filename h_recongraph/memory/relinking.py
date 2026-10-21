@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from graphiti_core.nodes import EpisodicNode
 from h_recongraph.memory.ranker import MemoryUtilityRanker
 from h_recongraph.schemas.memory_edge import ReConMemoryEdge
-from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
 from h_recongraph.schemas.semantic_state import MemorySemanticState
 
 
@@ -26,6 +26,7 @@ class HierarchicalMemoryContext(BaseModel):
     source_episodes: list[EpisodicNode] = Field(default_factory=list)
     source_units: dict[str, list[str]] = Field(default_factory=dict)
     source_fact_indices: dict[str, list[int]] = Field(default_factory=dict)
+    source_fact_spans: dict[str, list[SourceSpan]] = Field(default_factory=dict)
     source_origin_ids: dict[str, str] = Field(default_factory=dict)
     context_text: str = ''
     source_mode: Literal['full_source', 'evidence_bundle'] = 'full_source'
@@ -181,6 +182,8 @@ class HierarchicalMemoryContext(BaseModel):
             and span.start is not None
             and any(offsets[index][0] <= span.start < offsets[index][1] for index in fact_indexes)
         }
+        if episode.uuid in self.source_fact_spans:
+            active_fact_starts = {span.start for span in self.source_fact_spans[episode.uuid]}
         spans = [
             span
             for span in spans

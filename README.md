@@ -1,6 +1,6 @@
 # H-ReConGraph
 
-基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **14 阶段**，包含记忆束更新、四维证据绑定、证据裁剪及写入绑定校准实验。阶段机制与结果见下方阶段页。
+基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **15 阶段**，包含记忆束更新、四维证据绑定、证据裁剪及句子锚点与词形消融。阶段机制与结果见下方阶段页。
 
 ## 研究框架
 
@@ -38,8 +38,22 @@
 | 12 | 证据召回、窗口与成本 Pareto 消融 | 回归：142 passed；Oracle 500 题，`w=1` 召回 97.43% | [12 召回成本消融](docs/stages/12-recall-cost-pareto.md) |
 | 13 | 重复渲染修复、依赖作用域消融 | 回归：149 passed；Oracle 500 题，去重 `w=1` 召回 97.43% | [13 重复渲染与依赖消融](docs/stages/13-rendering-dependency-ablation.md) |
 | 14 | 写入词界与事实作用域校准 | 回归：153 passed；Oracle 500 题，作用域 `w=1` 召回 93.75%，较原证据束省 Token 10.99% | [14 写入绑定校准](docs/stages/14-write-binding-calibration.md) |
+| 15 | 句子锚点与词形因子消融 | 回归：157 passed；Oracle 500 题，词形原粒度 `w=1` 召回 95.20%、5,986.68 Token | [15 句子锚点与词形](docs/stages/15-sentence-anchor-ablation.md) |
 
-01–14 阶段说明均可从本仓库 `docs/stages/` 访问。06–14 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
+01–15 阶段说明均可从本仓库 `docs/stages/` 访问。06–15 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
+
+## 第 15 阶段句子锚点与词形消融
+
+固定命中 Session 和 Top-1 原始轮次，比较三种绑定规则与两种事实粒度。句子锚点记录原始 Turn Index 和文本偏移；正文与窗口继续按原始轮次装配。下表均为 `w=1`：
+
+| 配置 | 平均 Token | 支持轮次保留 | 整体证据召回 | 完整题数 / 479 |
+|---|---:|---:|---:|---:|
+| 原子串，原粒度 | 6,606.28 | 873 / 896 | 97.43% | 462 |
+| 词界作用域，原粒度 | 5,880.24 | 840 / 896 | 93.75% | 434 |
+| 词形作用域，原粒度 | 5,986.68 | 853 / 896 | 95.20% | 443 |
+| 词形作用域，句子 | 5,005.48 | 809 / 896 | 90.29% | 410 |
+
+词形补全较上一批作用域 `w=1` 净增 13 条支持。句子作用域节省上下文，同时损失跨轮证据，并增加索引体积与渲染开销。默认保留原子串与原粒度，候选用于消融。完整六组对照与成本分析见[第 15 阶段说明](docs/stages/15-sentence-anchor-ablation.md)。
 
 ## 第 14 阶段写入绑定校准
 
@@ -90,7 +104,7 @@ print(context.context_text)
 
 ## 验证
 
-当前代码快照（14 阶段）指定回归：**153 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
+当前代码快照（15 阶段）指定回归：**157 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
 
 ```powershell
 python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider
