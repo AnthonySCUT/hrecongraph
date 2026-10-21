@@ -23,6 +23,1462 @@ memory.metadata['graphiti_episode_id'] = episode.uuid
 
 完整差异：[03 patch](../patches/03-召回回退与状态恢复.patch)。
 
+以下保留本批修改前后的完整代码、测试构造与输出示例。
+
+### 1. 2. 整体读取顺序
+
+```text
+query + user_id + route.layers
+  -> 依旧检索并限额 M0 / Graphiti 关系
+  -> 依旧按最终关系 episodes 批量取来源
+  -> 本次来源 envelope -> 恢复缺失本地记忆/语义状态/命中关系绑定
+  -> 筛选同用户、允许层级、生命周期有效且未过 TTL 的本地状态
+  -> 优先保留 M0 证据 / edge / episode 历史 / 完整 evidence ID 关联命中
+  -> 若没有可返回关联状态：用有效词面重合召回并排序
+  -> 对状态截取 max_retrieval_results
+  -> 组装 context，挂入原样 source_episodes
+  -> 只 touch 最终返回的记忆，按 memory_id 去重
+```
+
+### 2. 3. manager.py：完整函数对比 / 3.1 新增导入
+
+```python
+import json
+import re
+
+from graphiti_core.utils.datetime_utils import ensure_utc
+```
+
+### 3. 3. manager.py：完整函数对比 / 3.2 改前 retrieve 完整函数
+
+```python
+    async def retrieve(
+        self,
+        query: str,
+        user_id: str,
+        session_id: str | None = None,
+    ) -> HierarchicalMemoryContext:
+        """Retrieve and relink M0/M1/M2 memories for a query-specific evidence graph."""
+
+        route = self.router.route(query)
+        instant_memories: list[UnifiedMemoryUnit] = []
+        graph_edges: list[Any] = []
+
+        if 'M0' in route.layers:
+            instant_memories = self.ranker.rank_memories(
+                self._matching_m0(query, user_id, session_id), query
+            )[: self.policy.max_retrieval_results]
+            for memory in instant_memories:
+                memory.touch()
+
+        if self.store is not None and any(layer in route.layers for layer in ['M1', 'M2']):
+            search_results = await self.store.search_memories(
+                query,
+                user_id,
+                num_results=self.policy.max_retrieval_results,
+            )
+            graph_edges = self.ranker.rank_graph_edges(list(search_results or []), query)[
+                : self.policy.max_retrieval_results
+            ]
+
+        relevant_ids = {memory.memory_id for memory in instant_memories}
+        selected_evidence_ids = {
+            evidence_id for memory in instant_memories for evidence_id in memory.evidence_ids
+        }
+        selected_edge_ids = {edge.uuid for edge in graph_edges}
+        selected_episode_ids = {
+            episode_id for edge in graph_edges for episode_id in getattr(edge, 'episodes', [])
+        }
+        for memory in [*self.short_term_memories.values(), *self.long_term_memories.values()]:
+            if memory.user_id != user_id or memory.layer not in route.layers:
+                continue
+            if (
+                selected_evidence_ids.intersection(memory.evidence_ids)
+                or selected_edge_ids.intersection(memory.graph_binding.edges)
+                or memory.metadata.get('graphiti_episode_id') in selected_episode_ids
+                or any(evidence_id in query for evidence_id in memory.evidence_ids)
+            ):
+                relevant_ids.add(memory.memory_id)
+        local_states = [
+            state
+            for state in self.semantic_states.values()
+            if state.edge_or_subgraph_id in relevant_ids
+        ]
+
+        context = self.relinker.build_context(
+            query=query,
+            selected_layers=route.layers,
+            instant_memories=instant_memories,
+            graph_edges=graph_edges,
+            semantic_states=local_states[: self.policy.max_retrieval_results],
+        )
+        if graph_edges and self.store is not None:
+            context.source_episodes = await self.store.get_source_episodes(graph_edges, user_id)
+        return context
+```
+
+### 4. 3. manager.py：完整函数对比 / 3.3 改后 retrieve 完整函数
+
+```python
+    async def retrieve(
+        self,
+        query: str,
+        user_id: str,
+        session_id: str | None = None,
+    ) -> HierarchicalMemoryContext:
+        """Retrieve and relink M0/M1/M2 memories for a query-specific evidence graph."""
+
+        route = self.router.route(query)
+        instant_memories: list[UnifiedMemoryUnit] = []
+        graph_edges: list[Any] = []
+
+        if 'M0' in route.layers:
+            instant_memories = self.ranker.rank_memories(
+                self._matching_m0(query, user_id, session_id), query
+            )[: self.policy.max_retrieval_results]
+
+        if self.store is not None and any(layer in route.layers for layer in ['M1', 'M2']):
+            search_results = await self.store.search_memories(
+                query,
+                user_id,
+                num_results=self.policy.max_retrieval_results,
+            )
+            graph_edges = self.ranker.rank_graph_edges(list(search_results or []), query)[
+                : self.policy.max_retrieval_results
+            ]
+
+        source_episodes = []
+        if graph_edges and self.store is not None:
+            source_episodes = await self.store.get_source_episodes(graph_edges, user_id)
+            self._restore_source_memories(source_episodes, graph_edges, user_id, route.layers)
+
+        selected_evidence_ids = {
+            evidence_id for memory in instant_memories for evidence_id in memory.evidence_ids
+        }
+        selected_edge_ids = {edge.uuid for edge in graph_edges}
+        selected_episode_ids = {
+            episode_id for edge in graph_edges for episode_id in getattr(edge, 'episodes', [])
+        }
+        query_ids = set(re.findall(r'[\w-]+', query))
+        candidates = []
+        linked = []
+        for memory in [*self.short_term_memories.values(), *self.long_term_memories.values()]:
+            if not self._is_readable_memory(memory, user_id, route.layers):
+                continue
+            state = self.semantic_states.get(memory.semantic_state_id)
+            if state is None or state.edge_or_subgraph_id != memory.memory_id:
+                continue
+            candidates.append((memory, state))
+            if (
+                selected_evidence_ids.intersection(memory.evidence_ids)
+                or selected_edge_ids.intersection(memory.graph_binding.edges)
+                or selected_episode_ids.intersection(GraphitiMemoryStore.episode_ids(memory))
+                or query_ids.intersection(memory.evidence_ids)
+            ):
+                linked.append((memory, state))
+        if not linked:
+            linked = sorted(
+                [
+                    (memory, state)
+                    for memory, state in candidates
+                    if self.ranker.lexical_relevance(memory.raw_content or '', query) > 0
+                ],
+                key=lambda item: (
+                    self.ranker.lexical_relevance(item[0].raw_content or '', query),
+                    self.ranker.score_memory(item[0], query),
+                ),
+                reverse=True,
+            )
+        selected = linked[: self.policy.max_retrieval_results]
+
+        context = self.relinker.build_context(
+            query=query,
+            selected_layers=route.layers,
+            instant_memories=instant_memories,
+            graph_edges=graph_edges,
+            semantic_states=[state for _, state in selected],
+        )
+        context.source_episodes = source_episodes
+        returned_state_ids = {state.state_id for state in context.semantic_states}
+        accessed = {
+            memory.memory_id: memory
+            for memory in [
+                *context.instant_memories,
+                *(memory for memory, state in selected if state.state_id in returned_state_ids),
+            ]
+        }
+        for memory in accessed.values():
+            memory.touch()
+        return context
+```
+
+### 5. 3. manager.py：完整函数对比 / 3.4 新增内部函数完整代码
+
+```python
+    def _is_readable_memory(
+        self, memory: UnifiedMemoryUnit, user_id: str, layers: list[str]
+    ) -> bool:
+        return (
+            memory.user_id == user_id
+            and memory.layer in layers
+            and memory.lifecycle_status not in {'expired', 'archived', 'deleted', 'revised'}
+            and not memory.is_expired()
+        )
+
+    def _restore_source_memories(
+        self, episodes: list[Any], graph_edges: list[Any], user_id: str, layers: list[str]
+    ) -> None:
+        """Recover stored snapshots only from the sources of this query's selected edges."""
+        group_id = self.store.group_id(user_id)
+        snapshots = {}
+        for episode in episodes:
+            supporting_edges = [
+                edge
+                for edge in graph_edges
+                if episode.uuid in getattr(edge, 'episodes', [])
+                and getattr(edge, 'group_id', group_id) == group_id
+            ]
+            if episode.group_id != group_id or not supporting_edges:
+                continue
+            try:
+                envelope = json.loads(episode.content)
+                if not isinstance(envelope, dict):
+                    continue
+                data = envelope.get('h_recongraph')
+                if not isinstance(data, dict) or not all(
+                    key in data for key in ('memory_id', 'layer', 'semantic_state')
+                ):
+                    continue
+                state_data = data['semantic_state']
+                if not isinstance(state_data, dict) or not all(
+                    key in state_data for key in ('state_id', 'edge_or_subgraph_id')
+                ):
+                    continue
+                state = MemorySemanticState.model_validate(state_data)
+                memory = UnifiedMemoryUnit.model_validate(
+                    {
+                        **data,
+                        'user_id': data.get('user_id', user_id),
+                        'raw_content': envelope.get('content'),
+                        'created_at': data.get('created_at', episode.valid_at),
+                        'ttl': data.get(
+                            'ttl', self.policy.m1_ttl if data['layer'] == 'M1' else None
+                        ),
+                        'semantic_state_id': state.state_id,
+                        'metadata': {
+                            'graphiti_episode_ids': data.get('graphiti_episode_ids', []),
+                            'graphiti_episode_id': data.get('graphiti_episode_id'),
+                        },
+                    }
+                )
+                memory.created_at = ensure_utc(memory.created_at)
+                if memory.user_id != user_id or memory.layer not in layers:
+                    continue
+                if (
+                    memory.layer not in {'M1', 'M2'}
+                    or state.edge_or_subgraph_id != memory.memory_id
+                ):
+                    continue
+                memory.metadata['graphiti_episode_ids'] = list(
+                    dict.fromkeys(
+                        [
+                            *GraphitiMemoryStore.episode_ids(memory),
+                            episode.uuid,
+                        ]
+                    )
+                )
+                memory.metadata['graphiti_episode_id'] = episode.uuid
+            except (ValueError, TypeError):
+                continue
+            memory.graph_binding.nodes = list(
+                dict.fromkeys(
+                    node_id
+                    for edge in supporting_edges
+                    for node_id in (
+                        getattr(edge, 'source_node_uuid', None),
+                        getattr(edge, 'target_node_uuid', None),
+                    )
+                    if node_id
+                )
+            )
+            memory.graph_binding.edges = [edge.uuid for edge in supporting_edges]
+            previous = snapshots.get(memory.memory_id)
+            key = (memory.version, ensure_utc(episode.created_at))
+            if previous is not None:
+                older, _, old_key = previous
+                if old_key > key:
+                    memory, state, older, key = older, previous[1], memory, old_key
+                memory.graph_binding.nodes = list(
+                    dict.fromkeys(
+                        [
+                            *memory.graph_binding.nodes,
+                            *older.graph_binding.nodes,
+                        ]
+                    )
+                )
+                memory.graph_binding.edges = list(
+                    dict.fromkeys(
+                        [
+                            *memory.graph_binding.edges,
+                            *older.graph_binding.edges,
+                        ]
+                    )
+                )
+                memory.metadata['graphiti_episode_ids'] = list(
+                    dict.fromkeys(
+                        [
+                            *GraphitiMemoryStore.episode_ids(older),
+                            *GraphitiMemoryStore.episode_ids(memory),
+                        ]
+                    )
+                )
+            snapshots[memory.memory_id] = (memory, state, key)
+        for memory, state, _ in snapshots.values():
+            if not self._is_readable_memory(memory, user_id, layers):
+                continue
+            if (
+                memory.memory_id in self.short_term_memories
+                or memory.memory_id in self.long_term_memories
+            ):
+                continue
+            existing_state = self.semantic_states.get(state.state_id)
+            if (
+                existing_state is not None
+                and existing_state.edge_or_subgraph_id != memory.memory_id
+            ):
+                continue
+            target = self.short_term_memories if memory.layer == 'M1' else self.long_term_memories
+            target[memory.memory_id] = memory
+            self.semantic_states[state.state_id] = state
+```
+
+### 6. 3. manager.py：完整函数对比 / 3.7 完整 evidence ID 匹配
+
+```python
+query_ids = set(re.findall(r'[\w-]+', query))
+...
+or query_ids.intersection(memory.evidence_ids)
+```
+
+### 7. 4. graphiti_store.py：完整改前与改后代码 / 4.1 改前完整文件
+
+```python
+"""Adapter between H-ReConGraph and Graphiti."""
+
+import json
+from typing import Any
+
+from graphiti_core.nodes import EpisodeType, EpisodicNode
+from graphiti_core.utils.datetime_utils import utc_now
+from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+
+
+class GraphitiMemoryStore:
+    """Store M1/M2 memory units in Graphiti using a stable compatibility layer."""
+
+    def __init__(self, graphiti_client: Any):
+        self.graphiti = graphiti_client
+
+    async def add_memory(self, memory: UnifiedMemoryUnit) -> Any:
+        source_description = self._source_description(memory)
+        episode_body = self._episode_body(memory)
+        result = await self.graphiti.add_episode(
+            name=f'{memory.layer.lower()}_{memory.memory_id}',
+            episode_body=episode_body,
+            source_description=source_description,
+            reference_time=memory.created_at or utc_now(),
+            source=EpisodeType.text,
+            group_id=self.group_id(memory.user_id),
+        )
+        episode = getattr(result, 'episode', None)
+        memory.graph_binding.nodes = list(
+            dict.fromkeys(
+                [*memory.graph_binding.nodes, *(node.uuid for node in getattr(result, 'nodes', []))]
+            )
+        )
+        # add_episode also returns old edges invalidated by this episode.
+        memory.graph_binding.edges = list(
+            dict.fromkeys(
+                [
+                    *memory.graph_binding.edges,
+                    *(
+                        edge.uuid
+                        for edge in getattr(result, 'edges', [])
+                        if episode is not None and episode.uuid in edge.episodes
+                    ),
+                ]
+            )
+        )
+        if episode is not None:
+            memory.metadata['graphiti_episode_id'] = episode.uuid
+        return result
+
+    async def search_memories(
+        self,
+        query: str,
+        user_id: str,
+        *,
+        num_results: int = 10,
+        group_ids: list[str] | None = None,
+    ) -> Any:
+        return await self.graphiti.search(
+            query=query,
+            group_ids=group_ids or [self.group_id(user_id)],
+            num_results=num_results,
+        )
+
+    async def get_source_episodes(self, graph_edges: list[Any], user_id: str) -> list[EpisodicNode]:
+        """Load the sources referenced by selected edges, in first-reference order."""
+        episode_ids = list(
+            dict.fromkeys(
+                episode_id for edge in graph_edges for episode_id in getattr(edge, 'episodes', [])
+            )
+        )
+        if not episode_ids:
+            return []
+
+        episodes = await EpisodicNode.get_by_uuids(self.graphiti.driver, episode_ids)
+        episodes_by_id = {
+            episode.uuid: episode
+            for episode in episodes
+            if episode.group_id == self.group_id(user_id)
+        }
+        return [
+            episodes_by_id[episode_id] for episode_id in episode_ids if episode_id in episodes_by_id
+        ]
+
+    def group_id(self, user_id: str) -> str:
+        return f'user:{user_id}'
+
+    def _source_description(self, memory: UnifiedMemoryUnit) -> str:
+        return (
+            'H-ReConGraph memory '
+            f'layer={memory.layer} '
+            f'session_id={memory.session_id or ""} '
+            f'lifecycle_status={memory.lifecycle_status} '
+            f'memory_id={memory.memory_id}'
+        )
+
+    def _episode_body(self, memory: UnifiedMemoryUnit) -> str:
+        envelope = {
+            'h_recongraph': {
+                'memory_id': memory.memory_id,
+                'layer': memory.layer,
+                'session_id': memory.session_id,
+                'lifecycle_status': memory.lifecycle_status,
+                'evidence_ids': memory.evidence_ids,
+                'semantic_state': memory.semantic_state,
+                'scores': memory.scores.model_dump(),
+            },
+            'content': memory.raw_content,
+        }
+        return json.dumps(envelope, ensure_ascii=False, default=str)
+```
+
+### 8. 4. graphiti_store.py：完整改前与改后代码 / 4.2 改后完整文件
+
+```python
+"""Adapter between H-ReConGraph and Graphiti."""
+
+import json
+from typing import Any
+
+from graphiti_core.nodes import EpisodeType, EpisodicNode
+from graphiti_core.utils.datetime_utils import utc_now
+from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+
+
+class GraphitiMemoryStore:
+    """Store M1/M2 memory units in Graphiti using a stable compatibility layer."""
+
+    def __init__(self, graphiti_client: Any):
+        self.graphiti = graphiti_client
+
+    async def add_memory(self, memory: UnifiedMemoryUnit) -> Any:
+        source_description = self._source_description(memory)
+        episode_body = self._episode_body(memory)
+        result = await self.graphiti.add_episode(
+            name=f'{memory.layer.lower()}_{memory.memory_id}',
+            episode_body=episode_body,
+            source_description=source_description,
+            reference_time=memory.created_at or utc_now(),
+            source=EpisodeType.text,
+            group_id=self.group_id(memory.user_id),
+        )
+        episode = getattr(result, 'episode', None)
+        memory.graph_binding.nodes = list(
+            dict.fromkeys(
+                [*memory.graph_binding.nodes, *(node.uuid for node in getattr(result, 'nodes', []))]
+            )
+        )
+        # add_episode also returns old edges invalidated by this episode.
+        memory.graph_binding.edges = list(
+            dict.fromkeys(
+                [
+                    *memory.graph_binding.edges,
+                    *(
+                        edge.uuid
+                        for edge in getattr(result, 'edges', [])
+                        if episode is not None and episode.uuid in edge.episodes
+                    ),
+                ]
+            )
+        )
+        if episode is not None:
+            memory.metadata['graphiti_episode_ids'] = list(
+                dict.fromkeys([*self.episode_ids(memory), episode.uuid])
+            )
+            memory.metadata['graphiti_episode_id'] = episode.uuid
+        return result
+
+    async def search_memories(
+        self,
+        query: str,
+        user_id: str,
+        *,
+        num_results: int = 10,
+        group_ids: list[str] | None = None,
+    ) -> Any:
+        return await self.graphiti.search(
+            query=query,
+            group_ids=group_ids or [self.group_id(user_id)],
+            num_results=num_results,
+        )
+
+    async def get_source_episodes(self, graph_edges: list[Any], user_id: str) -> list[EpisodicNode]:
+        """Load the sources referenced by selected edges, in first-reference order."""
+        episode_ids = list(
+            dict.fromkeys(
+                episode_id for edge in graph_edges for episode_id in getattr(edge, 'episodes', [])
+            )
+        )
+        if not episode_ids:
+            return []
+
+        episodes = await EpisodicNode.get_by_uuids(self.graphiti.driver, episode_ids)
+        episodes_by_id = {
+            episode.uuid: episode
+            for episode in episodes
+            if episode.group_id == self.group_id(user_id)
+        }
+        return [
+            episodes_by_id[episode_id] for episode_id in episode_ids if episode_id in episodes_by_id
+        ]
+
+    def group_id(self, user_id: str) -> str:
+        return f'user:{user_id}'
+
+    @staticmethod
+    def episode_ids(memory: UnifiedMemoryUnit) -> list[str]:
+        history = memory.metadata.get('graphiti_episode_ids', [])
+        if not isinstance(history, list):
+            history = []
+        latest = memory.metadata.get('graphiti_episode_id')
+        return list(
+            dict.fromkeys(
+                episode_id
+                for episode_id in [*history, latest]
+                if isinstance(episode_id, str) and episode_id
+            )
+        )
+
+    def _source_description(self, memory: UnifiedMemoryUnit) -> str:
+        return (
+            'H-ReConGraph memory '
+            f'layer={memory.layer} '
+            f'session_id={memory.session_id or ""} '
+            f'lifecycle_status={memory.lifecycle_status} '
+            f'memory_id={memory.memory_id}'
+        )
+
+    def _episode_body(self, memory: UnifiedMemoryUnit) -> str:
+        snapshot = memory.model_dump(
+            mode='json',
+            include={
+                'memory_id',
+                'user_id',
+                'layer',
+                'session_id',
+                'lifecycle_status',
+                'evidence_ids',
+                'semantic_state',
+                'semantic_state_id',
+                'scores',
+                'created_at',
+                'ttl',
+                'version',
+                'supersedes',
+                'source_spans',
+                'content_type',
+            },
+        )
+        snapshot['graphiti_episode_ids'] = self.episode_ids(memory)
+        snapshot['graphiti_episode_id'] = memory.metadata.get('graphiti_episode_id')
+        envelope = {
+            'h_recongraph': snapshot,
+            'content': memory.raw_content,
+        }
+        return json.dumps(envelope, ensure_ascii=False, default=str)
+```
+
+### 9. 4. graphiti_store.py：完整改前与改后代码 / 4.3 add_memory 中 episode 历史的实现
+
+```python
+memory.metadata['graphiti_episode_ids'] = list(
+    dict.fromkeys([*self.episode_ids(memory), episode.uuid])
+)
+memory.metadata['graphiti_episode_id'] = episode.uuid
+```
+
+### 10. 5. ranker.py：完整改前与改后代码 / 5.1 改前完整文件
+
+```python
+"""Memory utility ranker."""
+
+from typing import Any
+
+from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+
+
+class MemoryUtilityRanker:
+    """Rank memory units by reasoning utility rather than plain similarity."""
+
+    def score_memory(self, memory: UnifiedMemoryUnit, query: str) -> float:
+        semantic_relevance = self._token_overlap(memory.raw_content or '', query)
+        scores = memory.scores
+        score = (
+            semantic_relevance
+            + scores.retrieval_utility
+            + scores.recency
+            + scores.evidence_strength
+            + scores.importance
+            - scores.contradiction_risk
+            - scores.privacy_risk
+        )
+        return round(max(score, 0.0), 3)
+
+    def rank_memories(
+        self, memories: list[UnifiedMemoryUnit], query: str
+    ) -> list[UnifiedMemoryUnit]:
+        ranked = sorted(memories, key=lambda memory: self.score_memory(memory, query), reverse=True)
+        for memory in ranked:
+            memory.scores.retrieval_utility = self.score_memory(memory, query)
+        return ranked
+
+    def rank_graph_edges(self, edges: list[Any], query: str) -> list[Any]:
+        return sorted(edges, key=lambda edge: self._edge_score(edge, query), reverse=True)
+
+    def _edge_score(self, edge: Any, query: str) -> float:
+        fact = getattr(edge, 'fact', None) or getattr(edge, 'name', None) or str(edge)
+        return self._token_overlap(fact, query)
+
+    def _token_overlap(self, left: str, right: str) -> float:
+        left_tokens = {token for token in left.lower().split() if token}
+        right_tokens = {token for token in right.lower().split() if token}
+        if not left_tokens or not right_tokens:
+            return 0.0
+        return len(left_tokens & right_tokens) / len(right_tokens)
+```
+
+### 11. 5. ranker.py：完整改前与改后代码 / 5.2 改后完整文件
+
+```python
+"""Memory utility ranker."""
+
+import re
+from typing import Any
+
+from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+
+
+class MemoryUtilityRanker:
+    """Rank memory units by reasoning utility rather than plain similarity."""
+
+    LEXICAL_STOPWORDS = frozenset(
+        'a an the and or but of to in on at for from with by as '  # noqa: SIM905
+        'is are was were be been being do does did have has had '
+        'i me my we our you your he him his she her it its they them their '
+        'this that these those what which who whom whose when where why how '
+        'can could would should will shall may might must '
+        'please tell about just also 的 了 是 吗 呢 啊 和 与 或 在 有 我 你 他 她 它 '
+        '我们 你们 他们 什么 怎么 如何 为什么 请 告诉 这个 那个'.split()
+    )
+
+    def lexical_relevance(self, text: str, query: str) -> float:
+        """Require content-word overlap before admitting local fallback candidates."""
+        return self._token_overlap(' '.join(self.tokenize(text)), ' '.join(self.tokenize(query)))
+
+    def tokenize(self, text: str) -> set[str]:
+        tokens: set[str] = set()
+        for token in re.findall(r'[\u4e00-\u9fff]+|[a-z0-9]+(?:[-_][a-z0-9]+)*', text.lower()):
+            if token in self.LEXICAL_STOPWORDS:
+                continue
+            if '\u4e00' <= token[0] <= '\u9fff':
+                tokens.update(
+                    token[i : i + 2]
+                    for i in range(len(token) - 1)
+                    if token[i : i + 2] not in self.LEXICAL_STOPWORDS
+                    and any(char not in self.LEXICAL_STOPWORDS for char in token[i : i + 2])
+                )
+            elif len(token) > 1:
+                tokens.add(token)
+        return tokens
+
+    def score_memory(self, memory: UnifiedMemoryUnit, query: str) -> float:
+        semantic_relevance = self._token_overlap(memory.raw_content or '', query)
+        scores = memory.scores
+        score = (
+            semantic_relevance
+            + scores.retrieval_utility
+            + scores.recency
+            + scores.evidence_strength
+            + scores.importance
+            - scores.contradiction_risk
+            - scores.privacy_risk
+        )
+        return round(max(score, 0.0), 3)
+
+    def rank_memories(
+        self, memories: list[UnifiedMemoryUnit], query: str
+    ) -> list[UnifiedMemoryUnit]:
+        ranked = sorted(memories, key=lambda memory: self.score_memory(memory, query), reverse=True)
+        for memory in ranked:
+            memory.scores.retrieval_utility = self.score_memory(memory, query)
+        return ranked
+
+    def rank_graph_edges(self, edges: list[Any], query: str) -> list[Any]:
+        return sorted(edges, key=lambda edge: self._edge_score(edge, query), reverse=True)
+
+    def _edge_score(self, edge: Any, query: str) -> float:
+        fact = getattr(edge, 'fact', None) or getattr(edge, 'name', None) or str(edge)
+        return self._token_overlap(fact, query)
+
+    def _token_overlap(self, left: str, right: str) -> float:
+        left_tokens = {token for token in left.lower().split() if token}
+        right_tokens = {token for token in right.lower().split() if token}
+        if not left_tokens or not right_tokens:
+            return 0.0
+        return len(left_tokens & right_tokens) / len(right_tokens)
+```
+
+### 12. 6. test_h_recongraph_graphiti_store.py：完整新增测试
+
+```python
+@pytest.mark.asyncio
+async def test_repeated_writes_keep_ordered_episode_history_and_latest_legacy_id():
+    client = RecordingGraphiti(None)
+    store = GraphitiMemoryStore(client)
+    memory = UnifiedMemoryUnit(user_id='u1', layer='M1', raw_content='Project A uses Redis.')
+
+    for episode_id in ['episode-a', 'episode-b', 'episode-b', 'episode-c']:
+        client.result = SimpleNamespace(
+            episode=SimpleNamespace(uuid=episode_id), nodes=[], edges=[]
+        )
+        await store.add_memory(memory)
+
+    assert memory.metadata['graphiti_episode_ids'] == ['episode-a', 'episode-b', 'episode-c']
+    assert memory.metadata['graphiti_episode_id'] == 'episode-c'
+    second_body = json.loads(client.added[1]['episode_body'])['h_recongraph']
+    assert second_body['graphiti_episode_ids'] == ['episode-a']
+    assert second_body['graphiti_episode_id'] == 'episode-a'
+    fourth_body = json.loads(client.added[3]['episode_body'])['h_recongraph']
+    assert fourth_body['graphiti_episode_ids'] == ['episode-a', 'episode-b']
+    assert len(client.added) == 4
+
+
+@pytest.mark.asyncio
+async def test_legacy_single_episode_id_is_merged_without_losing_other_metadata():
+    client = RecordingGraphiti(
+        SimpleNamespace(episode=SimpleNamespace(uuid='episode-new'), nodes=[], edges=[])
+    )
+    memory = UnifiedMemoryUnit(
+        user_id='u1',
+        layer='M2',
+        metadata={
+            'graphiti_episode_ids': ['episode-old', 'episode-old'],
+            'graphiti_episode_id': 'episode-legacy',
+            'consolidated_from': 'stm-a',
+        },
+    )
+
+    await GraphitiMemoryStore(client).add_memory(memory)
+
+    assert memory.metadata['graphiti_episode_ids'] == [
+        'episode-old',
+        'episode-legacy',
+        'episode-new',
+    ]
+    assert memory.metadata['graphiti_episode_id'] == 'episode-new'
+    assert memory.metadata['consolidated_from'] == 'stm-a'
+    body = json.loads(client.added[0]['episode_body'])['h_recongraph']
+    assert body['graphiti_episode_ids'] == ['episode-old', 'episode-legacy']
+
+
+def test_envelope_preserves_recovery_fields_without_copying_arbitrary_metadata():
+    from datetime import timedelta
+
+    memory = UnifiedMemoryUnit(
+        memory_id='stm-a',
+        user_id='u1',
+        layer='M1',
+        raw_content='Original source.',
+        ttl=timedelta(days=2),
+        version=3,
+        supersedes=['stm-old'],
+        metadata={'graphiti_episode_id': 'episode-a', 'private_note': 'not an envelope field'},
+    )
+    store = GraphitiMemoryStore(RecordingGraphiti(None))
+
+    body = json.loads(store._episode_body(memory))
+    snapshot = body['h_recongraph']
+
+    assert body['content'] == memory.raw_content
+    assert snapshot['user_id'] == 'u1'
+    assert snapshot['created_at'] == memory.created_at.isoformat().replace('+00:00', 'Z')
+    assert snapshot['ttl'] == 'P2D'
+    assert snapshot['version'] == 3
+    assert snapshot['supersedes'] == ['stm-old']
+    assert snapshot['graphiti_episode_ids'] == ['episode-a']
+    assert 'private_note' not in snapshot
+    assert 'private_note' not in snapshot.get('metadata', {})
+
+
+@pytest.mark.asyncio
+async def test_failed_write_does_not_append_an_episode_or_change_legacy_id():
+    client = RecordingGraphiti(None)
+    client.add_episode = AsyncMock(side_effect=RuntimeError('write failed'))
+    memory = UnifiedMemoryUnit(
+        user_id='u1', layer='M1', metadata={'graphiti_episode_id': 'episode-old'}
+    )
+    before = memory.model_dump()
+
+    with pytest.raises(RuntimeError, match='write failed'):
+        await GraphitiMemoryStore(client).add_memory(memory)
+
+    assert memory.model_dump() == before
+    client.add_episode.assert_awaited_once()
+```
+
+### 13. 7. test_h_recongraph_retrieval.py：完整新增测试与 helper
+
+```python
+@pytest.mark.asyncio
+@pytest.mark.parametrize('graph_hit', [False, True])
+async def test_lexical_fallback_is_ranked_bounded_and_excludes_unrelated_memories(graph_hit):
+    edges = [SimpleNamespace(uuid='unbound', episodes=[], fact='Redis')] if graph_hit else []
+    controller = HReConGraphMemory(
+        SearchGraphiti(edges), policy=MemoryPolicy(max_retrieval_results=1)
+    )
+    unrelated = add_local_memory(controller, 'unrelated')
+    unrelated.raw_content = 'The user likes tea.'
+    partial = add_local_memory(controller, 'partial')
+    partial.raw_content = 'Redis supports caching.'
+    best = add_local_memory(controller, 'best')
+    best.raw_content = 'Redis cluster has replicas.'
+
+    context = await controller.retrieve('Redis cluster?', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {'best'}
+    assert best.access_count == 1
+    assert partial.access_count == unrelated.access_count == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'query', ['the and is?', 'please tell me about it', '的 了 是 吗', '的了是吗']
+)
+async def test_stopwords_alone_do_not_enable_local_fallback(query):
+    controller = HReConGraphMemory(SearchGraphiti([]))
+    memory = add_local_memory(controller, 'stopwords')
+    memory.raw_content = 'the and is please tell me about it 的 了 是 吗'
+
+    context = await controller.retrieve(query, user_id='u1')
+
+    assert context.semantic_states == []
+    assert memory.access_count == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('status', ['expired', 'archived', 'deleted', 'revised', 'ttl'])
+async def test_inactive_local_memory_is_not_returned_or_touched_even_with_binding(status):
+    controller = HReConGraphMemory(
+        SearchGraphiti([SimpleNamespace(uuid='edge-a', episodes=[], fact='Redis')])
+    )
+    memory = add_local_memory(controller, 'inactive', edge_ids=['edge-a'])
+    memory.raw_content = 'Redis cluster'
+    if status == 'ttl':
+        memory.created_at -= timedelta(days=2)
+        memory.ttl = timedelta(days=1)
+    else:
+        memory.lifecycle_status = status
+
+    context = await controller.retrieve('Redis cluster', user_id='u1')
+
+    assert context.semantic_states == []
+    assert memory.access_count == 0
+
+
+@pytest.mark.asyncio
+async def test_fallback_respects_user_and_route_without_touching_other_candidates():
+    controller = HReConGraphMemory(SearchGraphiti([]))
+    mine = add_local_memory(controller, 'mine', layer='M2')
+    short = add_local_memory(controller, 'short', layer='M1')
+    other = add_local_memory(controller, 'other', user_id='u2', layer='M2')
+    for memory in [mine, short, other]:
+        memory.raw_content = 'I prefer oolong tea.'
+
+    context = await controller.retrieve('prefer oolong?', user_id='u1')
+
+    assert context.selected_layers == ['M2']
+    assert retrieved_memory_ids(context) == {'mine'}
+    assert [mine.access_count, short.access_count, other.access_count] == [1, 0, 0]
+
+
+@pytest.mark.asyncio
+async def test_successful_binding_does_not_expand_to_lexical_only_memories():
+    controller = HReConGraphMemory(
+        SearchGraphiti([SimpleNamespace(uuid='edge-a', episodes=[], fact='Redis')])
+    )
+    linked = add_local_memory(controller, 'linked', edge_ids=['edge-a'])
+    lexical = add_local_memory(controller, 'lexical')
+    lexical.raw_content = 'Redis cluster'
+
+    context = await controller.retrieve('Redis cluster', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {'linked'}
+    assert linked.access_count == 1
+    assert lexical.access_count == 0
+
+
+@pytest.mark.asyncio
+async def test_returned_m0_and_associated_m1_m2_are_each_touched_once_without_writes():
+    client = SearchGraphiti([])
+    controller = HReConGraphMemory(client, policy=MemoryPolicy(consolidation_threshold=2))
+    # Build the write locally; only the read path uses the recording graph client.
+    controller.store = None
+    short = await controller.add_interaction(
+        'remember this current project Redis because compatibility matters',
+        user_id='u1',
+        session_id='s1',
+    )
+    long = add_local_memory(controller, 'ltm-copy', layer='M2', evidence_ids=short.evidence_ids)
+    short.graph_binding.edges = ['edge-a']
+    short.metadata['graphiti_episode_id'] = 'episode-a'
+    client.edges = [SimpleNamespace(uuid='edge-a', episodes=['episode-a'], fact='Redis')]
+    client.add_episode = AsyncMock()
+    controller.store = GraphitiMemoryStore(client)
+    instant = next(iter(controller.buffer._memories.values()))
+
+    for expected in [1, 2]:
+        context = await controller.retrieve(
+            f'why current Redis {short.evidence_ids[0]}', user_id='u1', session_id='s1'
+        )
+        assert retrieved_memory_ids(context) == {short.memory_id, long.memory_id}
+        assert [instant.access_count, short.access_count, long.access_count] == [expected] * 3
+    client.add_episode.assert_not_awaited()
+    assert controller.evolution.consolidation_score(
+        short
+    ) > controller.evolution.consolidation_score(short.model_copy(update={'access_count': 0}))
+
+
+@pytest.mark.asyncio
+async def test_bound_candidates_cut_by_limit_are_not_touched():
+    controller = HReConGraphMemory(
+        SearchGraphiti([SimpleNamespace(uuid='edge-a', episodes=[], fact='Redis')]),
+        policy=MemoryPolicy(max_retrieval_results=1),
+    )
+    first = add_local_memory(controller, 'first', edge_ids=['edge-a'])
+    second = add_local_memory(controller, 'second', edge_ids=['edge-a'])
+
+    context = await controller.retrieve('Redis', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {'first'}
+    assert [first.access_count, second.access_count] == [1, 0]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('requested', ['ev-a', 'ev-ab', 'im_a', 'im_ab'])
+async def test_evidence_ids_require_complete_tokens(requested):
+    controller = HReConGraphMemory(SearchGraphiti([]))
+    memories = [
+        add_local_memory(controller, f'm-{i}', evidence_ids=[i])
+        for i in ['ev-a', 'ev-ab', 'im_a', 'im_ab']
+    ]
+
+    context = await controller.retrieve(f'source ({requested}).', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {f'm-{requested}'}
+    assert [memory.access_count for memory in memories] == [
+        int(memory.evidence_ids == [requested]) for memory in memories
+    ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('query', ['source xev-a', 'source ev-a-extra', 'source ev-a_more'])
+async def test_embedded_or_extended_evidence_id_does_not_match(query):
+    controller = HReConGraphMemory(SearchGraphiti([]))
+    memory = add_local_memory(controller, 'only-a', evidence_ids=['ev-a'])
+
+    context = await controller.retrieve(query, user_id='u1')
+
+    assert context.semantic_states == []
+    assert memory.access_count == 0
+
+
+@pytest.mark.asyncio
+async def test_older_episode_in_history_still_links_local_memory():
+    controller = HReConGraphMemory(
+        SearchGraphiti([SimpleNamespace(uuid='edge-a', episodes=['episode-old'], fact='Redis')])
+    )
+    memory = add_local_memory(controller, 'linked')
+    memory.metadata.update(
+        graphiti_episode_id='episode-new', graphiti_episode_ids=['episode-old', 'episode-new']
+    )
+
+    context = await controller.retrieve('Redis', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {'linked'}
+    assert memory.access_count == 1
+
+
+def enveloped_source(
+    *, memory_id='stm-recovered', layer='M1', user_id='u1', episode_id='episode-a'
+):
+    owner = HReConGraphMemory()
+    memory = add_local_memory(owner, memory_id, layer=layer, user_id=user_id)
+    memory.raw_content = 'Project A uses Redis because compatibility matters'
+    memory.semantic_state = owner.semantic_states[memory.semantic_state_id].model_dump(mode='json')
+    source = source_episode(episode_id, GraphitiMemoryStore(None)._episode_body(memory))
+    source.group_id = f'user:{user_id}'
+    return memory, source
+
+
+def source_edge(episode_ids, *, group_id='user:u1', uuid='edge-a'):
+    return EntityEdge(
+        uuid=uuid,
+        group_id=group_id,
+        source_node_uuid='node-a',
+        target_node_uuid='node-b',
+        created_at=utc_now(),
+        name='USES',
+        fact='Project A uses Redis',
+        episodes=episode_ids,
+    )
+
+
+@pytest.mark.asyncio
+async def test_fresh_controller_recovers_state_binding_and_history_only_from_returned_sources():
+    written, source = enveloped_source()
+    body = json.loads(source.content)
+    body['h_recongraph']['graphiti_episode_ids'] = ['episode-old']
+    body['h_recongraph']['graphiti_episode_id'] = 'episode-old'
+    source.content = json.dumps(body)
+    edge = source_edge(['episode-a'])
+    client = SearchGraphiti([edge], [source])
+    controller = HReConGraphMemory(client)
+
+    context = await controller.retrieve('why Project A uses Redis', user_id='u1')
+
+    recovered = controller.short_term_memories[written.memory_id]
+    assert retrieved_memory_ids(context) == {written.memory_id}
+    assert context.semantic_states[0].model_dump() == written.semantic_state
+    assert recovered.graph_binding.nodes == ['node-a', 'node-b']
+    assert recovered.graph_binding.edges == ['edge-a']
+    assert recovered.metadata['graphiti_episode_ids'] == ['episode-old', 'episode-a']
+    assert recovered.metadata['graphiti_episode_id'] == 'episode-a'
+    assert recovered.access_count == 1
+    assert recovered.created_at == written.created_at
+    assert client.episode_reads == [['episode-a']]
+    assert context.source_episodes == [source]
+    await controller.retrieve('why Project A uses Redis', user_id='u1')
+    assert controller.short_term_memories[written.memory_id] is recovered
+    assert recovered.access_count == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'content',
+    [
+        'Plain legacy source.',
+        'not {json',
+        '[]',
+        '{}',
+        '{"h_recongraph": null}',
+        '{"h_recongraph": {"memory_id": "stm-old", "layer": "M1"}}',
+    ],
+)
+async def test_legacy_or_incomplete_source_is_returned_without_fabricating_state(content):
+    source = source_episode('episode-a', content)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+
+    context = await controller.retrieve('Project A', user_id='u1')
+
+    assert context.source_episodes == [source]
+    assert context.semantic_states == []
+    assert controller.short_term_memories == {}
+    assert controller.long_term_memories == {}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'change', ['user', 'layer', 'state_owner', 'state_invalid', 'expired', 'ttl']
+)
+async def test_source_recovery_rejects_wrong_scope_or_invalid_state_without_losing_raw_source(
+    change,
+):
+    _, source = enveloped_source()
+    body = json.loads(source.content)
+    data = body['h_recongraph']
+    if change == 'user':
+        data['user_id'] = 'u2'
+    elif change == 'layer':
+        data['layer'] = 'M2'
+    elif change == 'state_owner':
+        data['semantic_state']['edge_or_subgraph_id'] = 'someone-else'
+    elif change == 'state_invalid':
+        data['semantic_state']['state_type'] = 'evidence_supported'
+        data['semantic_state']['source_spans'] = []
+    elif change == 'expired':
+        data['lifecycle_status'] = 'expired'
+    else:
+        data['created_at'] = (utc_now() - timedelta(days=2)).isoformat()
+        data['ttl'] = 'P1D'
+    source.content = json.dumps(body)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert context.source_episodes == [source]
+    assert context.semantic_states == []
+    assert controller.short_term_memories == {}
+    assert controller.long_term_memories == {}
+
+
+@pytest.mark.asyncio
+async def test_recovery_does_not_read_unselected_sources_or_overwrite_cached_memory():
+    original, selected = enveloped_source()
+    _, omitted = enveloped_source(memory_id='stm-omitted', episode_id='episode-b')
+    client = SearchGraphiti(
+        [source_edge(['episode-a']), source_edge(['episode-b'], uuid='edge-b')], [selected, omitted]
+    )
+    controller = HReConGraphMemory(client, policy=MemoryPolicy(max_retrieval_results=1))
+    cached = add_local_memory(controller, original.memory_id, edge_ids=['edge-a'])
+    cached.raw_content = 'Newer in-process text'
+
+    context = await controller.retrieve('Redis', user_id='u1')
+
+    assert client.episode_reads == [['episode-a']]
+    assert set(controller.short_term_memories) == {original.memory_id}
+    assert controller.short_term_memories[original.memory_id] is cached
+    assert cached.raw_content == 'Newer in-process text'
+    assert cached.access_count == 1
+    assert context.source_episodes == [selected]
+
+
+@pytest.mark.asyncio
+async def test_local_fallback_also_works_without_a_graph_store():
+    controller = HReConGraphMemory()
+    memory = add_local_memory(controller, 'redis')
+    memory.raw_content = 'Redis replicas'
+
+    context = await controller.retrieve('Redis?', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {'redis'}
+    assert memory.access_count == 1
+
+
+@pytest.mark.asyncio
+async def test_m0_cut_by_result_limit_is_not_touched():
+    controller = HReConGraphMemory(policy=MemoryPolicy(max_retrieval_results=1))
+    first = controller.buffer.add('Redis', user_id='u1', session_id='s1')
+    best = controller.buffer.add('Redis cluster', user_id='u1', session_id='s1')
+
+    context = await controller.retrieve('current Redis cluster', user_id='u1', session_id='s1')
+
+    assert context.instant_memories == [best]
+    assert [first.access_count, best.access_count] == [0, 1]
+
+
+@pytest.mark.asyncio
+async def test_unrelated_query_without_overlap_returns_no_state_or_access():
+    controller = HReConGraphMemory(SearchGraphiti([]))
+    memory = add_local_memory(controller, 'only-redis')
+    memory.raw_content = 'Redis cluster'
+
+    context = await controller.retrieve('astronomy telescope', user_id='u1')
+
+    assert context.semantic_states == []
+    assert memory.access_count == 0
+
+
+@pytest.mark.asyncio
+async def test_fallback_uses_meaningful_chinese_overlap_without_matching_single_stopwords():
+    controller = HReConGraphMemory(SearchGraphiti([]))
+    related = add_local_memory(controller, 'related')
+    related.raw_content = '用户喜欢喝咖啡'
+    unrelated = add_local_memory(controller, 'unrelated')
+    unrelated.raw_content = '用户安排旅游'
+
+    context = await controller.retrieve('咖啡', user_id='u1')
+
+    assert retrieved_memory_ids(context) == {'related'}
+    assert [related.access_count, unrelated.access_count] == [1, 0]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('layer,query', [('M1', 'current Redis'), ('M2', 'prefer Redis')])
+async def test_source_recovers_into_its_allowed_layer(layer, query):
+    written, source = enveloped_source(layer=layer)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+
+    context = await controller.retrieve(query, user_id='u1')
+
+    target = controller.short_term_memories if layer == 'M1' else controller.long_term_memories
+    assert retrieved_memory_ids(context) == {written.memory_id}
+    assert target[written.memory_id].layer == layer
+    assert target[written.memory_id].access_count == 1
+
+
+@pytest.mark.asyncio
+async def test_complete_old_envelope_can_infer_owner_from_group_without_resetting_age():
+    written, source = enveloped_source()
+    body = json.loads(source.content)
+    for field in [
+        'user_id',
+        'created_at',
+        'ttl',
+        'semantic_state_id',
+        'graphiti_episode_ids',
+        'graphiti_episode_id',
+    ]:
+        body['h_recongraph'].pop(field, None)
+    source.valid_at = utc_now() - timedelta(days=1)
+    source.content = json.dumps(body)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    restored = controller.short_term_memories[written.memory_id]
+    assert retrieved_memory_ids(context) == {written.memory_id}
+    assert restored.user_id == 'u1'
+    assert restored.created_at == source.valid_at
+    assert restored.ttl == controller.policy.m1_ttl
+
+
+@pytest.mark.asyncio
+async def test_old_envelope_without_age_fields_does_not_revive_expired_m1():
+    _, source = enveloped_source()
+    body = json.loads(source.content)
+    body['h_recongraph'].pop('created_at')
+    body['h_recongraph'].pop('ttl')
+    source.valid_at = utc_now() - timedelta(days=30)
+    source.content = json.dumps(body)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert context.semantic_states == []
+    assert context.source_episodes == [source]
+    assert controller.short_term_memories == {}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('wrong_group', ['source', 'edge'])
+async def test_recovery_requires_source_and_supporting_edge_user_group(wrong_group):
+    _, source = enveloped_source()
+    edge = source_edge(['episode-a'])
+    if wrong_group == 'source':
+        source.group_id = 'user:u2'
+    else:
+        edge.group_id = 'user:u2'
+    store = GraphitiMemoryStore(SearchGraphiti([edge], [source]))
+    # Exercise the controller's scope check even if an injected store returns a wrong-group source.
+    store.get_source_episodes = AsyncMock(return_value=[source])
+    controller = HReConGraphMemory(store=store)
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert context.semantic_states == []
+    assert controller.short_term_memories == {}
+
+
+@pytest.mark.asyncio
+async def test_multiple_snapshots_merge_provenance_and_use_latest_content_once():
+    written, older = enveloped_source(episode_id='episode-old')
+    _, newer = enveloped_source(episode_id='episode-new')
+    older.created_at = utc_now() - timedelta(hours=1)
+    newer.created_at = utc_now()
+    body = json.loads(newer.content)
+    body['content'] = 'Newer stored content'
+    newer.content = json.dumps(body)
+    controller = HReConGraphMemory(
+        SearchGraphiti(
+            [
+                source_edge(['episode-new'], uuid='edge-new'),
+                source_edge(['episode-old'], uuid='edge-old'),
+            ],
+            [older, newer],
+        )
+    )
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    restored = controller.short_term_memories[written.memory_id]
+    assert len(context.semantic_states) == 1
+    assert restored.raw_content == 'Newer stored content'
+    assert set(restored.graph_binding.edges) == {'edge-old', 'edge-new'}
+    assert restored.graph_binding.nodes == ['node-a', 'node-b']
+    assert restored.metadata['graphiti_episode_ids'] == ['episode-old', 'episode-new']
+    assert restored.metadata['graphiti_episode_id'] == 'episode-new'
+    assert restored.access_count == 1
+
+
+@pytest.mark.asyncio
+async def test_latest_inactive_snapshot_prevents_older_active_snapshot_resurrection():
+    _, older = enveloped_source(episode_id='episode-old')
+    _, newer = enveloped_source(episode_id='episode-new')
+    older.created_at = utc_now() - timedelta(hours=1)
+    newer.created_at = utc_now()
+    body = json.loads(newer.content)
+    body['h_recongraph']['lifecycle_status'] = 'deleted'
+    newer.content = json.dumps(body)
+    controller = HReConGraphMemory(
+        SearchGraphiti([source_edge(['episode-old', 'episode-new'])], [older, newer])
+    )
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert context.semantic_states == []
+    assert controller.short_term_memories == {}
+    assert context.source_episodes == [older, newer]
+
+
+@pytest.mark.asyncio
+async def test_colliding_memory_or_state_id_cannot_overwrite_other_users_cache():
+    written, source = enveloped_source()
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+    cached = add_local_memory(controller, written.memory_id, user_id='u2')
+    old_state = controller.semantic_states[cached.semantic_state_id]
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert context.semantic_states == []
+    assert controller.short_term_memories[written.memory_id] is cached
+    assert controller.semantic_states[cached.semantic_state_id] is old_state
+    assert cached.access_count == 0
+
+
+@pytest.mark.asyncio
+async def test_state_id_collision_does_not_replace_an_unrelated_state():
+    _, source = enveloped_source()
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+    unrelated = add_local_memory(controller, 'unrelated', user_id='u2')
+    old_state = controller.semantic_states[unrelated.semantic_state_id]
+    body = json.loads(source.content)
+    body['h_recongraph']['semantic_state']['state_id'] = old_state.state_id
+    source.content = json.dumps(body)
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert context.semantic_states == []
+    assert set(controller.short_term_memories) == {'unrelated'}
+    assert controller.semantic_states[old_state.state_id] is old_state
+
+
+@pytest.mark.asyncio
+async def test_write_restart_read_round_trip_preserves_actual_payload_and_no_read_writes():
+    class EnvelopeGraphiti(SearchGraphiti):
+        def __init__(self):
+            super().__init__([])
+            self.writes = []
+
+        async def add_episode(self, **kwargs):
+            self.writes.append(kwargs)
+            source = source_episode(f'episode-{len(self.writes)}', kwargs['episode_body'])
+            self.episodes.append(source)
+            edge = source_edge([source.uuid])
+            self.edges = [edge]
+            return AddEpisodeResults(
+                episode=source,
+                episodic_edges=[],
+                nodes=[],
+                edges=[edge],
+                communities=[],
+                community_edges=[],
+            )
+
+    client = EnvelopeGraphiti()
+    writer = HReConGraphMemory(client, policy=MemoryPolicy(consolidation_threshold=2))
+    written = await writer.add_interaction(
+        'remember this current project uses Redis because compatibility matters',
+        user_id='u1',
+        session_id='old-session',
+    )
+    await writer.store.add_memory(written)
+    assert written.metadata['graphiti_episode_ids'] == ['episode-1', 'episode-2']
+    reader = HReConGraphMemory(client)
+
+    context = await reader.retrieve('current Redis', user_id='u1', session_id='new-session')
+
+    restored = reader.short_term_memories[written.memory_id]
+    assert context.semantic_states[0].model_dump(mode='json') == written.semantic_state
+    assert restored.raw_content == written.raw_content
+    assert restored.ttl == written.ttl
+    assert restored.created_at == written.created_at
+    assert restored.session_id == 'old-session'
+    assert restored.metadata['graphiti_episode_ids'] == ['episode-1', 'episode-2']
+    assert restored.metadata['graphiti_episode_id'] == 'episode-2'
+    assert restored.graph_binding.edges == ['edge-a']
+    assert restored.access_count == 1
+    assert len(client.writes) == 2
+    assert client.episode_reads == [['episode-2']]
+
+
+@pytest.mark.asyncio
+async def test_legacy_naive_timestamp_uses_existing_graphiti_utc_convention():
+    _, source = enveloped_source()
+    body = json.loads(source.content)
+    body['h_recongraph']['created_at'] = utc_now().replace(tzinfo=None).isoformat()
+    body['h_recongraph']['ttl'] = 'P1D'
+    source.content = json.dumps(body)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge(['episode-a'])], [source]))
+
+    context = await controller.retrieve('current Redis', user_id='u1')
+
+    assert len(context.semantic_states) == 1
+    restored = next(iter(controller.short_term_memories.values()))
+    assert restored.created_at.tzinfo is not None
+    assert not restored.is_expired()
+
+
+@pytest.mark.asyncio
+async def test_failed_source_read_does_not_count_m0_as_a_completed_retrieval():
+    client = SearchGraphiti([source_edge(['episode-a'])])
+    controller = HReConGraphMemory(client)
+    instant = controller.buffer.add('Redis', user_id='u1')
+    controller.store.get_source_episodes = AsyncMock(side_effect=RuntimeError('read failed'))
+
+    with pytest.raises(RuntimeError, match='read failed'):
+        await controller.retrieve('current Redis', user_id='u1')
+
+    assert instant.access_count == 0
+```
+
 ## 验证结果
 
 第三批累计 98 passed。改动文件通过 Ruff check、format --check 和 git diff --check。
+
+来源恢复读取已命中 envelope 的版本与时间，重建语义状态及图绑定；访问计数更新到最终返回的本地对象。episode 历史随后续写入进入 envelope，当前写入返回的新 ID 追加到内存历史列表。
+
+### 1. 8. 验证命令与结果 / 8.2 最终执行命令
+
+```powershell
+$env:PYTHONDONTWRITEBYTECODE = '1'
+& 'C:\Users\AIR\Desktop\01_Folders\graphiti-main\graphiti-main\.venv\Scripts\python.exe' -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py -q -p no:cacheprovider
+
+& 'C:\Users\AIR\Desktop\01_Folders\graphiti-main\graphiti-main\.venv\Scripts\ruff.exe' check --no-cache h_recongraph/memory/manager.py h_recongraph/memory/graphiti_store.py h_recongraph/memory/ranker.py tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py
+
+& 'C:\Users\AIR\Desktop\01_Folders\graphiti-main\graphiti-main\.venv\Scripts\ruff.exe' format --check --no-cache h_recongraph/memory/manager.py h_recongraph/memory/graphiti_store.py h_recongraph/memory/ranker.py tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py
+
+git diff --check
+```

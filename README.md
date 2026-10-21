@@ -50,7 +50,7 @@
 | 证据束 `w=1` | 6,606.28 | 873 / 896 | 97.43% |
 | 证据束 `w=2` | 6,693.30 | 877 / 896 | 97.88% |
 
-`w=1` 相较历史重复渲染配置平均减少 543.01 Token（7.60%），保留 873 条支持轮次；相较去重全文减少 1.45%。逐题结果与题型统计见[第 13 阶段说明](docs/stages/13-rendering-dependency-ablation.md)。
+`w=1` 相较历史重复渲染配置平均减少 543.01 Token（7.60%），保留 873 条支持轮次；相较去重全文减少 1.45%。机制与汇总结果见[第 13 阶段说明](docs/stages/13-rendering-dependency-ablation.md)，逐题 JSON 和题型统计保存在逐代码审核工作副本。
 
 ## 安装与调用
 
@@ -77,7 +77,7 @@ print(context.context_text)
 
 ## 验证
 
-当前代码快照（13 阶段）指定回归：**149 passed**。
+当前代码快照（13 阶段）指定回归：**149 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
 
 ```powershell
 python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider

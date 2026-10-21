@@ -1,19 +1,25 @@
-# 05 版发布验证
+# 13 阶段发布验证
 
 ## 核心改动
 
-发布时间：2026-10-20。发布副本包含当前逐代码审核版的 H-ReConGraph Python 源码、三份指定测试、原版至 05 版的阶段说明与七份代码补丁。
+复核日期：2026-10-21。公开仓库代码同步至第 13 阶段，包含三层记忆、四维证据绑定、记忆束局部更新、读取装配及配对实验脚本。代码同步提交：`043dcfc`。
 
 ## 代码变更
 
-- 业务与测试代码直接取自 05 版工作副本。
-- 发布配置声明 `graphiti-core==0.29.2`，保留原有 Ruff 规则及模块导入分组。
-- 发布副本测试复用已有 Python 环境，并通过 PYTHONPATH 加载审核副本中的 Graphiti 0.29.2 源码；H-ReConGraph 与测试从发布目录加载。
-- 七份补丁对应第一批三份逐文件差异及第二至第五批的四份批次差异。
+- 业务代码与四份回归测试取自逐代码审核工作副本；连续更新、机制样本和 LongMemEval 评测脚本及配套输入一并发布。
+- 安装依赖声明为 `graphiti-core==0.29.2`；阶段详情位于 `docs/stages/`，01–05 历史补丁位于 `docs/patches/`。
+- 验证直接在发布目录执行，复用原项目 `.venv/Scripts/python.exe`，通过 `PYTHONPATH` 加载 Graphiti 0.29.2 源码。H-ReConGraph 与测试从发布目录加载。
 
 ## 验证结果
 
-- pytest：**107 passed**，1 个已有 Pydantic Config 弃用提示。
-- 四个改动业务文件与三份测试：Ruff check、format --check 通过。
-- 发布文件与源工作副本的 Python 文件逐一 SHA256 对比一致。
-- Git 差异空白检查通过。
+- pytest：**149 passed**，1 个已有 Pydantic Config 弃用提示。
+- 改动范围的 13 个 Python 文件：Ruff check、`ruff format --check` 通过。
+- 同步的业务、评测、测试和样本文件与审核工作副本逐一核对一致。
+- `git diff --check` 通过。
+- 发布文档与本地阶段稿共 32 份完成文风检查，阶段报告统一为“核心改动、代码变更、验证结果”；相对链接目标核对通过。
+
+回归命令：
+
+```powershell
+python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider
+```
