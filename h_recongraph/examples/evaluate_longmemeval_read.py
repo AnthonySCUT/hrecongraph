@@ -5,10 +5,12 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import math
+import os
 from collections import Counter
 from hashlib import sha256
 from pathlib import Path
-from statistics import median
+from statistics import mean, median
 from time import perf_counter
 from typing import Any
 
@@ -33,6 +35,488 @@ from h_recongraph.memory.ranker import MemoryUtilityRanker
 from h_recongraph.memory.relinking import HierarchicalMemoryContext
 from h_recongraph.memory.semantic_state import SemanticStateConstructor
 from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+
+QA_CONFIGS = {
+    'full_source': {'source_mode': 'full_source', 'max_fact_anchors': 2, 'window_size': 0},
+    'top1_w1': {'source_mode': 'evidence_bundle', 'max_fact_anchors': 1, 'window_size': 1},
+    'top2_w1': {'source_mode': 'evidence_bundle', 'max_fact_anchors': 2, 'window_size': 1},
+}
+QA_SYSTEM = """Answer the question using only the supplied memory. Use session dates and the
+question date to resolve temporal references. Respect corrections, negation, uncertainty and
+the time requested by the question. Give the required details concisely, within 100 words.
+If the memory is insufficient, say so explicitly. Output only the final answer."""
+UPDATE_SYSTEM = """Identify whether this knowledge-update question tests a superseded value.
+Use the reference answer and dated original dialogue. Eligible means an earlier value was
+explicitly replaced by a different value effective at the time requested by this question.
+Historical questions, additions without replacement, and unconfirmed alternatives are ineligible.
+Return JSON: {"eligible":bool,"old_value":str,"current_value":str,"reason":str,
+"old_evidence":{"session_index":int,"turn_index":int,"quote":str},
+"current_evidence":{"session_index":int,"turn_index":int,"quote":str}}.
+For eligible cases cite short verbatim quotes from the indexed source turns. Otherwise use
+empty values and null evidence. This annotation is completed before candidate answers exist."""
+QA_JUDGE_SYSTEM = """Evaluate anonymized answers against the question and reference answer.
+Accept semantically equivalent wording. Check all required items, quantities, dates, ordering,
+negation and uncertainty. For multi-session questions require the requested combined facts;
+for temporal-reasoning require the requested time/order; for preference questions require the
+user-specific preference; for knowledge-update respect the value effective at the requested time.
+For unanswerable questions, an explicit appropriate abstention is correct.
+When a verified update is supplied, stale_misuse is true only if an answer presents its old_value
+as effective at the requested time. Mentioning it explicitly as historical is acceptable.
+Other wrong answers are incorrect but are not automatically stale misuse.
+Return JSON: {"scores":[{"id":str,"correct":bool,"stale_misuse":bool,"reason":str}]}.
+Score every supplied id independently. Return only JSON."""
+
+
+def qa_manifest(cases: list[dict], data: Path, model: str, base_url: str) -> dict:
+    """Freeze source, prompts and generation settings before answering."""
+    root = Path(__file__).parents[2]
+    files = [
+        'memory/relinking.py',
+        'memory/semantic_state.py',
+        'memory/ranker.py',
+        'examples/evaluate_longmemeval_read.py',
+    ]
+    return {
+        'experiment_role': 'exploratory paired QA on previously explored oracle questions',
+        'dataset_sha256': sha256(data.read_bytes()).hexdigest(),
+        'question_ids': [case['question_id'] for case in cases],
+        'configurations': QA_CONFIGS,
+        'binding_rule': 'word_form_scope',
+        'fact_granularity': 'paragraph',
+        'slot_mode': 'all',
+        'sentence_locator': True,
+        'related_source_limit': 0,
+        'model': model,
+        'base_url': base_url,
+        'temperature': 0,
+        'max_tokens': {'answer': 512, 'annotation': 1536, 'judge': 2048},
+        'thinking': {'type': 'disabled'},
+        'prompts': {'answer': QA_SYSTEM, 'annotation': UPDATE_SYSTEM, 'judge': QA_JUDGE_SYSTEM},
+        'code_sha256': {
+            name: sha256((root / 'h_recongraph' / name).read_bytes()).hexdigest() for name in files
+        },
+    }
+
+
+async def prepare_qa_contexts(case: dict) -> dict:
+    """Reuse one write state, select frozen Top-1/Top-2 edges and retain source dates."""
+    context = await build_context(
+        case,
+        max_fact_anchors=2,
+        binding_rule='word_form_scope',
+        slot_mode='all',
+        sentence_locator=True,
+    )
+    hit = hit_session_indexes(case['haystack_sessions'], case['question'])
+    dates = '\n'.join(
+        f'[SESSION {episode.uuid} date={case["haystack_dates"][index]}]'
+        for index, episode in zip(hit, context.source_episodes, strict=True)
+    )
+    texts = {
+        'full_source': context.render_text('full_source'),
+        'top2_w1': context.render_text('evidence_bundle', window_size=1),
+    }
+    single = context.model_copy(deep=True)
+    single.graph_edges = []
+    for session_index, episode in zip(hit, single.source_episodes, strict=True):
+        wanted = fact_turn_indexes(case['haystack_sessions'][session_index], case['question'])
+        edges = [edge for edge in context.graph_edges if episode.uuid in edge.episodes]
+        single.graph_edges.extend(
+            edge
+            for index, edge in zip(context.source_fact_indices[episode.uuid], edges, strict=True)
+            if index in wanted
+        )
+        single.source_fact_indices[episode.uuid] = wanted
+    texts['top1_w1'] = single.render_text('evidence_bundle', window_size=1)
+    return {
+        name: {
+            'text': dates + '\n' + texts[name],
+            'sha256': sha256((dates + '\n' + texts[name]).encode()).hexdigest(),
+            'estimated_tokens': estimate_tokens(texts[name]),
+            'hit_session_indices': hit,
+        }
+        for name in QA_CONFIGS
+    }
+
+
+def update_annotation(case: dict, raw: dict) -> dict:
+    """Verify the old/new source citations used by the stale-answer metric."""
+    if not raw['eligible']:
+        return {**raw, 'evidence_verified': True}
+    verified = raw['old_value'] != raw['current_value'] and all(
+        item['quote']
+        and item['quote']
+        in case['haystack_sessions'][item['session_index']][item['turn_index']]['content']
+        for item in (raw['old_evidence'], raw['current_evidence'])
+    )
+    return {**raw, 'eligible': True if verified else None, 'evidence_verified': verified}
+
+
+def qa_judge_payload(case: dict, answers: dict, annotation: dict) -> tuple[dict, dict]:
+    """Rotate opaque answer ids and keep configuration names outside the judge prompt."""
+    names = list(QA_CONFIGS)
+    shift = int(sha256(case['question_id'].encode()).hexdigest(), 16) % len(names)
+    names = names[shift:] + names[:shift]
+    mapping = {f'answer_{index}': name for index, name in enumerate(names)}
+    return {
+        'question': case['question'],
+        'question_date': case.get('question_date', ''),
+        'question_type': case['question_type'],
+        'reference_answer': case['answer'],
+        'verified_update': annotation if annotation.get('eligible') is True else None,
+        'answers': [{'id': key, 'answer': answers[name]['text']} for key, name in mapping.items()],
+    }, mapping
+
+
+def wilson_interval(successes: int, total: int) -> list[float] | None:
+    if not total:
+        return None
+    z, proportion = 1.96, successes / total
+    center = proportion + z * z / (2 * total)
+    radius = z * math.sqrt(proportion * (1 - proportion) / total + z * z / (4 * total * total))
+    return [(center - radius) / (1 + z * z / total), (center + radius) / (1 + z * z / total)]
+
+
+def summarize_qa(rows: list[dict], calls: list[dict], case_count: int) -> dict:
+    """Report answer quality, actual provider usage and paired correctness differences."""
+    summary = {}
+    for name in QA_CONFIGS:
+        selected = [row for row in rows if row['configuration'] == name]
+        judged = [row for row in selected if row.get('correct') is not None]
+        eligible = [row for row in judged if row.get('stale_eligible') is True]
+        answers = [
+            call
+            for call in calls
+            if call['phase'] == 'answer' and call['configuration'] == name and 'error' not in call
+        ]
+        usage = [call['usage'] for call in answers if call['usage'] is not None]
+        correct = sum(row['correct'] for row in judged)
+        summary[name] = {
+            'expected_cases': case_count,
+            'answered_cases': len(answers),
+            'judged_cases': len(judged),
+            'correct': correct,
+            'accuracy': correct / len(judged) if judged else None,
+            'accuracy_wilson95': wilson_interval(correct, len(judged)),
+            'stale_eligible_cases': len(eligible),
+            'stale_misuse_count': sum(row['stale_misuse'] for row in eligible),
+            'stale_misuse_rate': mean(row['stale_misuse'] for row in eligible)
+            if eligible
+            else None,
+            'usage_observed_calls': len(usage),
+            'mean_input_tokens': mean(item['prompt_tokens'] for item in usage) if usage else None,
+            'mean_output_tokens': mean(item['completion_tokens'] for item in usage)
+            if usage
+            else None,
+            'mean_total_tokens': mean(item['total_tokens'] for item in usage) if usage else None,
+            'median_answer_seconds': median(call['seconds'] for call in answers)
+            if answers
+            else None,
+        }
+    paired = {}
+    base = {
+        row['question_id']: row
+        for row in rows
+        if row['configuration'] == 'full_source' and row.get('correct') is not None
+    }
+    for name in ('top1_w1', 'top2_w1'):
+        comparable = [
+            row
+            for row in rows
+            if row['configuration'] == name
+            and row.get('correct') is not None
+            and row['question_id'] in base
+        ]
+        differences = [
+            int(row['correct']) - int(base[row['question_id']]['correct']) for row in comparable
+        ]
+        delta = mean(differences) if differences else None
+        se = (
+            math.sqrt(
+                sum((value - delta) ** 2 for value in differences)
+                / (len(differences) * (len(differences) - 1))
+            )
+            if len(differences) > 1
+            else 0
+        )
+        paired[name] = {
+            'valid_pairs': len(differences),
+            'accuracy_delta': delta,
+            'gained_correct': sum(value == 1 for value in differences),
+            'lost_correct': sum(value == -1 for value in differences),
+            'paired_normal95': [max(-1, delta - 1.96 * se), min(1, delta + 1.96 * se)]
+            if delta is not None
+            else None,
+        }
+    costs = {}
+    for phase in ('answer', 'annotation', 'judge'):
+        selected = [call for call in calls if call['phase'] == phase]
+        usage = [call['usage'] for call in selected if call.get('usage') is not None]
+        costs[phase] = {
+            'calls': len(selected),
+            'failed_calls': sum('error' in call for call in selected),
+            'usage_observed_calls': len(usage),
+            **{
+                key: sum(item[key] for item in usage)
+                for key in ('prompt_tokens', 'completion_tokens', 'total_tokens')
+            },
+        }
+    return {'configurations': summary, 'paired_vs_full_source': paired, 'phase_costs': costs}
+
+
+async def run_qa(cases: list[dict], args: argparse.Namespace) -> dict:
+    """Checkpoint frozen contexts, source annotations, answers and blinded batch judgements."""
+    import httpx
+    from openai import APIError, AsyncOpenAI
+
+    folder = args.qa_dir
+    folder.mkdir(parents=True, exist_ok=True)
+    manifest_path = folder / 'manifest.json'
+    manifest = qa_manifest(cases, args.data, args.model, args.base_url)
+    execution = manifest
+    if manifest_path.exists():
+        frozen = json.loads(manifest_path.read_text(encoding='utf-8'))
+        fixed_keys = frozen.keys() - {'base_url', 'code_sha256'}
+        assert all(manifest[key] == frozen[key] for key in fixed_keys)
+        assert all(
+            manifest['code_sha256'][name] == digest
+            for name, digest in frozen['code_sha256'].items()
+            if name != 'examples/evaluate_longmemeval_read.py'
+        )
+        manifest = frozen
+    else:
+        manifest_path.write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8'
+        )
+
+    def read_lines(path):
+        return (
+            [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines()]
+            if path.exists()
+            else []
+        )
+
+    def append(path, item):
+        with path.open('a', encoding='utf-8') as stream:
+            stream.write(json.dumps(item, ensure_ascii=False) + '\n')
+
+    contexts_path, calls_path = folder / 'contexts.jsonl', folder / 'calls.jsonl'
+    contexts = {row['question_id']: row['contexts'] for row in read_lines(contexts_path)}
+    for index, case in enumerate(cases):
+        if case['question_id'] not in contexts:
+            contexts[case['question_id']] = await prepare_qa_contexts(case)
+            append(
+                contexts_path,
+                {'question_id': case['question_id'], 'contexts': contexts[case['question_id']]},
+            )
+        if (index + 1) % 25 == 0:
+            print(f'Prepared {index + 1}/{len(cases)} questions', flush=True)
+    if args.qa_prepare_only:
+        return {'prepared_cases': len(contexts), 'status': 'prepared'}
+    calls = read_lines(calls_path)
+    cache = {
+        (row['question_id'], row['phase'], row['configuration']): row
+        for row in calls
+        if 'error' not in row
+    }
+    segments_path = folder / 'execution_segments.jsonl'
+    append(
+        segments_path,
+        {
+            'started_at': utc_now().isoformat(),
+            'base_url': args.base_url,
+            'model': args.model,
+            'concurrency': args.concurrency,
+            'reused_successful_calls': len(cache),
+            'execution_code_sha256': execution['code_sha256'],
+        },
+    )
+    semaphore = asyncio.Semaphore(args.concurrency)
+    client = AsyncOpenAI(
+        api_key=os.environ[args.api_key_env],
+        base_url=args.base_url,
+        timeout=1200,
+        max_retries=2,
+        http_client=httpx.AsyncClient(
+            trust_env=False,
+            timeout=httpx.Timeout(1200, connect=15),
+            limits=httpx.Limits(
+                max_connections=args.concurrency, max_keepalive_connections=args.concurrency
+            ),
+        ),
+    )
+
+    async def call(case, phase, configuration, system, payload):
+        key = (case['question_id'], phase, configuration)
+        if key in cache:
+            return cache[key]
+        async with semaphore:
+            started = perf_counter()
+            row = {
+                'question_id': case['question_id'],
+                'phase': phase,
+                'configuration': configuration,
+                'base_url': args.base_url,
+                'requested_model': args.model,
+            }
+            try:
+                response = await client.chat.completions.create(
+                    model=args.model,
+                    temperature=0,
+                    max_tokens=manifest['max_tokens'][phase],
+                    messages=[
+                        {'role': 'system', 'content': system},
+                        {'role': 'user', 'content': json.dumps(payload, ensure_ascii=False)},
+                    ],
+                    extra_body={'thinking': {'type': 'disabled'}},
+                    **({'response_format': {'type': 'json_object'}} if phase != 'answer' else {}),
+                )
+                text = response.choices[0].message.content or ''
+                row.update(
+                    text=text,
+                    seconds=perf_counter() - started,
+                    usage=response.usage.model_dump() if response.usage else None,
+                    response_id=response.id,
+                    response_model=response.model,
+                    finish_reason=response.choices[0].finish_reason,
+                )
+                if not text.strip() or row['finish_reason'] == 'length':
+                    row['error'] = 'empty_or_truncated_response'
+            except APIError as exc:
+                row.update(
+                    error=type(exc).__name__,
+                    status_code=getattr(exc, 'status_code', None),
+                    seconds=perf_counter() - started,
+                )
+            append(calls_path, row)
+            calls.append(row)
+            if 'error' not in row:
+                cache[key] = row
+            return row
+
+    async def annotate(case):
+        if case['question_type'] != 'knowledge-update':
+            return {'eligible': False, 'reason': 'other_question_type'}
+        payload = {key: case[key] for key in ('question', 'question_date', 'answer')}
+        payload['sessions'] = [
+            {
+                'session_index': index,
+                'date': case['haystack_dates'][index],
+                'turns': [
+                    {'turn_index': turn, 'role': message['role'], 'content': message['content']}
+                    for turn, message in enumerate(session)
+                ],
+            }
+            for index, session in enumerate(case['haystack_sessions'])
+        ]
+        row = await call(case, 'annotation', 'shared', UPDATE_SYSTEM, payload)
+        if 'error' in row:
+            return {'eligible': None, 'error': row['error']}
+        try:
+            return update_annotation(case, json.loads(row['text']))
+        except (ValueError, KeyError, TypeError, IndexError):
+            return {'eligible': None, 'error': 'invalid_update_annotation'}
+
+    try:
+        annotations = dict(
+            zip(
+                (case['question_id'] for case in cases),
+                await asyncio.gather(*(annotate(case) for case in cases)),
+                strict=True,
+            )
+        )
+        (folder / 'update_annotations.json').write_text(
+            json.dumps(annotations, ensure_ascii=False, indent=2), encoding='utf-8'
+        )
+        rows = []
+
+        async def evaluate(case):
+            qid = case['question_id']
+            answers = dict(
+                zip(
+                    QA_CONFIGS,
+                    await asyncio.gather(
+                        *(
+                            call(
+                                case,
+                                'answer',
+                                name,
+                                QA_SYSTEM,
+                                {
+                                    'question': case['question'],
+                                    'question_date': case.get('question_date', ''),
+                                    'memory': contexts[qid][name]['text'],
+                                },
+                            )
+                            for name in QA_CONFIGS
+                        )
+                    ),
+                    strict=True,
+                )
+            )
+            annotation = annotations[qid]
+            scores = {}
+            judge_error = None
+            if all('error' not in answer for answer in answers.values()):
+                payload, mapping = qa_judge_payload(case, answers, annotation)
+                judged = await call(case, 'judge', 'shared', QA_JUDGE_SYSTEM, payload)
+                if 'error' not in judged:
+                    try:
+                        scores = {
+                            mapping[item['id']]: item
+                            for item in json.loads(judged['text'])['scores']
+                        }
+                    except (ValueError, KeyError, TypeError):
+                        judge_error = 'invalid_judge_json'
+            for name in QA_CONFIGS:
+                score = scores.get(name, {})
+                rows.append(
+                    {
+                        'question_id': qid,
+                        'question_type': case['question_type'],
+                        'configuration': name,
+                        'answer': answers[name].get('text', ''),
+                        'correct': score.get('correct'),
+                        'reason': score.get('reason', ''),
+                        'stale_eligible': annotation['eligible'],
+                        'stale_misuse': score.get('stale_misuse')
+                        if annotation['eligible'] is True
+                        else None,
+                        'context_sha256': contexts[qid][name]['sha256'],
+                        'answer_error': answers[name].get('error'),
+                        'judge_error': judge_error,
+                    }
+                )
+            if len(rows) % 30 == 0:
+                print(f'Answered/scored {len(rows) // 3}/{len(cases)} questions', flush=True)
+
+        await asyncio.gather(*(evaluate(case) for case in cases))
+    finally:
+        await client.close()
+    rows.sort(key=lambda row: (row['question_id'], row['configuration']))
+    result = {
+        'protocol': manifest,
+        'summary': summarize_qa(rows, calls, len(cases)),
+        'annotation_counts': dict(Counter(str(item['eligible']) for item in annotations.values())),
+        'by_question_type': {
+            kind: summarize_qa(
+                [row for row in rows if row['question_type'] == kind],
+                [
+                    call
+                    for call in calls
+                    if call['question_id']
+                    in {case['question_id'] for case in cases if case['question_type'] == kind}
+                ],
+                sum(case['question_type'] == kind for case in cases),
+            )
+            for kind in sorted({case['question_type'] for case in cases})
+        },
+        'rows': rows,
+    }
+    (folder / 'results.json').write_text(
+        json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8'
+    )
+    return result
 
 
 def load_cases(path: str | Path, *, offset: int = 0, limit: int | None = None) -> list[dict]:
@@ -707,9 +1191,19 @@ async def main() -> None:
         '--fact-granularity', choices=('paragraph', 'sentence'), default='paragraph'
     )
     parser.add_argument('--sentence-locator', action='store_true')
-    parser.add_argument('--output-json', type=Path, required=True)
+    parser.add_argument('--output-json', type=Path)
+    parser.add_argument('--qa-dir', type=Path)
+    parser.add_argument('--qa-prepare-only', action='store_true')
+    parser.add_argument('--model', default='glm-5.1')
+    parser.add_argument('--base-url', default='http://118.89.124.131:3001/v1')
+    parser.add_argument('--api-key-env', default='HRECONGRAPH_QA_API_KEY')
+    parser.add_argument('--concurrency', type=int, default=100)
     args = parser.parse_args()
     cases = load_cases(args.data, offset=args.offset, limit=args.limit)
+    if args.qa_dir:
+        result = await run_qa(cases, args)
+        print(json.dumps(result.get('summary', result), ensure_ascii=False, indent=2))
+        return
     result = (
         await evaluate_anchor_calibration(cases, repeats=args.repeats, slot_mode=args.slot_mode)
         if args.anchor_calibration

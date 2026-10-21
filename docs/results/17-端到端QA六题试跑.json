@@ -1,0 +1,1063 @@
+{
+  "protocol": {
+    "experiment_role": "exploratory paired QA on previously explored oracle questions",
+    "dataset_sha256": "821a2034d219ab45846873dd14c14f12cfe7776e73527a483f9dac095d38620c",
+    "question_ids": [
+      "6a1eabeb",
+      "0a995998",
+      "7161e7e2",
+      "8a2466db",
+      "e47becba",
+      "gpt4_2655b836"
+    ],
+    "configurations": {
+      "full_source": {
+        "source_mode": "full_source",
+        "max_fact_anchors": 2,
+        "window_size": 0
+      },
+      "top1_w1": {
+        "source_mode": "evidence_bundle",
+        "max_fact_anchors": 1,
+        "window_size": 1
+      },
+      "top2_w1": {
+        "source_mode": "evidence_bundle",
+        "max_fact_anchors": 2,
+        "window_size": 1
+      }
+    },
+    "binding_rule": "word_form_scope",
+    "fact_granularity": "paragraph",
+    "slot_mode": "all",
+    "sentence_locator": true,
+    "related_source_limit": 0,
+    "model": "glm-5.1",
+    "base_url": "http://118.89.124.131:3001/v1",
+    "temperature": 0,
+    "max_tokens": {
+      "answer": 512,
+      "annotation": 1536,
+      "judge": 2048
+    },
+    "thinking": {
+      "type": "disabled"
+    },
+    "prompts": {
+      "answer": "Answer the question using only the supplied memory. Use session dates and the\nquestion date to resolve temporal references. Respect corrections, negation, uncertainty and\nthe time requested by the question. Give the required details concisely, within 100 words.\nIf the memory is insufficient, say so explicitly. Output only the final answer.",
+      "annotation": "Identify whether this knowledge-update question tests a superseded value.\nUse the reference answer and dated original dialogue. Eligible means an earlier value was\nexplicitly replaced by a different value effective at the time requested by this question.\nHistorical questions, additions without replacement, and unconfirmed alternatives are ineligible.\nReturn JSON: {\"eligible\":bool,\"old_value\":str,\"current_value\":str,\"reason\":str,\n\"old_evidence\":{\"session_index\":int,\"turn_index\":int,\"quote\":str},\n\"current_evidence\":{\"session_index\":int,\"turn_index\":int,\"quote\":str}}.\nFor eligible cases cite short verbatim quotes from the indexed source turns. Otherwise use\nempty values and null evidence. This annotation is completed before candidate answers exist.",
+      "judge": "Evaluate anonymized answers against the question and reference answer.\nAccept semantically equivalent wording. Check all required items, quantities, dates, ordering,\nnegation and uncertainty. For multi-session questions require the requested combined facts;\nfor temporal-reasoning require the requested time/order; for preference questions require the\nuser-specific preference; for knowledge-update respect the value effective at the requested time.\nFor unanswerable questions, an explicit appropriate abstention is correct.\nWhen a verified update is supplied, stale_misuse is true only if an answer presents its old_value\nas effective at the requested time. Mentioning it explicitly as historical is acceptable.\nOther wrong answers are incorrect but are not automatically stale misuse.\nReturn JSON: {\"scores\":[{\"id\":str,\"correct\":bool,\"stale_misuse\":bool,\"reason\":str}]}.\nScore every supplied id independently. Return only JSON."
+    },
+    "code_sha256": {
+      "memory/relinking.py": "da22a54616d938cd2e742039081e6a18fed9a969a365dd5dad634473a29a137a",
+      "memory/semantic_state.py": "78d6472469c2f55b4aec4b487e875c80580eb423c9788fa1c0809a9381978bd1",
+      "memory/ranker.py": "e364b329f362ad7fbed62c8ca2893b669b9181503b89bd71d0b056cfb776514f",
+      "examples/evaluate_longmemeval_read.py": "577ec1efd6d5637977f1af4601ee588ee8076b465ed7045f4a621e76955f1706"
+    }
+  },
+  "summary": {
+    "configurations": {
+      "full_source": {
+        "expected_cases": 6,
+        "answered_cases": 6,
+        "judged_cases": 6,
+        "correct": 5,
+        "accuracy": 0.8333333333333334,
+        "accuracy_wilson95": [
+          0.4364905634363539,
+          0.9699474141282696
+        ],
+        "stale_eligible_cases": 1,
+        "stale_misuse_count": 0,
+        "stale_misuse_rate": 0,
+        "usage_observed_calls": 6,
+        "mean_input_tokens": 6650.833333333333,
+        "mean_output_tokens": 45.833333333333336,
+        "mean_total_tokens": 6696.666666666667,
+        "median_answer_seconds": 2.0423517000017455
+      },
+      "top1_w1": {
+        "expected_cases": 6,
+        "answered_cases": 6,
+        "judged_cases": 6,
+        "correct": 5,
+        "accuracy": 0.8333333333333334,
+        "accuracy_wilson95": [
+          0.4364905634363539,
+          0.9699474141282696
+        ],
+        "stale_eligible_cases": 1,
+        "stale_misuse_count": 0,
+        "stale_misuse_rate": 0,
+        "usage_observed_calls": 6,
+        "mean_input_tokens": 6093.5,
+        "mean_output_tokens": 53.333333333333336,
+        "mean_total_tokens": 6146.833333333333,
+        "median_answer_seconds": 2.0535245000064606
+      },
+      "top2_w1": {
+        "expected_cases": 6,
+        "answered_cases": 6,
+        "judged_cases": 6,
+        "correct": 6,
+        "accuracy": 1.0,
+        "accuracy_wilson95": [
+          0.6096569663469354,
+          1.0
+        ],
+        "stale_eligible_cases": 1,
+        "stale_misuse_count": 0,
+        "stale_misuse_rate": 0,
+        "usage_observed_calls": 6,
+        "mean_input_tokens": 6139.833333333333,
+        "mean_output_tokens": 43.666666666666664,
+        "mean_total_tokens": 6183.5,
+        "median_answer_seconds": 2.585595500000636
+      }
+    },
+    "paired_vs_full_source": {
+      "top1_w1": {
+        "valid_pairs": 6,
+        "accuracy_delta": 0,
+        "gained_correct": 1,
+        "lost_correct": 1,
+        "paired_normal95": [
+          -0.5060698239044358,
+          0.5060698239044358
+        ]
+      },
+      "top2_w1": {
+        "valid_pairs": 6,
+        "accuracy_delta": 0.16666666666666666,
+        "gained_correct": 1,
+        "lost_correct": 0,
+        "paired_normal95": [
+          -0.16000000000000006,
+          0.4933333333333334
+        ]
+      }
+    },
+    "phase_costs": {
+      "answer": {
+        "calls": 18,
+        "failed_calls": 0,
+        "usage_observed_calls": 18,
+        "prompt_tokens": 113305,
+        "completion_tokens": 857,
+        "total_tokens": 114162
+      },
+      "annotation": {
+        "calls": 1,
+        "failed_calls": 0,
+        "usage_observed_calls": 1,
+        "prompt_tokens": 8405,
+        "completion_tokens": 129,
+        "total_tokens": 8534
+      },
+      "judge": {
+        "calls": 6,
+        "failed_calls": 0,
+        "usage_observed_calls": 6,
+        "prompt_tokens": 3784,
+        "completion_tokens": 865,
+        "total_tokens": 4649
+      }
+    }
+  },
+  "annotation_counts": {
+    "True": 1,
+    "False": 5
+  },
+  "by_question_type": {
+    "knowledge-update": {
+      "configurations": {
+        "full_source": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 1,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": 0,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 8273,
+          "mean_output_tokens": 11,
+          "mean_total_tokens": 8284,
+          "median_answer_seconds": 1.6969252999988385
+        },
+        "top1_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 0,
+          "accuracy": 0.0,
+          "accuracy_wilson95": [
+            0.0,
+            0.7934567085261071
+          ],
+          "stale_eligible_cases": 1,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": 0,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 8260,
+          "mean_output_tokens": 71,
+          "mean_total_tokens": 8331,
+          "median_answer_seconds": 2.3296723999956157
+        },
+        "top2_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 1,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": 0,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 8273,
+          "mean_output_tokens": 15,
+          "mean_total_tokens": 8288,
+          "median_answer_seconds": 1.4231573999859393
+        }
+      },
+      "paired_vs_full_source": {
+        "top1_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": -1,
+          "gained_correct": 0,
+          "lost_correct": 1,
+          "paired_normal95": [
+            -1,
+            -1.0
+          ]
+        },
+        "top2_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "phase_costs": {
+        "answer": {
+          "calls": 3,
+          "failed_calls": 0,
+          "usage_observed_calls": 3,
+          "prompt_tokens": 24806,
+          "completion_tokens": 97,
+          "total_tokens": 24903
+        },
+        "annotation": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 8405,
+          "completion_tokens": 129,
+          "total_tokens": 8534
+        },
+        "judge": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 698,
+          "completion_tokens": 147,
+          "total_tokens": 845
+        }
+      }
+    },
+    "multi-session": {
+      "configurations": {
+        "full_source": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 0,
+          "accuracy": 0.0,
+          "accuracy_wilson95": [
+            0.0,
+            0.7934567085261071
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 9071,
+          "mean_output_tokens": 59,
+          "mean_total_tokens": 9130,
+          "median_answer_seconds": 1.6842623999982607
+        },
+        "top1_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 9071,
+          "mean_output_tokens": 57,
+          "mean_total_tokens": 9128,
+          "median_answer_seconds": 1.8122123000212014
+        },
+        "top2_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 9071,
+          "mean_output_tokens": 55,
+          "mean_total_tokens": 9126,
+          "median_answer_seconds": 2.5373444999859203
+        }
+      },
+      "paired_vs_full_source": {
+        "top1_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 1,
+          "gained_correct": 1,
+          "lost_correct": 0,
+          "paired_normal95": [
+            1.0,
+            1
+          ]
+        },
+        "top2_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 1,
+          "gained_correct": 1,
+          "lost_correct": 0,
+          "paired_normal95": [
+            1.0,
+            1
+          ]
+        }
+      },
+      "phase_costs": {
+        "answer": {
+          "calls": 3,
+          "failed_calls": 0,
+          "usage_observed_calls": 3,
+          "prompt_tokens": 27213,
+          "completion_tokens": 171,
+          "total_tokens": 27384
+        },
+        "annotation": {
+          "calls": 0,
+          "failed_calls": 0,
+          "usage_observed_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "judge": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 620,
+          "completion_tokens": 138,
+          "total_tokens": 758
+        }
+      }
+    },
+    "single-session-assistant": {
+      "configurations": {
+        "full_source": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 2608,
+          "mean_output_tokens": 39,
+          "mean_total_tokens": 2647,
+          "median_answer_seconds": 1.7872853000008035
+        },
+        "top1_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 1754,
+          "mean_output_tokens": 24,
+          "mean_total_tokens": 1778,
+          "median_answer_seconds": 1.1342857999843545
+        },
+        "top2_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 2032,
+          "mean_output_tokens": 18,
+          "mean_total_tokens": 2050,
+          "median_answer_seconds": 2.633846500015352
+        }
+      },
+      "paired_vs_full_source": {
+        "top1_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        },
+        "top2_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "phase_costs": {
+        "answer": {
+          "calls": 3,
+          "failed_calls": 0,
+          "usage_observed_calls": 3,
+          "prompt_tokens": 6394,
+          "completion_tokens": 81,
+          "total_tokens": 6475
+        },
+        "annotation": {
+          "calls": 0,
+          "failed_calls": 0,
+          "usage_observed_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "judge": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 564,
+          "completion_tokens": 135,
+          "total_tokens": 699
+        }
+      }
+    },
+    "single-session-preference": {
+      "configurations": {
+        "full_source": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 5992,
+          "mean_output_tokens": 117,
+          "mean_total_tokens": 6109,
+          "median_answer_seconds": 2.2974181000026874
+        },
+        "top1_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 5249,
+          "mean_output_tokens": 117,
+          "mean_total_tokens": 5366,
+          "median_answer_seconds": 3.099221699987538
+        },
+        "top2_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 5236,
+          "mean_output_tokens": 122,
+          "mean_total_tokens": 5358,
+          "median_answer_seconds": 2.8902822000090964
+        }
+      },
+      "paired_vs_full_source": {
+        "top1_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        },
+        "top2_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "phase_costs": {
+        "answer": {
+          "calls": 3,
+          "failed_calls": 0,
+          "usage_observed_calls": 3,
+          "prompt_tokens": 16477,
+          "completion_tokens": 356,
+          "total_tokens": 16833
+        },
+        "annotation": {
+          "calls": 0,
+          "failed_calls": 0,
+          "usage_observed_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "judge": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 868,
+          "completion_tokens": 215,
+          "total_tokens": 1083
+        }
+      }
+    },
+    "single-session-user": {
+      "configurations": {
+        "full_source": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 4239,
+          "mean_output_tokens": 11,
+          "mean_total_tokens": 4250,
+          "median_answer_seconds": 2.892329399997834
+        },
+        "top1_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 2505,
+          "mean_output_tokens": 10,
+          "mean_total_tokens": 2515,
+          "median_answer_seconds": 2.29483669999172
+        },
+        "top2_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 2505,
+          "mean_output_tokens": 10,
+          "mean_total_tokens": 2515,
+          "median_answer_seconds": 1.2757483999885153
+        }
+      },
+      "paired_vs_full_source": {
+        "top1_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        },
+        "top2_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "phase_costs": {
+        "answer": {
+          "calls": 3,
+          "failed_calls": 0,
+          "usage_observed_calls": 3,
+          "prompt_tokens": 9249,
+          "completion_tokens": 31,
+          "total_tokens": 9280
+        },
+        "annotation": {
+          "calls": 0,
+          "failed_calls": 0,
+          "usage_observed_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "judge": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 472,
+          "completion_tokens": 94,
+          "total_tokens": 566
+        }
+      }
+    },
+    "temporal-reasoning": {
+      "configurations": {
+        "full_source": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 9722,
+          "mean_output_tokens": 38,
+          "mean_total_tokens": 9760,
+          "median_answer_seconds": 2.3024470999953337
+        },
+        "top1_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 9722,
+          "mean_output_tokens": 41,
+          "mean_total_tokens": 9763,
+          "median_answer_seconds": 1.655573900003219
+        },
+        "top2_w1": {
+          "expected_cases": 1,
+          "answered_cases": 1,
+          "judged_cases": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "accuracy_wilson95": [
+            0.20654329147389294,
+            1.0
+          ],
+          "stale_eligible_cases": 0,
+          "stale_misuse_count": 0,
+          "stale_misuse_rate": null,
+          "usage_observed_calls": 1,
+          "mean_input_tokens": 9722,
+          "mean_output_tokens": 42,
+          "mean_total_tokens": 9764,
+          "median_answer_seconds": 2.945737999980338
+        }
+      },
+      "paired_vs_full_source": {
+        "top1_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        },
+        "top2_w1": {
+          "valid_pairs": 1,
+          "accuracy_delta": 0,
+          "gained_correct": 0,
+          "lost_correct": 0,
+          "paired_normal95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "phase_costs": {
+        "answer": {
+          "calls": 3,
+          "failed_calls": 0,
+          "usage_observed_calls": 3,
+          "prompt_tokens": 29166,
+          "completion_tokens": 121,
+          "total_tokens": 29287
+        },
+        "annotation": {
+          "calls": 0,
+          "failed_calls": 0,
+          "usage_observed_calls": 0,
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "judge": {
+          "calls": 1,
+          "failed_calls": 0,
+          "usage_observed_calls": 1,
+          "prompt_tokens": 562,
+          "completion_tokens": 136,
+          "total_tokens": 698
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "configuration": "full_source",
+      "answer": "You need to handle **2 clothing items**:\n\n1. Pick up the **navy blue blazer** from the dry cleaner.\n2. Pick up the **larger pair of Zara boots**, while returning the original too-small pair.\n\nThe exchanged boots count as one pickup/return task.",
+      "correct": false,
+      "reason": "States 2 items (treating the boot exchange as one task), but the reference answer is 3.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "cfd417ac6158180f243f777f0554e238aa463ba4f0496274050f7bafddcc0c8e",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "configuration": "top1_w1",
+      "answer": "You need to pick up or return **3 items of clothing**:\n\n1. Navy blue blazer — pick up from the dry cleaner  \n2. New, larger Zara boots — pick up after the February 5 exchange  \n3. Old, smaller Zara boots — return to the store",
+      "correct": true,
+      "reason": "Correctly identifies 3 items: blazer pickup, new boots pickup, and old boots return.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "cfd417ac6158180f243f777f0554e238aa463ba4f0496274050f7bafddcc0c8e",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "configuration": "top2_w1",
+      "answer": "You have **2 items** to handle: **pick up the larger Zara boots** and **return the old pair**. You also mentioned picking up your **navy blue blazer**, so if that is a separate store pickup, the total is **3 clothing items**.",
+      "correct": true,
+      "reason": "Eventually arrives at the correct total of 3 clothing items, counting blazer pickup, new boots pickup, and old boots return.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "cfd417ac6158180f243f777f0554e238aa463ba4f0496274050f7bafddcc0c8e",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "6a1eabeb",
+      "question_type": "knowledge-update",
+      "configuration": "full_source",
+      "answer": "Your personal best time was **25:50**.",
+      "correct": true,
+      "reason": "The answer correctly states 25:50, matching the current verified personal best.",
+      "stale_eligible": true,
+      "stale_misuse": false,
+      "context_sha256": "9a0c0f993a0edcc0ff5e43fba52bc37ffb717f2fb21a7458b2314bb79690acd3",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "6a1eabeb",
+      "question_type": "knowledge-update",
+      "configuration": "top1_w1",
+      "answer": "Based on the memory, your stated personal best times in a charity 5K run are inconsistent:\n\n- **27:12** — mentioned on 2023/05/25 (Turn 4 of episode 0)\n- **25:50** — mentioned on 2023/05/27 (Turn 0 of episode 1)",
+      "correct": false,
+      "reason": "The answer fails to provide the current personal best (25:50). By presenting the conflict without resolving it, it does not answer the question about the personal best time, as 25:50 is the correct current value.",
+      "stale_eligible": true,
+      "stale_misuse": false,
+      "context_sha256": "9a0c0f993a0edcc0ff5e43fba52bc37ffb717f2fb21a7458b2314bb79690acd3",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "6a1eabeb",
+      "question_type": "knowledge-update",
+      "configuration": "top2_w1",
+      "answer": "Your personal best charity 5K time was **25:50**.",
+      "correct": true,
+      "reason": "The answer correctly states 25:50, matching the current verified personal best.",
+      "stale_eligible": true,
+      "stale_misuse": false,
+      "context_sha256": "9a0c0f993a0edcc0ff5e43fba52bc37ffb717f2fb21a7458b2314bb79690acd3",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "7161e7e2",
+      "question_type": "single-session-assistant",
+      "configuration": "full_source",
+      "answer": "Based on our previous chat about the shift rotation sheet for GM social media agents, **Admon's rotation for Sunday** was the **Day Shift (8 am - 4 pm)**.",
+      "correct": true,
+      "reason": "Correctly identifies Admon's Sunday rotation as the 8 a.m.–4 p.m. day shift.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "b7f3f846bf664c351313855ce37e05e0ac99307e463bee22f1cc20cbd8336cf8",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "7161e7e2",
+      "question_type": "single-session-assistant",
+      "configuration": "top1_w1",
+      "answer": "On Sunday, **Admon** was assigned to the **8 a.m.–4 p.m. day shift**.",
+      "correct": true,
+      "reason": "Matches the reference: Admon worked the Sunday 8 a.m.–4 p.m. day shift.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "2f048b87083585c6b3ea5992b664ff1163a16e64482d43229e731de810f33f85",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "7161e7e2",
+      "question_type": "single-session-assistant",
+      "configuration": "top2_w1",
+      "answer": "On Sunday, Admon was assigned the 8 am–4 pm day shift.",
+      "correct": true,
+      "reason": "Correctly states that Admon was assigned the Sunday 8 a.m.–4 p.m. day shift.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "5dfc4504baf6384b2602de555152aeb8950f8b4432b5230e9cd127d4a2ee5341",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "8a2466db",
+      "question_type": "single-session-preference",
+      "configuration": "full_source",
+      "answer": "For learning video editing, these resources are highly recommended:\n\n- **Adobe Premiere Pro’s official tutorials and documentation**\n- **Premiere Bro, Video Copilot, and Adobe Creative Cloud** on YouTube\n- **Udemy, LinkedIn Learning, and Skillshare** for structured courses\n- **Adobe’s Premiere Pro forums** and **Reddit’s r/PremierePro** for community advice\n- Practice with small projects, exploring Premiere Pro’s Timeline, Lumetri Color Panel, audio tools, effects, Dynamic Link, proxy media, multicam editing, and export settings.",
+      "correct": true,
+      "reason": "The response is specifically centered on Adobe Premiere Pro and provides relevant tutorials, channels, courses, and communities. Its recommended practice topics, including Lumetri Color, Dynamic Link, proxy media, multicam editing, and export settings, appropriately target advanced Premiere Pro features.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "c4e38a824f2edaf594643f00057ed846e943ee485318ccf654ba8b057e347b59",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "8a2466db",
+      "question_type": "single-session-preference",
+      "configuration": "top1_w1",
+      "answer": "For learning video editing and Adobe Premiere Pro, try:\n\n- **Adobe’s official tutorials and documentation**\n- **Premiere Bro**, **Video Copilot**, and **Adobe Creative Cloud** on YouTube\n- Courses on **Udemy, LinkedIn Learning, or Skillshare**\n- **Reddit’s r/premierepro** and Adobe’s Premiere Pro community forums\n\nSince you’re working with Lumetri, prioritize lessons on **Creative, Curves, Color Wheels, Color Match, scopes, and color-matching workflows**. Combine structured lessons with small practice projects and consistent reference-based grading.",
+      "correct": true,
+      "reason": "The response is specifically tailored to Adobe Premiere Pro and recommends relevant official, YouTube, course, and community resources. It also gives useful guidance on Lumetri color-grading features, matching the preference for Premiere Pro and its advanced settings.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "9d81e58f659c796027f5910ef0beb3f5b5fea0e4cd8e093a493cafcca0bcd7b0",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "8a2466db",
+      "question_type": "single-session-preference",
+      "configuration": "top2_w1",
+      "answer": "Based on the session, here's a resource list previously provided for learning video editing (focused on Adobe Premiere Pro):\n\n**Official Resources:**\n- Adobe Premiere Pro's official documentation and tutorials\n\n**YouTube Channels:**\n- Premiere Bro\n- Video Copilot\n- Adobe Creative Cloud\n\n**Online Courses:**\n- Udemy\n- LinkedIn Learning\n- Skillshare\n\n**Communities & Forums:**\n- Reddit's r/premierepro\n- Adobe's Premiere Pro forum\n\nThese resources cover general video editing and can help you progress from basic to advanced skills, including the color grading topics discussed in this session.",
+      "correct": true,
+      "reason": "The response clearly focuses on Adobe Premiere Pro, recommends several suitable learning resources, and explicitly mentions progression to advanced skills. The statement that the list covers general video editing does not make it incorrect because the resources themselves are Premiere Pro-focused.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "9d81e58f659c796027f5910ef0beb3f5b5fea0e4cd8e093a493cafcca0bcd7b0",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "e47becba",
+      "question_type": "single-session-user",
+      "configuration": "full_source",
+      "answer": "You graduated with a degree in **Business Administration**.",
+      "correct": true,
+      "reason": "Matches the reference answer: Business Administration.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "73c9ee850a94070c3af383369231be673b58afab4928ddf8469871e59cfa3715",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "e47becba",
+      "question_type": "single-session-user",
+      "configuration": "top1_w1",
+      "answer": "You graduated with a degree in Business Administration.",
+      "correct": true,
+      "reason": "Matches the reference answer: Business Administration.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "679a17dab5209d6c9ec886c25365db018cc65e59ce77e569846e2cc07aaf5f00",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "e47becba",
+      "question_type": "single-session-user",
+      "configuration": "top2_w1",
+      "answer": "You graduated with a degree in Business Administration.",
+      "correct": true,
+      "reason": "Matches the reference answer: Business Administration.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "679a17dab5209d6c9ec886c25365db018cc65e59ce77e569846e2cc07aaf5f00",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "gpt4_2655b836",
+      "question_type": "temporal-reasoning",
+      "configuration": "full_source",
+      "answer": "Your first issue was with the GPS system on March 22. You had to return the car to the dealership, where they replaced the entire system; it was working flawlessly afterward.",
+      "correct": true,
+      "reason": "Correctly identifies the first issue as GPS system malfunction. Date (March 22) is plausible detail. Core fact matches reference.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "4f33a584cc3194ba2fdb13dd629b208e6991f41bf82fdc8d20aaf3a4fd0feb95",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "gpt4_2655b836",
+      "question_type": "temporal-reasoning",
+      "configuration": "top1_w1",
+      "answer": "On March 22, 2023, your new car’s GPS system malfunctioned. You took it back to the dealership, where they replaced the entire system; it was working flawlessly afterward.",
+      "correct": true,
+      "reason": "Correctly identifies the first issue as GPS system malfunction on March 22, 2023. Matches reference answer.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "4f33a584cc3194ba2fdb13dd629b208e6991f41bf82fdc8d20aaf3a4fd0feb95",
+      "answer_error": null,
+      "judge_error": null
+    },
+    {
+      "question_id": "gpt4_2655b836",
+      "question_type": "temporal-reasoning",
+      "configuration": "top2_w1",
+      "answer": "Your first issue after the initial service on March 15 was a GPS system problem on March 22. You returned to the dealership, which replaced the entire GPS system, and it then worked flawlessly.",
+      "correct": true,
+      "reason": "Correctly identifies the first issue after service as GPS system problem. Matches reference answer.",
+      "stale_eligible": false,
+      "stale_misuse": null,
+      "context_sha256": "4f33a584cc3194ba2fdb13dd629b208e6991f41bf82fdc8d20aaf3a4fd0feb95",
+      "answer_error": null,
+      "judge_error": null
+    }
+  ]
+}

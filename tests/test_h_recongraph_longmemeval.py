@@ -1,4 +1,6 @@
 import json
+from argparse import Namespace
+from types import SimpleNamespace
 
 import pytest
 
@@ -10,8 +12,190 @@ from h_recongraph.examples.evaluate_longmemeval_read import (
     fact_turn_indexes,
     hit_session_indexes,
     load_cases,
+    prepare_qa_contexts,
+    qa_judge_payload,
+    run_qa,
+    summarize_qa,
+    update_annotation,
 )
 from h_recongraph.examples.evaluate_read_context import reading_configurations
+
+
+@pytest.mark.asyncio
+async def test_frozen_qa_contexts_share_sessions_dates_and_ignore_answer_labels():
+    case = _case()
+    case['haystack_dates'] = ['2026/01/01', '2026/01/02', '2026/01/03']
+    case['haystack_sessions'][1][1]['content'] = 'Telescope observatory mounts. Tea is ready.'
+    case['question'] = 'Where is the telescope at the observatory?'
+    contexts = await prepare_qa_contexts(case)
+    original = await build_context(
+        case,
+        binding_rule='word_form_scope',
+        slot_mode='all',
+        sentence_locator=True,
+        max_fact_anchors=1,
+    )
+    assert contexts['top1_w1']['text'].endswith(
+        original.render_text('evidence_bundle', window_size=1)
+    )
+    assert all(value['hit_session_indices'] == [1] for value in contexts.values())
+    assert all('date=2026/01/02' in value['text'] for value in contexts.values())
+    del case['answer']
+    for session in case['haystack_sessions']:
+        for turn in session:
+            turn.pop('has_answer', None)
+    assert await prepare_qa_contexts(case) == contexts
+
+
+def test_update_scoring_uses_cited_replacement_and_blinded_answer_ids():
+    case = _case()
+    case['haystack_sessions'][1] = [
+        {'role': 'user', 'content': 'The telescope is in the garage.'},
+        {'role': 'user', 'content': 'I moved the telescope to the observatory.'},
+    ]
+    raw = {
+        'eligible': True,
+        'old_value': 'garage',
+        'current_value': 'observatory',
+        'old_evidence': {'session_index': 1, 'turn_index': 0, 'quote': 'in the garage'},
+        'current_evidence': {'session_index': 1, 'turn_index': 1, 'quote': 'to the observatory'},
+    }
+    annotation = update_annotation(case, raw)
+    assert annotation['eligible'] and annotation['evidence_verified']
+    answers = {name: {'text': 'observatory'} for name in ('full_source', 'top1_w1', 'top2_w1')}
+    payload, mapping = qa_judge_payload(case, answers, annotation)
+    assert set(mapping.values()) == set(answers)
+    assert all(name not in json.dumps(payload) for name in answers)
+    assert payload['verified_update']['old_value'] == 'garage'
+
+
+def test_qa_summary_separates_accuracy_stale_errors_and_actual_phase_usage():
+    rows, calls = [], []
+    for name, correct, stale in [
+        ('full_source', True, False),
+        ('top1_w1', False, False),
+        ('top2_w1', False, True),
+    ]:
+        rows.append(
+            {
+                'question_id': 'q',
+                'configuration': name,
+                'correct': correct,
+                'stale_eligible': True,
+                'stale_misuse': stale,
+            }
+        )
+        calls.append(
+            {
+                'question_id': 'q',
+                'phase': 'answer',
+                'configuration': name,
+                'seconds': 1,
+                'usage': {'prompt_tokens': 100, 'completion_tokens': 10, 'total_tokens': 110},
+            }
+        )
+    calls.append(
+        {
+            'question_id': 'q',
+            'phase': 'judge',
+            'configuration': 'shared',
+            'seconds': 2,
+            'usage': {'prompt_tokens': 20, 'completion_tokens': 5, 'total_tokens': 25},
+        }
+    )
+    summary = summarize_qa(rows, calls, 1)
+    assert summary['configurations']['top1_w1']['stale_misuse_rate'] == 0
+    assert summary['configurations']['top2_w1']['stale_misuse_rate'] == 1
+    assert summary['configurations']['full_source']['mean_total_tokens'] == 110
+    assert summary['phase_costs']['judge']['total_tokens'] == 25
+    assert summary['paired_vs_full_source']['top1_w1']['lost_correct'] == 1
+
+
+@pytest.mark.asyncio
+async def test_qa_checkpoints_answers_and_scores_for_resumption(tmp_path, monkeypatch):
+    from h_recongraph.examples import evaluate_longmemeval_read as module
+
+    case = _case()
+    case.update(
+        question_type='knowledge-update',
+        question_date='2026/01/04',
+        haystack_dates=['2026/01/01', '2026/01/02', '2026/01/03'],
+    )
+    data = tmp_path / 'data.json'
+    data.write_text(json.dumps([case]), encoding='utf-8')
+    args = Namespace(
+        qa_dir=tmp_path / 'run',
+        data=data,
+        model='glm-5.1',
+        base_url='http://localhost/v1',
+        api_key_env='TEST_QA_KEY',
+        concurrency=3,
+        qa_prepare_only=False,
+    )
+    monkeypatch.setenv('TEST_QA_KEY', 'test-key')
+    requests = []
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.http = kwargs['http_client']
+            self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
+
+        async def create(self, **kwargs):
+            requests.append(kwargs)
+            system = kwargs['messages'][0]['content']
+            payload = json.loads(kwargs['messages'][1]['content'])
+            if system == module.UPDATE_SYSTEM:
+                text = json.dumps({'eligible': False, 'reason': 'addition only'})
+            elif system == module.QA_JUDGE_SYSTEM:
+                text = json.dumps(
+                    {
+                        'scores': [
+                            {
+                                'id': item['id'],
+                                'correct': True,
+                                'stale_misuse': False,
+                                'reason': 'matches',
+                            }
+                            for item in payload['answers']
+                        ]
+                    }
+                )
+            else:
+                assert 'answer' not in payload and 'has_answer' not in json.dumps(payload)
+                text = 'observatory'
+            return SimpleNamespace(
+                id='call',
+                model='glm-5.1',
+                choices=[
+                    SimpleNamespace(message=SimpleNamespace(content=text), finish_reason='stop')
+                ],
+                usage=SimpleNamespace(
+                    model_dump=lambda: {
+                        'prompt_tokens': 20,
+                        'completion_tokens': 5,
+                        'total_tokens': 25,
+                    }
+                ),
+            )
+
+        async def close(self):
+            await self.http.aclose()
+
+    monkeypatch.setattr('openai.AsyncOpenAI', FakeClient)
+    first = await run_qa([case], args)
+    args.base_url = 'http://localhost-authorized-resume/v1'
+    second = await run_qa([case], args)
+    assert len(requests) == 5
+    assert all(item['temperature'] == 0 for item in requests)
+    assert first == second
+    assert all(item['correct'] is True for item in first['rows'])
+    assert first['summary']['phase_costs']['answer']['calls'] == 3
+    segments = [
+        json.loads(line)
+        for line in (args.qa_dir / 'execution_segments.jsonl').read_text().splitlines()
+    ]
+    assert segments[-1]['base_url'] == args.base_url
+    assert segments[-1]['reused_successful_calls'] == 5
 
 
 def _case():

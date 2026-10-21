@@ -1,0 +1,51 @@
+{
+  "prepared_cases": 500,
+  "prepared_contexts": 1500,
+  "shared_hit_sessions": true,
+  "stage16_reproduction": {
+    "top1_w1": {
+      "context_estimated_tokens_equal": true,
+      "case_count": 500
+    },
+    "top2_w1": {
+      "context_estimated_tokens_equal": true,
+      "case_count": 500
+    }
+  },
+  "calls_by_phase_status": {
+    "('annotation', 'OK', None)": 78,
+    "('answer', 'OK', None)": 578,
+    "('answer', 'AuthenticationError', 401)": 922,
+    "('judge', 'AuthenticationError', 401)": 192
+  },
+  "update_annotation_counts": {
+    "False": 443,
+    "True": 55,
+    "None": 2
+  },
+  "update_source_quotes_verified": 110,
+  "unresolved_update_annotations": {
+    "c4ea545c": {
+      "eligible": null,
+      "error": "invalid_update_annotation"
+    },
+    "50635ada": {
+      "eligible": null,
+      "old_value": "Premier Silver",
+      "current_value": "Premier Gold",
+      "reason": "The user explicitly stated that they had reached Premier Gold by May 30, 2023. This superseded the previously stated Premier Silver status, which they had reached in September 2022.",
+      "old_evidence": {
+        "session_index": 0,
+        "turn_index": 4,
+        "quote": "I'm actually just hit 20,000 miles on United Airlines, which means I'm finally eligible for Premier Silver status."
+      },
+      "current_evidence": {
+        "session_index": 1,
+        "turn_index": 2,
+        "quote": "I do have a United Airlines MileagePlus account - I just reached Premier Gold status."
+      },
+      "evidence_verified": false
+    }
+  },
+  "status": "API authentication blocked; saved answers retained for resume"
+}

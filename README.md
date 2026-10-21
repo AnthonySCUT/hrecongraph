@@ -1,6 +1,6 @@
 # H-ReConGraph
 
-基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **16 阶段**，包含记忆束更新、四维证据绑定、多片段来源保留、证据裁剪与按需句子定位。阶段机制与结果见下方阶段页。
+基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **17 阶段**，包含记忆束更新、四维证据绑定、多片段来源保留、证据裁剪、按需句子定位及冻结配置的端到端 QA 评测。阶段机制与执行进度见下方阶段页。
 
 ## 研究框架
 
@@ -40,8 +40,9 @@
 | 14 | 写入词界与事实作用域校准 | 回归：153 passed；Oracle 500 题，作用域 `w=1` 召回 93.75%，较原证据束省 Token 10.99% | [14 写入绑定校准](docs/stages/14-write-binding-calibration.md) |
 | 15 | 句子锚点与词形因子消融 | 回归：157 passed；Oracle 500 题，词形原粒度 `w=1` 召回 95.20%、5,986.68 Token | [15 句子锚点与词形](docs/stages/15-sentence-anchor-ablation.md) |
 | 16 | 多片段证据、按需句子定位与条件双锚点 | 回归：161 passed；Oracle 500 题，候选 `w=1` 召回 97.10%、6,245.99 Token | [16 多片段与按需定位](docs/stages/16-multispan-on-demand-anchors.md) |
+| 17 | 冻结配置、真实 QA、更新误用与实际成本 | 回归：165 passed；六题试跑完成；全量已存 578 份回答，接口 401 待续跑 | [17 端到端 QA](docs/stages/17-frozen-end-to-end-qa.md) |
 
-01–16 阶段说明均可从本仓库 `docs/stages/` 访问。06–16 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。
+01–17 阶段说明均可从本仓库 `docs/stages/` 访问。06–17 批完整报告、逐题结果和补丁见[实验附件索引](docs/results/README.md)，运行方法与评价口径见[复现说明](docs/reproduction.md)。第 17 批已发布 QA 实现、试跑结果与全量续跑记录，完整评分等待指定接口凭据恢复。
 
 ## 代表性结果
 
@@ -83,7 +84,7 @@ print(context.context_text)
 
 ## 验证
 
-当前代码快照（16 阶段）指定回归：**161 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
+当前代码快照（17 阶段）指定回归：**165 passed**。环境、检查范围与复核结果见[发布验证](docs/verification.md)。
 
 ```powershell
 python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider

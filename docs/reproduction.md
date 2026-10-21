@@ -80,11 +80,26 @@ python -m h_recongraph.examples.evaluate_longmemeval_read --data data/longmemeva
 
 `all` 将各次触发加入来源证据；摘要字段保持原有触发词优先级。按需定位仅切分已命中的原始轮次，定位结果用于简洁图事实与来源坐标，段落索引继续确定依赖。`sentence_locator_median_ms` 独立记录预热后三次定位的中位耗时，`render_median_ms` 继续记录上下文渲染耗时。
 
+第 17 批冻结配置与端到端 QA：
+
+```powershell
+# 在当前终端配置 HRECONGRAPH_QA_API_KEY，下面的接口填写该 Key 对应的地址。
+python -m h_recongraph.examples.evaluate_longmemeval_read --data data/longmemeval_oracle.json --limit 500 --qa-dir results/qa17 --qa-prepare-only
+python -m h_recongraph.examples.evaluate_longmemeval_read --data data/longmemeval_oracle.json --limit 500 --qa-dir results/qa17 --model glm-5.1 --base-url <API_BASE_URL> --concurrency 150
+```
+
+`--qa-dir` 固定运行去重全文、词形作用域 Top-1／`w=1`、条件 Top-2／`w=1`。每题只构造一次写入状态，保存原始消息边界和来源日期。数据与 Prompt 保存于 `manifest.json`；`contexts.jsonl` 保存在本地运行目录，公开结果记录其 SHA256。重复执行同一命令复用成功调用，补跑缺失回答与评分。
+
+GLM-5.1 使用温度 0、关闭 thinking；回答上限 512 Token、更新标定 1,536 Token、评分 2,048 Token，单次等待上限 1,200 秒。三个匿名答案合并为一次评分调用，匿名顺序按题目 ID 轮换。更新标注在生成答案前完成，并核对新旧值原文引用；答案将旧值作为问题时点的有效值时计为过期信息误用。
+
+`calls.jsonl` 保存每次调用的响应、实际 usage、延迟和状态；授权切换接口时，`execution_segments.jsonl` 记录地址、模型、并发与执行代码摘要，冻结的配置和 Prompt 沿用原清单。回答成本包括输入与输出 Token，更新标定和评分费用另行统计。`results.json` 记录逐题 QA、更新误用、题型汇总、Wilson 区间与配对正确率差异。
+
 ## 验证结果
 
-- 第 16 批指定回归：161 passed；官方 `graphiti-core==0.29.2` 包下复核通过。
+- 第 17 批指定回归：165 passed；官方 `graphiti-core==0.29.2` 包下复核通过。
 - Token 统一采用 `len(text) // 4` 估算；渲染预热后计时三次，汇总中位数。
 - 整体召回：保留支持轮次 / 全部支持轮次；裁剪条件召回：保留支持轮次 / 命中全文中的支持轮次。
 - Micro 按支持轮次汇总；Macro 对有相应支持标注的题目平均。第 12–16 批整体召回有效题数为 479，共 896 条支持轮次；裁剪条件召回有效题数为 475，命中全文含 880 条支持轮次。
 - 第 11 批历史结果对全部 500 题平均，无支持标注题按 1 计入；该批的 75.64% 为此历史口径。第 12 批起主表采用整体 Micro。
 - [阶段结果与附件索引](results/README.md)汇集逐题记录、题型统计、装配索引和补丁。
+- 第 17 批六题真实调用试跑完成；全量 500 题已保存 578 份回答与 78 份更新标注，待有效凭据恢复后完成续跑。执行状态见[第 17 批复核](results/17-QA执行复核.json)。
