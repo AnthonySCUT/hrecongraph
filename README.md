@@ -1,6 +1,6 @@
 # H-ReConGraph
 
-基于 Graphiti 的三层图记忆研究原型。本仓库的可安装代码快照对应 **05 阶段**；后续 **06–13 阶段**的研究迭代与实验进展汇总在本 README 中，逐阶段实现记录保存在逐代码审核工作副本。
+基于 Graphiti 的三层图记忆研究原型。本仓库当前可安装代码对应 **05 阶段**。06–13 阶段的机制说明与实验结果见下方阶段页；对应代码迭代仍保存在逐代码审核工作副本。
 
 ## 研究框架
 
@@ -23,22 +23,22 @@
 
 | 阶段 | 主要机制 | 回归或实验结果 | 阶段记录 |
 |---|---|---|---|
-| 原版 | M0/M1/M2 写入、规则语义状态、Graphiti 检索 | 8 passed / 1 TTL 测试 failed | [00 原版起点](docs/stages/00-baseline.md) |
-| 01 | 入图绑定与按命中结果关联状态 | 26 passed | [01 读取关联](docs/stages/01-retrieval-linking.md) |
-| 02 | 关系来源原文回溯 | 40 passed | [02 来源回溯](docs/stages/02-source-episodes.md) |
-| 03 | 召回回退、访问计数、来源状态恢复 | 98 passed | [03 召回与恢复](docs/stages/03-recall-and-restore.md) |
-| 04 | 读取证据文本组装 | 101 passed | [04 文本组装](docs/stages/04-context-text.md) |
-| 05 | M0 有效词面召回、稳定排序 | 107 passed | [05 相关性与排序](docs/stages/05-stable-retrieval.md) |
-| 06 | 证据片段组装与来源裁剪 | 证据束机制样本配对实验 | 证据片段组装 |
-| 07 | 忠实性与读取成本对照 | 证据保留与上下文成本配对实验 | 忠实性与读取成本 |
-| 08 | 记忆束局部更新与改写裁剪 | 局部变更与来源锚点配对实验 | 局部更新 |
-| 09 | 连续更新与增量记忆束 | 新增、补充、局部修改、替代、删除与读取 | 连续更新 |
-| 10 | 自然对话四维证据绑定 | 自然文本自动绑定与读取裁剪对照 | 自然证据绑定 |
-| 11 | LongMemEval 读取成本配对 | Oracle 500 题，按轮次比较全文与证据束 | LongMemEval 配对 |
-| 12 | 证据召回、窗口与成本 Pareto 消融 | Oracle 500 题，比较 `w=0/1/2` | 召回成本消融 |
-| 13 | 重复渲染修复、依赖作用域消融 | Oracle 500 题，比较去重、窗口与依赖筛选 | 重复渲染与依赖消融 |
+| 原版 | M0/M1/M2 写入、规则语义状态、Graphiti 检索 | 回归：8 passed；TTL 测试：1 failed | [00 原版起点](docs/stages/00-baseline.md) |
+| 01 | 入图绑定与按命中结果关联状态 | 回归：26 passed | [01 读取关联](docs/stages/01-retrieval-linking.md) |
+| 02 | 关系来源原文回溯 | 回归：40 passed | [02 来源回溯](docs/stages/02-source-episodes.md) |
+| 03 | 召回回退、访问计数、来源状态恢复 | 回归：98 passed | [03 召回与恢复](docs/stages/03-recall-and-restore.md) |
+| 04 | 读取证据文本组装 | 回归：101 passed | [04 文本组装](docs/stages/04-context-text.md) |
+| 05 | M0 有效词面召回、稳定排序 | 回归：107 passed | [05 相关性与排序](docs/stages/05-stable-retrieval.md) |
+| 06 | 证据片段组装与来源裁剪 | 回归：111 passed；证据束机制用例 | [06 证据片段组装](docs/stages/06-evidence-bundle.md) |
+| 07 | 忠实性与读取成本对照 | 回归：113 passed；16 样本保留 88.57%，减字 36.45% | [07 忠实性与成本](docs/stages/07-faithfulness-cost.md) |
+| 08 | 记忆束局部更新与改写裁剪 | 回归：121 passed；完整绑定证据保留 100%，减字 43.00% | [08 局部更新](docs/stages/08-local-updates.md) |
+| 09 | 连续更新与增量记忆束 | 回归：129 passed；changed、kept、四维证据均 100% | [09 连续更新](docs/stages/09-continuous-updates.md) |
+| 10 | 自然对话四维证据绑定 | 回归：133 passed；自然锚定、恢复与同源去重通过 | [10 自然证据绑定](docs/stages/10-natural-evidence.md) |
+| 11 | LongMemEval 读取成本配对 | 回归：137 passed；Oracle 500 题 Token 减少 38.46%，证据轮次保留 75.64% | [11 LongMemEval 配对](docs/stages/11-longmemeval-pairing.md) |
+| 12 | 证据召回、窗口与成本 Pareto 消融 | 回归：142 passed；Oracle 500 题，`w=1` 召回 97.43% | [12 召回成本消融](docs/stages/12-recall-cost-pareto.md) |
+| 13 | 重复渲染修复、依赖作用域消融 | 回归：149 passed；Oracle 500 题，去重 `w=1` 召回 97.43% | [13 重复渲染与依赖消融](docs/stages/13-rendering-dependency-ablation.md) |
 
-01–05 阶段说明和 patch 位于本仓库 `docs/`。06–13 阶段的逐文件说明、代码差异和实验 JSON 保存在逐代码审核工作副本。
+01–13 阶段说明均可从本仓库 `docs/stages/` 访问。06–13 阶段的逐文件差异与逐题实验 JSON 保存在逐代码审核工作副本。
 
 ## 第 13 阶段读取结果
 
@@ -50,7 +50,7 @@
 | 证据束 `w=1` | 6,606.28 | 873 / 896 | 97.43% |
 | 证据束 `w=2` | 6,693.30 | 877 / 896 | 97.88% |
 
-`w=1` 相较历史重复渲染配置平均减少 543.01 Token（7.60%），保留 873 条支持轮次；相较去重全文减少 1.45%。完整逐题记录、题型统计和 Pareto 分析见第 13 阶段逐文件交付记录。
+`w=1` 相较历史重复渲染配置平均减少 543.01 Token（7.60%），保留 873 条支持轮次；相较去重全文减少 1.45%。逐题结果与题型统计见[第 13 阶段说明](docs/stages/13-rendering-dependency-ablation.md)。
 
 ## 安装与调用
 
@@ -77,7 +77,7 @@ print(context.context_text)
 
 ## 验证
 
-本仓库 05 阶段指定回归测试：**107 passed**。后续代码迭代第 13 阶段指定回归测试：**149 passed**。
+发布代码快照（05 阶段）指定回归：**107 passed**；逐代码审核工作副本（13 阶段）指定回归：**149 passed**。
 
 ```powershell
 python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py -q -p no:cacheprovider
