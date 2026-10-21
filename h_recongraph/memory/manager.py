@@ -2,7 +2,7 @@
 
 import json
 import re
-from typing import Any
+from typing import Any, Literal
 
 from graphiti_core.utils.datetime_utils import ensure_utc
 from h_recongraph.config.memory_policy import MemoryPolicy
@@ -17,7 +17,12 @@ from h_recongraph.memory.router import QueryRouter
 from h_recongraph.memory.semantic_state import SemanticStateConstructor
 from h_recongraph.memory.versioning import MemoryVersionManager
 from h_recongraph.schemas.conflict import ConflictAssessment
-from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+from h_recongraph.schemas.memory_unit import (
+    GraphBinding,
+    MemoryDimension,
+    SourceSpan,
+    UnifiedMemoryUnit,
+)
 from h_recongraph.schemas.semantic_state import MemorySemanticState
 
 
@@ -68,40 +73,141 @@ class HReConGraphMemory:
         user_id: str,
         session_id: str | None = None,
         metadata: dict[str, Any] | None = None,
+        *,
+        source_spans: list[SourceSpan] | None = None,
     ) -> UnifiedMemoryUnit:
         """Write a new interaction through M0, then promote/consolidate by policy."""
 
         instant = self.buffer.add(text, user_id, session_id, metadata)
+        instant.source_spans.extend(source_spans or [])
+        instant.evidence_ids = list(
+            dict.fromkeys(
+                [*instant.evidence_ids, *(span.evidence_id for span in source_spans or [])]
+            )
+        )
         instant.scores = self.evolution.score_m0(instant)
 
         if not self.evolution.should_promote_to_m1(instant):
             return instant
 
         short_term = self.evolution.promote_to_m1(instant)
-        semantic_state = self.semantic_state_constructor.construct(short_term)
-        short_term.semantic_state_id = semantic_state.state_id
-        short_term.semantic_state = semantic_state.model_dump(mode='json')
         short_term_assessment = await self._assess_against_existing(
             short_term,
             [*self.short_term_memories.values(), *self.long_term_memories.values()],
         )
         self._apply_assessment_metadata(short_term, short_term_assessment)
-        self.short_term_memories[short_term.memory_id] = short_term
-        self.semantic_states[semantic_state.state_id] = semantic_state
-
-        if self.store is not None:
-            await self.store.add_memory(short_term)
+        await self.add_memory(short_term)
 
         if self.evolution.should_consolidate_to_m2(short_term):
             await self._consolidate_memory(short_term)
 
         return short_term
 
+    async def add_memory(self, memory: UnifiedMemoryUnit) -> UnifiedMemoryUnit:
+        """Write one M1/M2 bundle with its fact, constraint, path and causal evidence."""
+        memory.evidence_ids = list(
+            dict.fromkeys(
+                [*memory.evidence_ids, *(span.evidence_id for span in memory.source_spans)]
+            )
+        )
+        state = self.semantic_state_constructor.construct(memory)
+        memory.semantic_state_id = state.state_id
+        memory.semantic_state = state.model_dump(mode='json')
+        if not any(
+            span.field in {'fact', 'constraint', 'path', 'causal'} for span in memory.source_spans
+        ):
+            memory.source_spans = [
+                *(span for span in memory.source_spans if span.field == 'raw'),
+                *state.source_spans,
+            ]
+        target = self.short_term_memories if memory.layer == 'M1' else self.long_term_memories
+        target[memory.memory_id] = memory
+        self.semantic_states[state.state_id] = state
+        if self.store is not None:
+            await self.store.add_memory(memory)
+        return memory
+
+    async def update_memory(
+        self,
+        memory_id: str,
+        *,
+        operation: Literal['modify', 'supersede', 'delete'],
+        replacement: UnifiedMemoryUnit | None = None,
+        span_updates: dict[MemoryDimension, list[SourceSpan]] | None = None,
+        append_spans: list[SourceSpan] | None = None,
+    ) -> UnifiedMemoryUnit | None:
+        """Apply a local operation to a bundle and its M0/M1/M2 lineage."""
+        memories = {**self.short_term_memories, **self.long_term_memories}
+        target = memories[memory_id]
+        if operation == 'modify' and replacement is None:
+            replacement = target.with_span_updates(span_updates, append_spans)
+        family_ids = {memory_id}
+        lineage = [
+            (memory.memory_id, parent)
+            for memory in memories.values()
+            for parent in (
+                memory.metadata.get('promoted_from'),
+                memory.metadata.get('consolidated_from'),
+            )
+            if parent
+        ]
+        while True:
+            expanded = family_ids | {
+                item
+                for child, parent in lineage
+                if child in family_ids or parent in family_ids
+                for item in (child, parent)
+            }
+            if expanded == family_ids:
+                break
+            family_ids = expanded
+        family = [memory for memory in memories.values() if memory.memory_id in family_ids]
+        if self.store is not None:
+            await self.store.remove_memories(family)
+        self.buffer.remove_many(family_ids)
+        for memory in family:
+            memory.lifecycle_status = 'deleted' if operation == 'delete' else 'revised'
+            self.semantic_states.pop(memory.semantic_state_id, None)
+        if operation == 'delete':
+            return None
+        if operation == 'supersede':
+            replacement.version = target.version + 1
+            replacement.supersedes = list(dict.fromkeys([*target.supersedes, target.memory_id]))
+            return await self.add_memory(replacement)
+        updated = {}
+        for memory in family:
+            revised = replacement.model_copy(deep=True)
+            revised.memory_id = memory.memory_id
+            revised.layer = memory.layer
+            revised.ttl = memory.ttl
+            revised.lifecycle_status = (
+                'active_short_term' if memory.layer == 'M1' else 'consolidated'
+            )
+            revised.version = memory.version + 1
+            revised.supersedes = list(memory.supersedes)
+            revised.graph_binding = GraphBinding()
+            revised.metadata = {
+                **{
+                    key: value
+                    for key, value in replacement.metadata.items()
+                    if key not in {'graphiti_episode_id', 'graphiti_episode_ids'}
+                },
+                **{
+                    key: memory.metadata[key]
+                    for key in ('promoted_from', 'consolidated_from')
+                    if key in memory.metadata
+                },
+            }
+            updated[memory.memory_id] = await self.add_memory(revised)
+        return updated[memory_id]
+
     async def retrieve(
         self,
         query: str,
         user_id: str,
         session_id: str | None = None,
+        *,
+        source_mode: Literal['full_source', 'evidence_bundle'] = 'full_source',
     ) -> HierarchicalMemoryContext:
         """Retrieve and relink M0/M1/M2 memories for a query-specific evidence graph."""
 
@@ -176,6 +282,7 @@ class HReConGraphMemory:
             semantic_states=[state for _, state in selected],
         )
         context.source_episodes = source_episodes
+        context.source_mode = source_mode
         context.context_text = context.render_text()
         returned_state_ids = {state.state_id for state in context.semantic_states}
         accessed = {
@@ -242,6 +349,11 @@ class HReConGraphMemory:
                         'metadata': {
                             'graphiti_episode_ids': data.get('graphiti_episode_ids', []),
                             'graphiti_episode_id': data.get('graphiti_episode_id'),
+                            **{
+                                key: data[key]
+                                for key in ('promoted_from', 'consolidated_from')
+                                if key in data
+                            },
                         },
                     }
                 )
@@ -334,6 +446,8 @@ class HReConGraphMemory:
 
         consolidated: list[UnifiedMemoryUnit] = []
         for memory in list(self.short_term_memories.values()):
+            if memory.lifecycle_status in {'deleted', 'revised', 'archived', 'expired'}:
+                continue
             if memory.user_id != user_id:
                 continue
             if session_id is not None and memory.session_id != session_id:
@@ -365,15 +479,7 @@ class HReConGraphMemory:
         )
         existing = self._get_long_term_memory(assessment.matched_memory_id)
         long_term = self.version_manager.apply(long_term, existing, assessment)
-        semantic_state = self.semantic_state_constructor.construct(long_term)
-        long_term.semantic_state_id = semantic_state.state_id
-        long_term.semantic_state = semantic_state.model_dump(mode='json')
-        self.long_term_memories[long_term.memory_id] = long_term
-        self.semantic_states[semantic_state.state_id] = semantic_state
-
-        if self.store is not None:
-            await self.store.add_memory(long_term)
-        return long_term
+        return await self.add_memory(long_term)
 
     async def _assess_against_existing(
         self,

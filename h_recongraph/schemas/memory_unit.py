@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from graphiti_core.utils.datetime_utils import utc_now
 
 MemoryLayer = Literal['M0', 'M1', 'M2']
+MemoryDimension = Literal['fact', 'constraint', 'path', 'causal']
 ContentType = Literal['episode', 'edge', 'subgraph', 'semantic_state']
 LifecycleStatus = Literal[
     'volatile',
@@ -78,6 +79,34 @@ class UnifiedMemoryUnit(BaseModel):
     supersedes: list[str] = Field(default_factory=list)
     ttl: timedelta | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def with_span_updates(
+        self,
+        span_updates: dict[MemoryDimension, list[SourceSpan]] | None = None,
+        append_spans: list[SourceSpan] | None = None,
+    ) -> 'UnifiedMemoryUnit':
+        """Merge changed dimensions into the current bundle, retaining other evidence."""
+        updates = span_updates or {}
+        spans = [
+            span.model_copy(update={'field': dimension}, deep=True)
+            for dimension in ('fact', 'constraint', 'path', 'causal')
+            for span in updates.get(
+                dimension, [span for span in self.source_spans if span.field == dimension]
+            )
+        ]
+        spans.extend(span.model_copy(deep=True) for span in append_spans or [])
+        spans = list(
+            {
+                (span.evidence_id, span.field, span.text, span.start, span.end): span
+                for span in spans
+            }.values()
+        )
+        revised = self.model_copy(deep=True)
+        revised.raw_content = '\n\n'.join(dict.fromkeys(span.text for span in spans))
+        revised.source_spans = spans
+        revised.evidence_ids = list(dict.fromkeys(span.evidence_id for span in spans))
+        revised.created_at = utc_now()
+        return revised
 
     def touch(self, at: datetime | None = None) -> None:
         self.last_accessed_at = at or utc_now()

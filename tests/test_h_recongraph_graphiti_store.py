@@ -311,3 +311,35 @@ async def test_failed_write_does_not_append_an_episode_or_change_legacy_id():
 
     assert memory.model_dump() == before
     client.add_episode.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_remove_bundle_detaches_shared_edges_and_deletes_exclusive_sources(monkeypatch):
+    from graphiti_core.edges import EntityEdge
+
+    source = SimpleNamespace(
+        uuid='ep-atlas', entity_edges=['shared', 'exclusive', 'other'], delete=AsyncMock()
+    )
+    shared = SimpleNamespace(episodes=['ep-atlas', 'ep-beta'], save=AsyncMock(), delete=AsyncMock())
+    exclusive = SimpleNamespace(episodes=['ep-atlas'], save=AsyncMock(), delete=AsyncMock())
+    other = SimpleNamespace(episodes=['ep-beta'], save=AsyncMock(), delete=AsyncMock())
+    load_sources = AsyncMock(return_value=[source])
+    load_edges = AsyncMock(return_value=[shared, exclusive, other])
+    monkeypatch.setattr(EpisodicNode, 'get_by_uuids', load_sources)
+    monkeypatch.setattr(EntityEdge, 'get_by_uuids', load_edges)
+    client = SimpleNamespace(driver=object())
+    memory = UnifiedMemoryUnit(
+        user_id='u1', layer='M1', metadata={'graphiti_episode_ids': ['ep-atlas']}
+    )
+
+    await GraphitiMemoryStore(client).remove_memories([memory, memory])
+
+    load_sources.assert_awaited_once_with(client.driver, ['ep-atlas'])
+    load_edges.assert_awaited_once_with(client.driver, ['shared', 'exclusive', 'other'])
+    assert shared.episodes == ['ep-beta']
+    shared.save.assert_awaited_once_with(client.driver)
+    shared.delete.assert_not_awaited()
+    exclusive.delete.assert_awaited_once_with(client.driver)
+    source.delete.assert_awaited_once_with(client.driver)
+    other.save.assert_not_awaited()
+    other.delete.assert_not_awaited()

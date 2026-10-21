@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -6,7 +7,7 @@ from h_recongraph import HReConGraphMemory, MemoryPolicy
 from h_recongraph.memory.conflict import ConflictDetector
 from h_recongraph.memory.llm_evaluator import LLMMemoryEvaluator
 from h_recongraph.memory.semantic_state import SemanticStateConstructor
-from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
+from h_recongraph.schemas.memory_unit import SourceSpan, UnifiedMemoryUnit
 
 
 class FakeGraphiti:
@@ -220,3 +221,229 @@ async def test_consolidation_versions_long_term_temporal_update():
     assert consolidated[0].supersedes == ['ltm_old']
     assert old_long_term.lifecycle_status == 'revised'
     assert old_long_term.metadata['revised_by'] == consolidated[0].memory_id
+
+
+def bundle(text='Project Atlas uses Redis.', memory_id='stm-atlas'):
+    paragraphs = [
+        text,
+        'Only during October.',
+        'The cache serves the dashboard.',
+        'The reason is compatibility.',
+    ]
+    return UnifiedMemoryUnit(
+        memory_id=memory_id,
+        user_id='u1',
+        layer='M1',
+        lifecycle_status='active_short_term',
+        raw_content='\n\n'.join(paragraphs),
+        source_spans=[
+            SourceSpan(evidence_id='ev-atlas', field=field, text=paragraph)
+            for field, paragraph in zip(
+                ('fact', 'constraint', 'path', 'causal'), paragraphs, strict=True
+            )
+        ],
+    )
+
+
+@pytest.mark.asyncio
+async def test_write_bundle_keeps_four_dimensions_through_m0_m1_m2():
+    controller = HReConGraphMemory(policy=MemoryPolicy(consolidation_threshold=2.0))
+    supplied = bundle()
+    short = await controller.add_interaction(
+        'remember ' + supplied.raw_content, 'u1', source_spans=supplied.source_spans
+    )
+    long = await controller._consolidate_memory(short)
+
+    for memory in [*controller.buffer.list(), short, long]:
+        assert all(span in memory.source_spans for span in supplied.source_spans)
+    for memory in (short, long):
+        assert all(
+            span.model_dump(mode='json') in memory.semantic_state['source_spans']
+            for span in supplied.source_spans
+        )
+
+
+@pytest.mark.asyncio
+async def test_modify_replaces_entire_bundle_in_both_layers_and_preserves_other_memory():
+    controller = HReConGraphMemory()
+    old = await controller.add_memory(bundle())
+    old.metadata['promoted_from'] = 'im-atlas'
+    long = await controller._consolidate_memory(old)
+    unrelated = await controller.add_memory(bundle('Project Beta uses SQLite.', 'stm-beta'))
+    kept = unrelated.model_dump()
+    store = AsyncMock()
+    controller.store = store
+    replacement = bundle('Project Atlas uses PostgreSQL.', 'stm-replacement')
+    replacement.source_spans[1].text = 'Only during November.'
+    replacement.raw_content = replacement.raw_content.replace('October', 'November')
+
+    result = await controller.update_memory(
+        old.memory_id, operation='modify', replacement=replacement
+    )
+
+    for memory in (result, controller.long_term_memories[long.memory_id]):
+        assert memory.version == 2
+        assert 'Redis' not in memory.raw_content
+        assert 'October' not in str(memory.semantic_state)
+        assert memory.source_spans == replacement.source_spans
+    assert unrelated.model_dump() == kept
+    store.remove_memories.assert_awaited_once_with([old, long])
+    assert store.add_memory.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_supersede_records_predecessor_and_reads_only_new_bundle():
+    controller = HReConGraphMemory()
+    old = await controller.add_memory(bundle())
+    new = await controller.update_memory(
+        old.memory_id,
+        operation='supersede',
+        replacement=bundle('Project Atlas uses PostgreSQL.', 'stm-new'),
+    )
+    context = await controller.retrieve('Project Atlas', 'u1')
+
+    assert new.supersedes == [old.memory_id]
+    assert new.version == 2
+    assert old.lifecycle_status == 'revised'
+    assert [state.edge_or_subgraph_id for state in context.semantic_states] == [new.memory_id]
+    assert old.semantic_state_id not in controller.semantic_states
+
+
+@pytest.mark.asyncio
+async def test_delete_clears_bundle_lineage_and_keeps_unrelated_memory():
+    controller = HReConGraphMemory(policy=MemoryPolicy(consolidation_threshold=2.0))
+    old = await controller.add_interaction(
+        'remember ' + bundle().raw_content, 'u1', source_spans=bundle().source_spans
+    )
+    long = await controller._consolidate_memory(old)
+    unrelated = await controller.add_memory(bundle('Project Beta uses SQLite.', 'stm-beta'))
+    kept = unrelated.model_dump()
+
+    await controller.update_memory(long.memory_id, operation='delete')
+    context = await controller.retrieve('Redis', 'u1')
+
+    assert old.lifecycle_status == long.lifecycle_status == 'deleted'
+    assert controller.buffer.list() == []
+    assert old.semantic_state_id not in controller.semantic_states
+    assert long.semantic_state_id not in controller.semantic_states
+    assert context.instant_memories == context.semantic_states == []
+    assert unrelated.model_dump() == kept
+    assert await controller.consolidate('u1') == []
+
+
+def test_span_delta_retains_other_dimensions_and_deduplicates_append():
+    original = bundle()
+    snapshot = original.model_dump()
+    additional = SourceSpan(
+        evidence_id='turn-2', text='Only on weekdays.', start=7, end=24, field='constraint'
+    )
+
+    revised = original.with_span_updates(append_spans=[additional, additional])
+
+    assert original.model_dump() == snapshot
+    assert revised.source_spans == [*original.source_spans, additional]
+    assert revised.source_spans[-1].start == 7
+    assert 'Only during October.' in revised.raw_content
+    assert 'Only on weekdays.' in revised.raw_content
+    assert revised.evidence_ids == ['ev-atlas', 'turn-2']
+
+
+@pytest.mark.asyncio
+async def test_append_constraints_updates_migrated_bundle_and_keeps_other_memory():
+    controller = HReConGraphMemory()
+    old = await controller.add_memory(bundle())
+    long = await controller._consolidate_memory(old)
+    unrelated = await controller.add_memory(bundle('Project Beta uses SQLite.', 'stm-beta'))
+    kept = unrelated.model_dump()
+    for memory in (old, long):
+        memory.metadata['graphiti_episode_ids'] = ['old-episode']
+        memory.metadata['graphiti_episode_id'] = 'old-episode'
+    controller.store = AsyncMock()
+    added = SourceSpan(evidence_id='turn-2', field='constraint', text='Only on weekdays.')
+
+    await controller.update_memory(old.memory_id, operation='modify', append_spans=[added])
+
+    for memory_id in (old.memory_id, long.memory_id):
+        memory = controller._get_memory(memory_id)
+        state = controller.semantic_states[memory.semantic_state_id]
+        assert memory.version == 2
+        assert 'Only during October.' in state.condition
+        assert 'Only on weekdays.' in state.condition
+        assert state.validity == state.condition
+        assert state.cause == 'The reason is compatibility.'
+        assert added in memory.source_spans
+        assert 'graphiti_episode_ids' not in memory.metadata
+        assert 'graphiti_episode_id' not in memory.metadata
+    assert unrelated.model_dump() == kept
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('dimension', ['fact', 'constraint', 'path', 'causal'])
+async def test_replace_one_dimension_preserves_other_source_spans_and_refreshes_state(dimension):
+    controller = HReConGraphMemory()
+    original = await controller.add_memory(bundle())
+    previous = next(span for span in original.source_spans if span.field == dimension)
+    changed = SourceSpan(
+        evidence_id='turn-2', field=dimension, text=f'Updated {dimension} evidence.'
+    )
+
+    revised = await controller.update_memory(
+        original.memory_id, operation='modify', span_updates={dimension: [changed]}
+    )
+
+    assert changed in revised.source_spans
+    assert previous.text not in revised.raw_content
+    assert previous.text not in str(revised.semantic_state)
+    assert all(
+        span in revised.source_spans for span in original.source_spans if span.field != dimension
+    )
+    assert set(revised.evidence_ids) == {'ev-atlas', 'turn-2'}
+    if dimension == 'causal':
+        assert revised.semantic_state['cause'] == changed.text
+        cleared = await controller.update_memory(
+            revised.memory_id, operation='modify', span_updates={'causal': []}
+        )
+        assert cleared.semantic_state['cause'] is None
+        assert changed.text not in str(cleared.semantic_state)
+
+
+def test_semantic_state_binds_natural_paragraphs_to_missing_dimensions():
+    memory = UnifiedMemoryUnit(
+        user_id='u1',
+        layer='M1',
+        raw_content=(
+            'Atlas stores reports.\n\n'
+            'The cache connects to the dashboard through Redis.\n\n'
+            'Only during the October trial.\n\n'
+            'Because the legacy client requires it.'
+        ),
+        evidence_ids=['ev-natural'],
+    )
+
+    state = SemanticStateConstructor().construct(memory)
+
+    fields = {span.field for span in state.source_spans}
+    assert {'fact', 'path', 'constraint', 'causal'} <= fields
+    assert all(
+        memory.raw_content[span.start : span.end] == span.text
+        for span in state.source_spans
+        if span.field in {'fact', 'path', 'constraint', 'causal'}
+        if span.start is not None and span.end is not None
+    )
+
+
+@pytest.mark.asyncio
+async def test_add_memory_persists_automatic_fact_and_path_bindings():
+    controller = HReConGraphMemory()
+    memory = UnifiedMemoryUnit(
+        user_id='u1',
+        layer='M1',
+        raw_content='Atlas stores reports.\n\nReports travel through Redis to the dashboard.',
+        evidence_ids=['ev-natural'],
+    )
+
+    written = await controller.add_memory(memory)
+
+    assert any(span.field == 'fact' for span in written.source_spans)
+    assert any(span.field == 'path' for span in written.source_spans)
+    assert written.semantic_state['source_spans']

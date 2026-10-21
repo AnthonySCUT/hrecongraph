@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -10,9 +11,23 @@ from graphiti_core.graphiti import AddEpisodeResults
 from graphiti_core.nodes import EntityNode, EpisodeType, EpisodicNode
 from graphiti_core.utils.datetime_utils import utc_now
 from h_recongraph import HReConGraphMemory, MemoryPolicy
+from h_recongraph.examples.evaluate_continuous_updates import (
+    evaluate_sequences,
+    make_bundle,
+    score_checkpoint,
+    summarize,
+)
+from h_recongraph.examples.evaluate_read_context import (
+    build_naturally_bound_contexts,
+    build_written_contexts,
+    evaluate_cases,
+    reading_configurations,
+)
 from h_recongraph.memory.graphiti_store import GraphitiMemoryStore
 from h_recongraph.memory.ranker import MemoryUtilityRanker
-from h_recongraph.schemas.memory_unit import GraphBinding, UnifiedMemoryUnit
+from h_recongraph.memory.relinking import HierarchicalMemoryContext
+from h_recongraph.schemas.memory_unit import GraphBinding, SourceSpan, UnifiedMemoryUnit
+from h_recongraph.schemas.semantic_state import MemorySemanticState
 
 
 class SearchGraphiti:
@@ -1108,3 +1123,578 @@ async def test_m0_only_context_text_is_available_without_graph_store():
     context = await controller.retrieve('current project', user_id='u1', session_id='s1')
 
     assert context.context_text.startswith('[M0] current project deadline')
+
+
+def test_evidence_bundle_preserves_facts_conditions_paths_and_causes():
+    paragraphs = [
+        'Only during the October trial, Project A uses Redis.',
+        'Redis serves the cache. The cache serves the dashboard.',
+        'Because the legacy client requires it, the Redis choice is temporary.',
+        'The office cafeteria serves lunch at noon.',
+    ]
+    source = source_episode('ep-bundle', '\n\n'.join(paragraphs))
+    facts = ['Project A uses Redis', 'Redis serves the cache', 'The cache serves the dashboard']
+    edges = [source_edge([source.uuid], uuid=f'edge-{i}') for i in range(len(facts))]
+    for edge, fact in zip(edges, facts, strict=True):
+        edge.fact = fact
+    state = MemorySemanticState(
+        edge_or_subgraph_id='stm-bundle',
+        cause='the legacy client requires it',
+        source_spans=[SourceSpan(evidence_id='ev-bundle', text=paragraphs[2], field='cause')],
+        state_type='evidence_supported',
+    )
+    context = HierarchicalMemoryContext(
+        query='Why does Project A use Redis, and what does it serve?',
+        selected_layers=['M1'],
+        graph_edges=edges,
+        semantic_states=[state],
+        source_episodes=[source, source],
+    )
+
+    full = context.render_text('full_source')
+    bundle = context.render_text('evidence_bundle')
+
+    assert all(paragraph in bundle for paragraph in paragraphs[:3])
+    assert paragraphs[3] in full and paragraphs[3] not in bundle
+    assert bundle.count('[SOURCE ep-bundle]') == 1
+    assert len(bundle) < len(full)
+    assert source.content == '\n\n'.join(paragraphs)
+
+
+def test_evidence_bundle_keeps_full_source_for_paraphrased_relations():
+    text = 'Project A relies on the Redis service.\n\nThis applies only in October.'
+    source = source_episode('ep-paraphrase', text)
+    context = HierarchicalMemoryContext(
+        query='Project A storage',
+        selected_layers=['M1'],
+        graph_edges=[source_edge([source.uuid])],
+        source_episodes=[source],
+    )
+
+    assert context.render_text('evidence_bundle') == context.render_text('full_source')
+    assert text in context.render_text('evidence_bundle')
+
+
+def test_evidence_bundle_shares_identical_m0_and_source_text():
+    text = 'Project A uses Redis.'
+    source = source_episode('ep-shared', text)
+    context = HierarchicalMemoryContext(
+        query='Project A',
+        selected_layers=['M0', 'M1'],
+        instant_memories=[UnifiedMemoryUnit(user_id='u1', layer='M0', raw_content=text)],
+        graph_edges=[source_edge([source.uuid])],
+        source_episodes=[source],
+    )
+
+    assert '[M0]' in context.render_text('full_source')
+    assert '[M0]' not in context.render_text('evidence_bundle')
+    assert f'[SOURCE {source.uuid}] {text}' in context.render_text('evidence_bundle')
+
+
+def test_evidence_bundle_deduplicates_identical_m1_m2_sources_and_edges():
+    text = 'Project A uses Redis.'
+    sources = [source_episode('ep-m1', text), source_episode('ep-m2', text)]
+    edges = [source_edge([source.uuid], uuid=f'edge-{source.uuid}') for source in sources]
+    edges[1].source_node_uuid = 'node-c'
+    edges[1].target_node_uuid = 'node-d'
+    for edge in edges:
+        edge.fact = 'Project A uses Redis.'
+    context = HierarchicalMemoryContext(
+        query='Project A',
+        selected_layers=['M1', 'M2'],
+        graph_edges=edges,
+        source_episodes=sources,
+    )
+
+    full = context.render_text('full_source')
+    bundle = context.render_text('evidence_bundle')
+
+    assert full.count('[SOURCE ') == 2
+    assert full.count('[EDGE]') == 2
+    assert bundle.count('[SOURCE ') == 1
+    assert bundle.count('[EDGE]') == 1
+
+
+def test_evidence_bundle_window_zero_keeps_existing_selection():
+    text = 'Fact anchor.\n\nBound dependency.\n\nUnrelated paragraph.'
+    source = source_episode('ep-window-zero', text)
+    edge = source_edge([source.uuid])
+    edge.fact = 'Fact anchor.'
+    context = HierarchicalMemoryContext(
+        query='Fact',
+        selected_layers=['M1'],
+        graph_edges=[edge],
+        source_episodes=[source],
+        semantic_states=[
+            MemorySemanticState(
+                edge_or_subgraph_id='window-state',
+                source_spans=[
+                    SourceSpan(
+                        evidence_id=source.uuid, field='constraint', text='Bound dependency.'
+                    )
+                ],
+                state_type='evidence_supported',
+            )
+        ],
+    )
+
+    assert context.render_text('evidence_bundle') == context.render_text(
+        'evidence_bundle', window_size=0
+    )
+    assert context._source_bundle(source, window_size=0) == ('Fact anchor.\n\nBound dependency.')
+
+
+@pytest.mark.parametrize(('anchor', 'selected'), [(0, [0, 1]), (3, [2, 3])])
+def test_evidence_bundle_window_is_bounded_at_source_edges(anchor, selected):
+    paragraphs = ['Before.', 'Fact anchor.', 'After.', 'Outside.']
+    source = source_episode('ep-window-edge', '\n\n'.join(paragraphs))
+    edge = source_edge([source.uuid])
+    edge.fact = paragraphs[anchor]
+    context = HierarchicalMemoryContext(
+        query='Fact', selected_layers=['M1'], graph_edges=[edge], source_episodes=[source]
+    )
+
+    bundle = context.render_text('evidence_bundle', window_size=1)
+
+    assert context.source_indices(source, 1)['window'] == [
+        index for index in selected if index != anchor
+    ]
+    assert context._source_bundle(source, window_size=1) == '\n\n'.join(
+        paragraphs[index] for index in selected
+    )
+    assert bundle
+
+
+def test_evidence_bundle_overlapping_windows_union_in_original_order():
+    paragraphs = [f'Paragraph {index}.' for index in range(6)]
+    source = source_episode('ep-window-overlap', '\n\n'.join(paragraphs))
+    edges = [source_edge([source.uuid], uuid=f'edge-{index}') for index in (1, 3)]
+    for edge, index in zip(edges, (1, 3), strict=True):
+        edge.fact = paragraphs[index]
+    context = HierarchicalMemoryContext(
+        query='paragraph', selected_layers=['M1'], graph_edges=edges, source_episodes=[source]
+    )
+
+    bundle = context._source_bundle(source, window_size=1)
+
+    assert bundle.index('Paragraph 0.') < bundle.index('Paragraph 1.')
+    assert bundle.index('Paragraph 2.') < bundle.index('Paragraph 3.')
+    assert bundle.count('Paragraph 2.') == 1
+    assert 'Paragraph 4.' in bundle
+    assert 'Paragraph 5.' not in bundle
+
+
+def test_evidence_bundle_preserves_internal_newlines_and_deduplicates_same_source():
+    turn = 'User: Fact anchor.\n\nDetails inside the same message.\nKeep this turn.'
+    units = [turn, 'Assistant: A nearby reply.', turn]
+    text = '\n\n'.join(units)
+    sources = [source_episode('ep-newline-a', text), source_episode('ep-newline-b', text)]
+    edge = source_edge([source.uuid for source in sources])
+    edge.fact = 'Fact anchor.'
+    context = HierarchicalMemoryContext(
+        query='Fact',
+        selected_layers=['M1'],
+        graph_edges=[edge],
+        source_episodes=sources,
+        source_units={source.uuid: units for source in sources},
+        source_fact_indices={source.uuid: [0] for source in sources},
+        source_origin_ids={source.uuid: 'same-session' for source in sources},
+    )
+
+    bundle = context.render_text('evidence_bundle', window_size=2)
+
+    assert f'[TURN 0] {turn}' in bundle and f'[TURN 2] {turn}' in bundle
+    assert bundle.count('User: Fact anchor.') == 2
+    assert bundle.count('[SOURCE ') == 1
+    assert context.source_indices(sources[0], 0)['fact'] == [0]
+
+
+@pytest.mark.asyncio
+async def test_retrieve_exposes_evidence_bundle_mode_and_preserves_full_sources():
+    _, source = enveloped_source()
+    body = json.loads(source.content)
+    body['content'] += '\n\nOffice lunch is at noon.'
+    source.content = json.dumps(body)
+    controller = HReConGraphMemory(SearchGraphiti([source_edge([source.uuid])], [source]))
+
+    context = await controller.retrieve('Project A', user_id='u1', source_mode='evidence_bundle')
+
+    assert context.source_mode == 'evidence_bundle'
+    assert context.context_text == context.render_text()
+    assert 'Office lunch' not in context.context_text
+    assert 'Office lunch' in context.source_episodes[0].content
+
+
+@pytest.mark.asyncio
+async def test_local_bundle_operations_roundtrip_through_graph_store():
+    class BundleGraphiti(SearchGraphiti):
+        def __init__(self):
+            super().__init__([])
+            self.writes = []
+            self.driver.graph_operations_interface.edge_get_by_uuids = self.load_edges
+            self.driver.graph_operations_interface.edge_delete = self.delete_edge
+            self.driver.graph_operations_interface.node_delete = self.delete_episode
+
+        async def load_edges(self, edge_type, driver, uuids):
+            return [edge for edge in self.edges if edge.uuid in uuids]
+
+        async def delete_edge(self, edge, driver):
+            self.edges.remove(edge)
+
+        async def delete_episode(self, episode, driver):
+            self.episodes.remove(episode)
+
+        async def add_episode(self, **kwargs):
+            self.writes.append(kwargs['episode_body'])
+            episode = source_episode(f'ep-{len(self.writes)}', kwargs['episode_body'])
+            edge = source_edge([episode.uuid], uuid=f'edge-{len(self.writes)}')
+            body = json.loads(episode.content)
+            edge.fact = next(
+                span['text']
+                for span in body['h_recongraph']['source_spans']
+                if span['field'] == 'fact'
+            )
+            episode.entity_edges = [edge.uuid]
+            self.episodes.append(episode)
+            self.edges.append(edge)
+            return AddEpisodeResults(
+                episode=episode,
+                nodes=[],
+                edges=[edge],
+                episodic_edges=[],
+                communities=[],
+                community_edges=[],
+            )
+
+    def make_bundle(memory_id, fact, month):
+        return UnifiedMemoryUnit(
+            memory_id=memory_id,
+            user_id='u1',
+            layer='M1',
+            lifecycle_status='active_short_term',
+            raw_content=f'{fact}\n\nOnly during {month}.',
+            source_spans=[
+                SourceSpan(evidence_id=memory_id, field='fact', text=fact),
+                SourceSpan(evidence_id=memory_id, field='constraint', text=f'Only during {month}.'),
+            ],
+        )
+
+    client = BundleGraphiti()
+    controller = HReConGraphMemory(client)
+    old = await controller.add_memory(make_bundle('stm-a', 'Atlas uses Redis.', 'October'))
+    kept = await controller.add_memory(make_bundle('stm-b', 'Beta uses SQLite.', 'December'))
+    kept_body = client.episodes[1].content
+    kept_edge = client.edges[1].model_dump()
+    await controller.update_memory(
+        old.memory_id,
+        operation='modify',
+        replacement=make_bundle('draft', 'Atlas uses PostgreSQL.', 'November'),
+    )
+    reader = HReConGraphMemory(client)
+    context = await reader.retrieve('Atlas', 'u1', source_mode='evidence_bundle')
+    assert 'Redis' not in context.context_text
+    assert 'PostgreSQL' in context.context_text and 'November' in context.context_text
+    assert reader.short_term_memories[old.memory_id].version == 2
+    new = await controller.update_memory(
+        old.memory_id,
+        operation='supersede',
+        replacement=make_bundle('stm-new', 'Atlas uses Memcached.', 'January'),
+    )
+    reader = HReConGraphMemory(client)
+    context = await reader.retrieve('Atlas', 'u1', source_mode='evidence_bundle')
+    assert 'PostgreSQL' not in context.context_text
+    assert 'Memcached' in context.context_text and 'January' in context.context_text
+    assert reader.short_term_memories[new.memory_id].supersedes == [old.memory_id]
+    await controller.update_memory(new.memory_id, operation='delete')
+    reader = HReConGraphMemory(client)
+    context = await reader.retrieve('Atlas', 'u1', source_mode='evidence_bundle')
+    assert 'Atlas' not in context.context_text
+    assert client.episodes[0].content == kept_body
+    assert client.edges[0].model_dump() == kept_edge
+    assert list(reader.short_term_memories) == [kept.memory_id]
+    assert len(client.writes) == 4
+
+
+def test_reading_ablation_reports_per_dimension_evidence_and_probe_results():
+    path = Path(__file__).parents[1] / 'h_recongraph/examples/read_context_cases.json'
+    cases = json.loads(path.read_text(encoding='utf-8'))
+
+    result = evaluate_cases(cases, repeats=1)
+
+    assert result['length_unit'] == 'unicode_characters'
+    assert result['latency_scope'] == 'render_text only'
+    assert result['summary']['full_source']['complete_cases'] == 16
+    assert result['summary']['evidence_bundle']['complete_cases'] == 12
+    assert result['summary']['evidence_bundle']['extractive_probe_correct'] == 12
+    assert {row['case_id'] for row in result['rows'] if not row['complete']} == {
+        f'{dimension}-unanchored' for dimension in ('fact', 'constraint', 'path', 'causal')
+    }
+
+
+def test_explicit_causal_span_restores_cross_paragraph_evidence_in_ablation():
+    path = Path(__file__).parents[1] / 'h_recongraph/examples/read_context_cases.json'
+    cases = json.loads(path.read_text(encoding='utf-8'))
+    case = next(case for case in cases if case['id'] == 'causal-unanchored')
+    linked = {
+        **case,
+        'id': 'causal-explicit-span',
+        'spans': [{'field': 'cause', 'text': case['required'][1]}],
+    }
+
+    result = evaluate_cases([case, linked], repeats=1)
+    rows = [row for row in result['rows'] if row['mode'] == 'evidence_bundle']
+
+    assert [row['complete'] for row in rows] == [False, True]
+    assert [row['probe_correct'] for row in rows] == [False, True]
+
+
+@pytest.mark.asyncio
+async def test_complete_write_bindings_recover_all_16_reading_bundles():
+    folder = Path(__file__).parents[1] / 'h_recongraph/examples'
+    cases = json.loads((folder / 'read_context_cases.json').read_text(encoding='utf-8'))
+    bindings = json.loads((folder / 'read_context_write_bindings.json').read_text(encoding='utf-8'))
+
+    contexts = await build_written_contexts(cases, bindings)
+    result = evaluate_cases(cases, repeats=1, contexts=contexts)
+
+    selected = result['summary']['evidence_bundle']
+    assert selected['case_count'] == 16
+    assert selected['complete_cases'] == 16
+    assert selected['extractive_probe_correct'] == 16
+    assert selected['total_tokens'] <= result['summary']['full_source']['total_tokens']
+    assert all(context.semantic_states[0].source_spans for context in contexts.values())
+    assert selected['total_chars'] < result['summary']['full_source']['total_chars']
+    for case in cases:
+        context = contexts[case['id']]
+        assert context.semantic_states[0].source_spans
+        assert 'cafeteria menus' not in context.render_text('evidence_bundle')
+        if case['id'].endswith('-paraphrase'):
+            assert len(context.render_text('evidence_bundle')) < len(
+                context.render_text('full_source')
+            )
+    ablation = evaluate_cases(
+        cases,
+        repeats=1,
+        contexts=contexts,
+        reading_configs=reading_configurations((0, 1, 2), ablation=True),
+    )
+    assert ablation['summary']['lexical_fact_window_w0']['complete_cases'] == 16
+    assert ablation['summary']['lexical_fact_window_w0']['extractive_probe_correct'] == 16
+
+
+@pytest.mark.asyncio
+async def test_natural_write_bindings_recover_all_16_reading_bundles():
+    folder = Path(__file__).parents[1] / 'h_recongraph/examples'
+    cases = json.loads((folder / 'read_context_cases.json').read_text(encoding='utf-8'))
+
+    contexts = await build_naturally_bound_contexts(cases)
+    result = evaluate_cases(cases, repeats=1, contexts=contexts)
+
+    selected = result['summary']['evidence_bundle']
+    assert selected['case_count'] == 16
+    assert selected['total_tokens'] <= result['summary']['full_source']['total_tokens']
+    assert all(context.semantic_states[0].source_spans for context in contexts.values())
+
+
+@pytest.mark.asyncio
+async def test_paraphrase_retrieval_uses_written_fact_and_dependency_spans():
+    text = (
+        'Project A relies on Redis.\n\nOnly during October.\n\n'
+        'The cache serves the dashboard.\n\nThe reason is compatibility.\n\nOffice lunch at noon.'
+    )
+    writer = HReConGraphMemory()
+    memory = UnifiedMemoryUnit(
+        memory_id='stm-written',
+        user_id='u1',
+        layer='M1',
+        raw_content=text,
+        source_spans=[
+            SourceSpan(evidence_id='ev-written', field=field, text=paragraph)
+            for field, paragraph in zip(
+                ('fact', 'constraint', 'path', 'causal'), text.split('\n\n')[:4], strict=True
+            )
+        ],
+        metadata={'promoted_from': 'im-written'},
+    )
+    await writer.add_memory(memory)
+    source = source_episode('ep-written', GraphitiMemoryStore(None)._episode_body(memory))
+    edge = source_edge([source.uuid])
+    controller = HReConGraphMemory(SearchGraphiti([edge], [source]))
+
+    context = await controller.retrieve('Project A', 'u1', source_mode='evidence_bundle')
+
+    restored = controller.short_term_memories[memory.memory_id]
+    assert restored.source_spans == memory.source_spans
+    assert restored.graph_binding.edges == [edge.uuid]
+    assert restored.metadata['promoted_from'] == 'im-written'
+    assert all(paragraph in context.context_text for paragraph in text.split('\n\n')[:4])
+    assert 'Office lunch' not in context.context_text
+
+
+@pytest.mark.asyncio
+async def test_natural_write_binding_recovers_paraphrased_graph_fact():
+    text = (
+        'Project A uses Redis.\n\n'
+        'Redis serves the dashboard through the cache.\n\n'
+        'Office lunch is at noon.'
+    )
+    writer = HReConGraphMemory()
+    memory = UnifiedMemoryUnit(
+        memory_id='stm-natural',
+        user_id='u1',
+        layer='M1',
+        raw_content=text,
+        source_spans=[SourceSpan(evidence_id='ev-natural', field='raw', text=text)],
+    )
+    await writer.add_memory(memory)
+    source = source_episode('ep-natural', GraphitiMemoryStore(None)._episode_body(memory))
+    edge = source_edge([source.uuid])
+    edge.fact = 'Project A relies on Redis.'
+
+    controller = HReConGraphMemory(SearchGraphiti([edge], [source]))
+    context = await controller.retrieve('Project A', 'u1', source_mode='evidence_bundle')
+
+    restored = controller.short_term_memories[memory.memory_id]
+    assert any(span.field == 'fact' for span in restored.source_spans)
+    assert any(span.field == 'path' for span in restored.source_spans)
+    assert context.semantic_states
+    assert 'Project A uses Redis.' in context.context_text
+    assert 'Office lunch is at noon.' not in context.context_text
+
+
+@pytest.mark.asyncio
+async def test_continuous_update_replay_checks_warm_and_restored_reading():
+    path = Path(__file__).parents[1] / 'h_recongraph/examples/continuous_update_cases.json'
+    cases = json.loads(path.read_text(encoding='utf-8'))
+
+    result = await evaluate_sequences(cases[:1])
+
+    assert result['turn_count'] == 11
+    assert len(result['rows']) == 88
+    for summary in result['conditions']['incremental_merge'].values():
+        assert summary['changed'] == {'correct': 11, 'total': 11, 'rate': 1.0}
+        assert summary['kept'] == {'correct': 22, 'total': 22, 'rate': 1.0}
+        assert summary['four_dim_complete'] == {'correct': 34, 'total': 34, 'rate': 1.0}
+        assert summary['stale_misuse'] == {'correct': 0, 'total': 6, 'rate': 0.0}
+    for summary in result['conditions']['replace_fragment'].values():
+        assert summary['changed']['correct'] == 4
+        assert summary['four_dim_complete']['correct'] == 6
+
+
+def test_update_metrics_distinguish_changed_kept_completeness_and_stale_exposure():
+    path = Path(__file__).parents[1] / 'h_recongraph/examples/continuous_update_cases.json'
+    turn = json.loads(path.read_text(encoding='utf-8'))[0]['turns'][5]
+    spans = [
+        SourceSpan(**span)
+        for dimension, values in turn['expected'].items()
+        if dimension != 'causal'
+        for span in values
+    ]
+    memory = make_bundle('stm-check', spans)
+    context = HierarchicalMemoryContext(
+        query='Atlas',
+        selected_layers=['M1'],
+        context_text=memory.raw_content + '\n' + turn['stale'][0],
+    )
+
+    row = score_checkpoint(turn, [memory], context, {'stm-check'})
+    row['kept_checks'] = {'stm-other': False}
+    summary = summarize([row])
+
+    assert summary['changed']['rate'] == 1.0
+    assert summary['kept']['rate'] == 0.0
+    assert summary['four_dim_complete']['rate'] == 0.75
+    assert summary['stale_misuse']['rate'] == 1.0
+
+
+def test_covered_long_edge_uses_source_reference_and_keeps_paraphrases():
+    text = 'Atlas uses Redis to serve analytics dashboards during the October project trial.'
+    source = source_episode('ep-edge-share', text)
+    edge = source_edge([source.uuid])
+    edge.fact = text
+    context = HierarchicalMemoryContext(
+        query='Atlas Redis', selected_layers=['M1'], graph_edges=[edge], source_episodes=[source]
+    )
+    repeated = context.render_text('evidence_bundle', deduplicate_edge_facts=False)
+    shared = context.render_text('evidence_bundle')
+    assert repeated.count(text) == 2
+    assert shared.count(text) == 1
+    assert '[EDGE] node-a -> node-b: USES [source=ep-edge-share]' in shared
+    assert len(shared) < len(repeated)
+    edge.fact = 'Atlas relies on Redis.'
+    assert edge.fact in context.render_text('evidence_bundle')
+
+
+def test_lexical_dependencies_and_fact_windows_are_separate_selections():
+    units = [
+        'user: Atlas uses Redis.',
+        'assistant: Nearby response.',
+        'user: A separate topic.',
+        'user: Because Redis supports compatibility.',
+        'assistant: Remote neighbor.',
+        'user: Only during office lunch.',
+        'assistant: Another remote neighbor.',
+    ]
+    text = '\n\n'.join(units)
+    source = source_episode('ep-scope', text)
+    edge = source_edge([source.uuid])
+    edge.fact = units[0]
+    spans = [
+        SourceSpan(
+            evidence_id=source.uuid,
+            field=field,
+            text=units[index],
+            start=text.index(units[index]),
+            end=text.index(units[index]) + len(units[index]),
+        )
+        for field, index in [('causal', 3), ('constraint', 5)]
+    ]
+    context = HierarchicalMemoryContext(
+        query='Atlas Redis',
+        selected_layers=['M1'],
+        graph_edges=[edge],
+        source_episodes=[source],
+        source_units={source.uuid: units},
+        source_fact_indices={source.uuid: [0]},
+        semantic_states=[
+            MemorySemanticState(
+                edge_or_subgraph_id='scope',
+                source_spans=spans,
+                state_type='evidence_supported',
+            )
+        ],
+    )
+    indexes = context.source_indices(source, 1, dependency_mode='lexical', window_scope='fact')
+    assert indexes == {'fact': [0], 'dependencies': [3], 'window': [1], 'fallback': []}
+    assert context.source_indices(source, 1, window_scope='fact')['dependencies'] == [3, 5]
+    assert context.source_indices(source, 1, dependency_mode='none', window_scope='fact') == {
+        'fact': [0],
+        'dependencies': [],
+        'window': [1],
+        'fallback': [],
+    }
+    assert context.source_indices(source, 1)['window'] == [1, 2, 4, 6]
+
+
+def test_explicit_dependency_survives_without_shared_content_words():
+    source = source_episode('ep-explicit-scope', 'Atlas uses Redis.\n\nOnly during October.')
+    edge = source_edge([source.uuid])
+    edge.fact = 'Atlas uses Redis.'
+    context = HierarchicalMemoryContext(
+        query='Atlas Redis',
+        selected_layers=['M1'],
+        graph_edges=[edge],
+        source_episodes=[source],
+        semantic_states=[
+            MemorySemanticState(
+                edge_or_subgraph_id='explicit-scope',
+                state_type='evidence_supported',
+                source_spans=[
+                    SourceSpan(
+                        evidence_id=source.uuid, field='constraint', text='Only during October.'
+                    )
+                ],
+            )
+        ],
+    )
+    assert context.source_indices(source, dependency_mode='lexical')['dependencies'] == [1]

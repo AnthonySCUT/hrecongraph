@@ -1,0 +1,5842 @@
+[
+  {
+    "id": "atlas-cache",
+    "query": "Atlas",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Atlas caches analytics queries.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: Only during October.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during October.",
+              "evidence_id": "ev-atlas-cache-2",
+              "start": 17,
+              "end": 37
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during October.",
+              "evidence_id": "ev-atlas-cache-2",
+              "start": 17,
+              "end": 37
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: The reason is legacy-client compatibility.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is legacy-client compatibility.",
+              "evidence_id": "ev-atlas-cache-3",
+              "start": 17,
+              "end": 59
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during October.",
+              "evidence_id": "ev-atlas-cache-2",
+              "start": 17,
+              "end": 37
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is legacy-client compatibility.",
+              "evidence_id": "ev-atlas-cache-3",
+              "start": 17,
+              "end": 59
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: Requests reach Redis.\n\nRedis feeds the dashboard.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 17,
+              "end": 38
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the dashboard.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 40,
+              "end": 66
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during October.",
+              "evidence_id": "ev-atlas-cache-2",
+              "start": 17,
+              "end": 37
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 17,
+              "end": 38
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the dashboard.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 40,
+              "end": 66
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is legacy-client compatibility.",
+              "evidence_id": "ev-atlas-cache-3",
+              "start": 17,
+              "end": 59
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: Only on weekdays.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only on weekdays.",
+              "evidence_id": "ev-atlas-cache-5",
+              "start": 17,
+              "end": 34
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during October.",
+              "evidence_id": "ev-atlas-cache-2",
+              "start": 17,
+              "end": 37
+            },
+            {
+              "field": "constraint",
+              "text": "Only on weekdays.",
+              "evidence_id": "ev-atlas-cache-5",
+              "start": 17,
+              "end": 34
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 17,
+              "end": 38
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the dashboard.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 40,
+              "end": 66
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is legacy-client compatibility.",
+              "evidence_id": "ev-atlas-cache-3",
+              "start": 17,
+              "end": 59
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Only during November.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during November.",
+              "evidence_id": "ev-atlas-cache-6",
+              "start": 38,
+              "end": 59
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during November.",
+              "evidence_id": "ev-atlas-cache-6",
+              "start": 38,
+              "end": 59
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 17,
+              "end": 38
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the dashboard.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 40,
+              "end": 66
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is legacy-client compatibility.",
+              "evidence_id": "ev-atlas-cache-3",
+              "start": 17,
+              "end": 59
+            }
+          ]
+        },
+        "stale": [
+          "Only during October.",
+          "Only on weekdays."
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: The reason is lower response latency.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is lower response latency.",
+              "evidence_id": "ev-atlas-cache-7",
+              "start": 38,
+              "end": 75
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during November.",
+              "evidence_id": "ev-atlas-cache-6",
+              "start": 38,
+              "end": 59
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 17,
+              "end": 38
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the dashboard.",
+              "evidence_id": "ev-atlas-cache-4",
+              "start": 40,
+              "end": 66
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is lower response latency.",
+              "evidence_id": "ev-atlas-cache-7",
+              "start": 38,
+              "end": 75
+            }
+          ]
+        },
+        "stale": [
+          "Only during October.",
+          "Only on weekdays.",
+          "The reason is legacy-client compatibility."
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Requests reach Redis.\n\nRedis feeds the reporting service.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-8",
+              "start": 38,
+              "end": 59
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the reporting service.",
+              "evidence_id": "ev-atlas-cache-8",
+              "start": 61,
+              "end": 95
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches analytics queries.",
+              "evidence_id": "ev-atlas-cache-1",
+              "start": 17,
+              "end": 48
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during November.",
+              "evidence_id": "ev-atlas-cache-6",
+              "start": 38,
+              "end": 59
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-8",
+              "start": 38,
+              "end": 59
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the reporting service.",
+              "evidence_id": "ev-atlas-cache-8",
+              "start": 61,
+              "end": 95
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is lower response latency.",
+              "evidence_id": "ev-atlas-cache-7",
+              "start": 38,
+              "end": 75
+            }
+          ]
+        },
+        "stale": [
+          "Only during October.",
+          "Only on weekdays.",
+          "The reason is legacy-client compatibility.",
+          "Redis feeds the dashboard."
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Atlas caches reporting queries.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches reporting queries.",
+              "evidence_id": "ev-atlas-cache-9",
+              "start": 38,
+              "end": 69
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas caches reporting queries.",
+              "evidence_id": "ev-atlas-cache-9",
+              "start": 38,
+              "end": 69
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during November.",
+              "evidence_id": "ev-atlas-cache-6",
+              "start": 38,
+              "end": 59
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests reach Redis.",
+              "evidence_id": "ev-atlas-cache-8",
+              "start": 38,
+              "end": 59
+            },
+            {
+              "field": "path",
+              "text": "Redis feeds the reporting service.",
+              "evidence_id": "ev-atlas-cache-8",
+              "start": 61,
+              "end": 95
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is lower response latency.",
+              "evidence_id": "ev-atlas-cache-7",
+              "start": 38,
+              "end": 75
+            }
+          ]
+        },
+        "stale": [
+          "Only during October.",
+          "Only on weekdays.",
+          "The reason is legacy-client compatibility.",
+          "Redis feeds the dashboard.",
+          "Atlas caches analytics queries."
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Atlas stores immutable reports.\n\nAtlas applies to the next phase.\n\nAtlas connects the archive to the reader.\n\nAtlas requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas stores immutable reports.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 38,
+              "end": 69
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Atlas applies to the next phase.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 71,
+              "end": 103
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Atlas connects the archive to the reader.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 105,
+              "end": 146
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Atlas requires durable records.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 148,
+              "end": 179
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Atlas stores immutable reports.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 38,
+              "end": 69
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Atlas applies to the next phase.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 71,
+              "end": 103
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Atlas connects the archive to the reader.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 105,
+              "end": 146
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Atlas requires durable records.",
+              "evidence_id": "ev-atlas-cache-10",
+              "start": 148,
+              "end": 179
+            }
+          ]
+        },
+        "stale": [
+          "Only during October.",
+          "Only on weekdays.",
+          "The reason is legacy-client compatibility.",
+          "Redis feeds the dashboard.",
+          "Atlas caches analytics queries.",
+          "Atlas caches reporting queries.",
+          "Only during November.",
+          "Requests reach Redis.",
+          "Redis feeds the reporting service.",
+          "The reason is lower response latency."
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Atlas memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "Only during October.",
+          "Only on weekdays.",
+          "The reason is legacy-client compatibility.",
+          "Redis feeds the dashboard.",
+          "Atlas caches analytics queries.",
+          "Atlas caches reporting queries.",
+          "Only during November.",
+          "Requests reach Redis.",
+          "Redis feeds the reporting service.",
+          "The reason is lower response latency.",
+          "Atlas stores immutable reports.",
+          "Atlas applies to the next phase.",
+          "Atlas connects the archive to the reader.",
+          "Atlas requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "beacon-review",
+    "query": "Beacon",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Beacon assigns reviews to Team Blue.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: Only for the pilot release.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the pilot release.",
+              "evidence_id": "ev-beacon-review-2",
+              "start": 17,
+              "end": 44
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the pilot release.",
+              "evidence_id": "ev-beacon-review-2",
+              "start": 17,
+              "end": 44
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: The reason is limited reviewer capacity.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is limited reviewer capacity.",
+              "evidence_id": "ev-beacon-review-3",
+              "start": 17,
+              "end": 57
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the pilot release.",
+              "evidence_id": "ev-beacon-review-2",
+              "start": 17,
+              "end": 44
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is limited reviewer capacity.",
+              "evidence_id": "ev-beacon-review-3",
+              "start": 17,
+              "end": 57
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: Documents enter the review queue.\n\nThe review queue feeds the editor.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the editor.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 52,
+              "end": 86
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the pilot release.",
+              "evidence_id": "ev-beacon-review-2",
+              "start": 17,
+              "end": 44
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the editor.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 52,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is limited reviewer capacity.",
+              "evidence_id": "ev-beacon-review-3",
+              "start": 17,
+              "end": 57
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: Only for internal reviewers.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for internal reviewers.",
+              "evidence_id": "ev-beacon-review-5",
+              "start": 17,
+              "end": 45
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the pilot release.",
+              "evidence_id": "ev-beacon-review-2",
+              "start": 17,
+              "end": 44
+            },
+            {
+              "field": "constraint",
+              "text": "Only for internal reviewers.",
+              "evidence_id": "ev-beacon-review-5",
+              "start": 17,
+              "end": 45
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the editor.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 52,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is limited reviewer capacity.",
+              "evidence_id": "ev-beacon-review-3",
+              "start": 17,
+              "end": 57
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Only for the public release.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the public release.",
+              "evidence_id": "ev-beacon-review-6",
+              "start": 38,
+              "end": 66
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the public release.",
+              "evidence_id": "ev-beacon-review-6",
+              "start": 38,
+              "end": 66
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the editor.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 52,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is limited reviewer capacity.",
+              "evidence_id": "ev-beacon-review-3",
+              "start": 17,
+              "end": 57
+            }
+          ]
+        },
+        "stale": [
+          "Only for the pilot release.",
+          "Only for internal reviewers."
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: The reason is a revised ownership agreement.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised ownership agreement.",
+              "evidence_id": "ev-beacon-review-7",
+              "start": 38,
+              "end": 82
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the public release.",
+              "evidence_id": "ev-beacon-review-6",
+              "start": 38,
+              "end": 66
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the editor.",
+              "evidence_id": "ev-beacon-review-4",
+              "start": 52,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised ownership agreement.",
+              "evidence_id": "ev-beacon-review-7",
+              "start": 38,
+              "end": 82
+            }
+          ]
+        },
+        "stale": [
+          "Only for the pilot release.",
+          "Only for internal reviewers.",
+          "The reason is limited reviewer capacity."
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Documents enter the review queue.\n\nThe review queue feeds the publisher.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-8",
+              "start": 38,
+              "end": 71
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the publisher.",
+              "evidence_id": "ev-beacon-review-8",
+              "start": 73,
+              "end": 110
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Blue.",
+              "evidence_id": "ev-beacon-review-1",
+              "start": 17,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the public release.",
+              "evidence_id": "ev-beacon-review-6",
+              "start": 38,
+              "end": 66
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-8",
+              "start": 38,
+              "end": 71
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the publisher.",
+              "evidence_id": "ev-beacon-review-8",
+              "start": 73,
+              "end": 110
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised ownership agreement.",
+              "evidence_id": "ev-beacon-review-7",
+              "start": 38,
+              "end": 82
+            }
+          ]
+        },
+        "stale": [
+          "Only for the pilot release.",
+          "Only for internal reviewers.",
+          "The reason is limited reviewer capacity.",
+          "The review queue feeds the editor."
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Beacon assigns reviews to Team Green.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Green.",
+              "evidence_id": "ev-beacon-review-9",
+              "start": 38,
+              "end": 75
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon assigns reviews to Team Green.",
+              "evidence_id": "ev-beacon-review-9",
+              "start": 38,
+              "end": 75
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for the public release.",
+              "evidence_id": "ev-beacon-review-6",
+              "start": 38,
+              "end": 66
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Documents enter the review queue.",
+              "evidence_id": "ev-beacon-review-8",
+              "start": 38,
+              "end": 71
+            },
+            {
+              "field": "path",
+              "text": "The review queue feeds the publisher.",
+              "evidence_id": "ev-beacon-review-8",
+              "start": 73,
+              "end": 110
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised ownership agreement.",
+              "evidence_id": "ev-beacon-review-7",
+              "start": 38,
+              "end": 82
+            }
+          ]
+        },
+        "stale": [
+          "Only for the pilot release.",
+          "Only for internal reviewers.",
+          "The reason is limited reviewer capacity.",
+          "The review queue feeds the editor.",
+          "Beacon assigns reviews to Team Blue."
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Beacon publishes approved summaries.\n\nBeacon applies to the next phase.\n\nBeacon connects the archive to the reader.\n\nBeacon requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon publishes approved summaries.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 38,
+              "end": 74
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Beacon applies to the next phase.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 76,
+              "end": 109
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Beacon connects the archive to the reader.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 111,
+              "end": 153
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Beacon requires durable records.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 155,
+              "end": 187
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Beacon publishes approved summaries.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 38,
+              "end": 74
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Beacon applies to the next phase.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 76,
+              "end": 109
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Beacon connects the archive to the reader.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 111,
+              "end": 153
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Beacon requires durable records.",
+              "evidence_id": "ev-beacon-review-10",
+              "start": 155,
+              "end": 187
+            }
+          ]
+        },
+        "stale": [
+          "Only for the pilot release.",
+          "Only for internal reviewers.",
+          "The reason is limited reviewer capacity.",
+          "The review queue feeds the editor.",
+          "Beacon assigns reviews to Team Blue.",
+          "Beacon assigns reviews to Team Green.",
+          "Only for the public release.",
+          "Documents enter the review queue.",
+          "The review queue feeds the publisher.",
+          "The reason is a revised ownership agreement."
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Beacon memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "Only for the pilot release.",
+          "Only for internal reviewers.",
+          "The reason is limited reviewer capacity.",
+          "The review queue feeds the editor.",
+          "Beacon assigns reviews to Team Blue.",
+          "Beacon assigns reviews to Team Green.",
+          "Only for the public release.",
+          "Documents enter the review queue.",
+          "The review queue feeds the publisher.",
+          "The reason is a revised ownership agreement.",
+          "Beacon publishes approved summaries.",
+          "Beacon applies to the next phase.",
+          "Beacon connects the archive to the reader.",
+          "Beacon requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cedar-booking",
+    "query": "Cedar",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Cedar reserves Room North.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: Only during the morning shift.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the morning shift.",
+              "evidence_id": "ev-cedar-booking-2",
+              "start": 17,
+              "end": 47
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the morning shift.",
+              "evidence_id": "ev-cedar-booking-2",
+              "start": 17,
+              "end": 47
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: The reason is projector availability.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is projector availability.",
+              "evidence_id": "ev-cedar-booking-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the morning shift.",
+              "evidence_id": "ev-cedar-booking-2",
+              "start": 17,
+              "end": 47
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is projector availability.",
+              "evidence_id": "ev-cedar-booking-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: Requests enter the booking portal.\n\nThe booking portal notifies reception.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 17,
+              "end": 51
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies reception.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 53,
+              "end": 91
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the morning shift.",
+              "evidence_id": "ev-cedar-booking-2",
+              "start": 17,
+              "end": 47
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 17,
+              "end": 51
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies reception.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 53,
+              "end": 91
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is projector availability.",
+              "evidence_id": "ev-cedar-booking-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: Only for registered attendees.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for registered attendees.",
+              "evidence_id": "ev-cedar-booking-5",
+              "start": 17,
+              "end": 47
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the morning shift.",
+              "evidence_id": "ev-cedar-booking-2",
+              "start": 17,
+              "end": 47
+            },
+            {
+              "field": "constraint",
+              "text": "Only for registered attendees.",
+              "evidence_id": "ev-cedar-booking-5",
+              "start": 17,
+              "end": 47
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 17,
+              "end": 51
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies reception.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 53,
+              "end": 91
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is projector availability.",
+              "evidence_id": "ev-cedar-booking-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Only during the evening shift.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the evening shift.",
+              "evidence_id": "ev-cedar-booking-6",
+              "start": 38,
+              "end": 68
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the evening shift.",
+              "evidence_id": "ev-cedar-booking-6",
+              "start": 38,
+              "end": 68
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 17,
+              "end": 51
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies reception.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 53,
+              "end": 91
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is projector availability.",
+              "evidence_id": "ev-cedar-booking-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": [
+          "Only during the morning shift.",
+          "Only for registered attendees."
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: The reason is expanded seating capacity.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is expanded seating capacity.",
+              "evidence_id": "ev-cedar-booking-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the evening shift.",
+              "evidence_id": "ev-cedar-booking-6",
+              "start": 38,
+              "end": 68
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 17,
+              "end": 51
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies reception.",
+              "evidence_id": "ev-cedar-booking-4",
+              "start": 53,
+              "end": 91
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is expanded seating capacity.",
+              "evidence_id": "ev-cedar-booking-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "stale": [
+          "Only during the morning shift.",
+          "Only for registered attendees.",
+          "The reason is projector availability."
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Requests enter the booking portal.\n\nThe booking portal notifies the coordinator.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-8",
+              "start": 38,
+              "end": 72
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies the coordinator.",
+              "evidence_id": "ev-cedar-booking-8",
+              "start": 74,
+              "end": 118
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room North.",
+              "evidence_id": "ev-cedar-booking-1",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the evening shift.",
+              "evidence_id": "ev-cedar-booking-6",
+              "start": 38,
+              "end": 68
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-8",
+              "start": 38,
+              "end": 72
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies the coordinator.",
+              "evidence_id": "ev-cedar-booking-8",
+              "start": 74,
+              "end": 118
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is expanded seating capacity.",
+              "evidence_id": "ev-cedar-booking-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "stale": [
+          "Only during the morning shift.",
+          "Only for registered attendees.",
+          "The reason is projector availability.",
+          "The booking portal notifies reception."
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Cedar reserves Room South.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room South.",
+              "evidence_id": "ev-cedar-booking-9",
+              "start": 38,
+              "end": 64
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves Room South.",
+              "evidence_id": "ev-cedar-booking-9",
+              "start": 38,
+              "end": 64
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the evening shift.",
+              "evidence_id": "ev-cedar-booking-6",
+              "start": 38,
+              "end": 68
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Requests enter the booking portal.",
+              "evidence_id": "ev-cedar-booking-8",
+              "start": 38,
+              "end": 72
+            },
+            {
+              "field": "path",
+              "text": "The booking portal notifies the coordinator.",
+              "evidence_id": "ev-cedar-booking-8",
+              "start": 74,
+              "end": 118
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is expanded seating capacity.",
+              "evidence_id": "ev-cedar-booking-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "stale": [
+          "Only during the morning shift.",
+          "Only for registered attendees.",
+          "The reason is projector availability.",
+          "The booking portal notifies reception.",
+          "Cedar reserves Room North."
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Cedar reserves the remote meeting channel.\n\nCedar applies to the next phase.\n\nCedar connects the archive to the reader.\n\nCedar requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves the remote meeting channel.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 38,
+              "end": 80
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Cedar applies to the next phase.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 82,
+              "end": 114
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Cedar connects the archive to the reader.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 116,
+              "end": 157
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Cedar requires durable records.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 159,
+              "end": 190
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Cedar reserves the remote meeting channel.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 38,
+              "end": 80
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Cedar applies to the next phase.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 82,
+              "end": 114
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Cedar connects the archive to the reader.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 116,
+              "end": 157
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Cedar requires durable records.",
+              "evidence_id": "ev-cedar-booking-10",
+              "start": 159,
+              "end": 190
+            }
+          ]
+        },
+        "stale": [
+          "Only during the morning shift.",
+          "Only for registered attendees.",
+          "The reason is projector availability.",
+          "The booking portal notifies reception.",
+          "Cedar reserves Room North.",
+          "Cedar reserves Room South.",
+          "Only during the evening shift.",
+          "Requests enter the booking portal.",
+          "The booking portal notifies the coordinator.",
+          "The reason is expanded seating capacity."
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Cedar memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "Only during the morning shift.",
+          "Only for registered attendees.",
+          "The reason is projector availability.",
+          "The booking portal notifies reception.",
+          "Cedar reserves Room North.",
+          "Cedar reserves Room South.",
+          "Only during the evening shift.",
+          "Requests enter the booking portal.",
+          "The booking portal notifies the coordinator.",
+          "The reason is expanded seating capacity.",
+          "Cedar reserves the remote meeting channel.",
+          "Cedar applies to the next phase.",
+          "Cedar connects the archive to the reader.",
+          "Cedar requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delta-delivery",
+    "query": "Delta",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Delta ships parcels through Hub West.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: Only before Friday.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Friday.",
+              "evidence_id": "ev-delta-delivery-2",
+              "start": 17,
+              "end": 36
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Friday.",
+              "evidence_id": "ev-delta-delivery-2",
+              "start": 17,
+              "end": 36
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: The reason is a scheduled road closure.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a scheduled road closure.",
+              "evidence_id": "ev-delta-delivery-3",
+              "start": 17,
+              "end": 56
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Friday.",
+              "evidence_id": "ev-delta-delivery-2",
+              "start": 17,
+              "end": 36
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a scheduled road closure.",
+              "evidence_id": "ev-delta-delivery-3",
+              "start": 17,
+              "end": 56
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: Orders enter dispatch.\n\nDispatch forwards parcels to the courier.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 17,
+              "end": 39
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the courier.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 41,
+              "end": 82
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Friday.",
+              "evidence_id": "ev-delta-delivery-2",
+              "start": 17,
+              "end": 36
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 17,
+              "end": 39
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the courier.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 41,
+              "end": 82
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a scheduled road closure.",
+              "evidence_id": "ev-delta-delivery-3",
+              "start": 17,
+              "end": 56
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: Only for domestic parcels.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for domestic parcels.",
+              "evidence_id": "ev-delta-delivery-5",
+              "start": 17,
+              "end": 43
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Friday.",
+              "evidence_id": "ev-delta-delivery-2",
+              "start": 17,
+              "end": 36
+            },
+            {
+              "field": "constraint",
+              "text": "Only for domestic parcels.",
+              "evidence_id": "ev-delta-delivery-5",
+              "start": 17,
+              "end": 43
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 17,
+              "end": 39
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the courier.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 41,
+              "end": 82
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a scheduled road closure.",
+              "evidence_id": "ev-delta-delivery-3",
+              "start": 17,
+              "end": 56
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Only before Monday.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Monday.",
+              "evidence_id": "ev-delta-delivery-6",
+              "start": 38,
+              "end": 57
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Monday.",
+              "evidence_id": "ev-delta-delivery-6",
+              "start": 38,
+              "end": 57
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 17,
+              "end": 39
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the courier.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 41,
+              "end": 82
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a scheduled road closure.",
+              "evidence_id": "ev-delta-delivery-3",
+              "start": 17,
+              "end": 56
+            }
+          ]
+        },
+        "stale": [
+          "Only before Friday.",
+          "Only for domestic parcels."
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: The reason is revised warehouse allocation.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is revised warehouse allocation.",
+              "evidence_id": "ev-delta-delivery-7",
+              "start": 38,
+              "end": 81
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Monday.",
+              "evidence_id": "ev-delta-delivery-6",
+              "start": 38,
+              "end": 57
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 17,
+              "end": 39
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the courier.",
+              "evidence_id": "ev-delta-delivery-4",
+              "start": 41,
+              "end": 82
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is revised warehouse allocation.",
+              "evidence_id": "ev-delta-delivery-7",
+              "start": 38,
+              "end": 81
+            }
+          ]
+        },
+        "stale": [
+          "Only before Friday.",
+          "Only for domestic parcels.",
+          "The reason is a scheduled road closure."
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Orders enter dispatch.\n\nDispatch forwards parcels to the pickup desk.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-8",
+              "start": 38,
+              "end": 60
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the pickup desk.",
+              "evidence_id": "ev-delta-delivery-8",
+              "start": 62,
+              "end": 107
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub West.",
+              "evidence_id": "ev-delta-delivery-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Monday.",
+              "evidence_id": "ev-delta-delivery-6",
+              "start": 38,
+              "end": 57
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-8",
+              "start": 38,
+              "end": 60
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the pickup desk.",
+              "evidence_id": "ev-delta-delivery-8",
+              "start": 62,
+              "end": 107
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is revised warehouse allocation.",
+              "evidence_id": "ev-delta-delivery-7",
+              "start": 38,
+              "end": 81
+            }
+          ]
+        },
+        "stale": [
+          "Only before Friday.",
+          "Only for domestic parcels.",
+          "The reason is a scheduled road closure.",
+          "Dispatch forwards parcels to the courier."
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Delta ships parcels through Hub East.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub East.",
+              "evidence_id": "ev-delta-delivery-9",
+              "start": 38,
+              "end": 75
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta ships parcels through Hub East.",
+              "evidence_id": "ev-delta-delivery-9",
+              "start": 38,
+              "end": 75
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only before Monday.",
+              "evidence_id": "ev-delta-delivery-6",
+              "start": 38,
+              "end": 57
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orders enter dispatch.",
+              "evidence_id": "ev-delta-delivery-8",
+              "start": 38,
+              "end": 60
+            },
+            {
+              "field": "path",
+              "text": "Dispatch forwards parcels to the pickup desk.",
+              "evidence_id": "ev-delta-delivery-8",
+              "start": 62,
+              "end": 107
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is revised warehouse allocation.",
+              "evidence_id": "ev-delta-delivery-7",
+              "start": 38,
+              "end": 81
+            }
+          ]
+        },
+        "stale": [
+          "Only before Friday.",
+          "Only for domestic parcels.",
+          "The reason is a scheduled road closure.",
+          "Dispatch forwards parcels to the courier.",
+          "Delta ships parcels through Hub West."
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Delta uses local pickup for parcels.\n\nDelta applies to the next phase.\n\nDelta connects the archive to the reader.\n\nDelta requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta uses local pickup for parcels.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 38,
+              "end": 74
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Delta applies to the next phase.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 76,
+              "end": 108
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Delta connects the archive to the reader.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 110,
+              "end": 151
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Delta requires durable records.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 153,
+              "end": 184
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Delta uses local pickup for parcels.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 38,
+              "end": 74
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Delta applies to the next phase.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 76,
+              "end": 108
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Delta connects the archive to the reader.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 110,
+              "end": 151
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Delta requires durable records.",
+              "evidence_id": "ev-delta-delivery-10",
+              "start": 153,
+              "end": 184
+            }
+          ]
+        },
+        "stale": [
+          "Only before Friday.",
+          "Only for domestic parcels.",
+          "The reason is a scheduled road closure.",
+          "Dispatch forwards parcels to the courier.",
+          "Delta ships parcels through Hub West.",
+          "Delta ships parcels through Hub East.",
+          "Only before Monday.",
+          "Orders enter dispatch.",
+          "Dispatch forwards parcels to the pickup desk.",
+          "The reason is revised warehouse allocation."
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Delta memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "Only before Friday.",
+          "Only for domestic parcels.",
+          "The reason is a scheduled road closure.",
+          "Dispatch forwards parcels to the courier.",
+          "Delta ships parcels through Hub West.",
+          "Delta ships parcels through Hub East.",
+          "Only before Monday.",
+          "Orders enter dispatch.",
+          "Dispatch forwards parcels to the pickup desk.",
+          "The reason is revised warehouse allocation.",
+          "Delta uses local pickup for parcels.",
+          "Delta applies to the next phase.",
+          "Delta connects the archive to the reader.",
+          "Delta requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "orion-cn",
+    "query": "Orion",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Orion 项目缓存查询结果。",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: 仅在十月期间生效。",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在十月期间生效。",
+              "evidence_id": "ev-orion-cn-2",
+              "start": 17,
+              "end": 26
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在十月期间生效。",
+              "evidence_id": "ev-orion-cn-2",
+              "start": 17,
+              "end": 26
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: 原因是兼容旧客户端。",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是兼容旧客户端。",
+              "evidence_id": "ev-orion-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在十月期间生效。",
+              "evidence_id": "ev-orion-cn-2",
+              "start": 17,
+              "end": 26
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是兼容旧客户端。",
+              "evidence_id": "ev-orion-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: 请求先进入缓存服务。\n\n缓存服务再连接仪表盘。",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接仪表盘。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 29,
+              "end": 40
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在十月期间生效。",
+              "evidence_id": "ev-orion-cn-2",
+              "start": 17,
+              "end": 26
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接仪表盘。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 29,
+              "end": 40
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是兼容旧客户端。",
+              "evidence_id": "ev-orion-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: 仅限工作日使用。",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅限工作日使用。",
+              "evidence_id": "ev-orion-cn-5",
+              "start": 17,
+              "end": 25
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在十月期间生效。",
+              "evidence_id": "ev-orion-cn-2",
+              "start": 17,
+              "end": 26
+            },
+            {
+              "field": "constraint",
+              "text": "仅限工作日使用。",
+              "evidence_id": "ev-orion-cn-5",
+              "start": 17,
+              "end": 25
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接仪表盘。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 29,
+              "end": 40
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是兼容旧客户端。",
+              "evidence_id": "ev-orion-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: 改为仅在十一月期间生效。",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在十一月期间生效。",
+              "evidence_id": "ev-orion-cn-6",
+              "start": 38,
+              "end": 50
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在十一月期间生效。",
+              "evidence_id": "ev-orion-cn-6",
+              "start": 38,
+              "end": 50
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接仪表盘。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 29,
+              "end": 40
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是兼容旧客户端。",
+              "evidence_id": "ev-orion-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": [
+          "仅在十月期间生效。",
+          "仅限工作日使用。"
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: 原因是减少响应等待。",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是减少响应等待。",
+              "evidence_id": "ev-orion-cn-7",
+              "start": 38,
+              "end": 48
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在十一月期间生效。",
+              "evidence_id": "ev-orion-cn-6",
+              "start": 38,
+              "end": 50
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接仪表盘。",
+              "evidence_id": "ev-orion-cn-4",
+              "start": 29,
+              "end": 40
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是减少响应等待。",
+              "evidence_id": "ev-orion-cn-7",
+              "start": 38,
+              "end": 48
+            }
+          ]
+        },
+        "stale": [
+          "仅在十月期间生效。",
+          "仅限工作日使用。",
+          "原因是兼容旧客户端。"
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: 请求先进入缓存服务。\n\n缓存服务再连接报表服务。",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-8",
+              "start": 38,
+              "end": 48
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接报表服务。",
+              "evidence_id": "ev-orion-cn-8",
+              "start": 50,
+              "end": 62
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存查询结果。",
+              "evidence_id": "ev-orion-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在十一月期间生效。",
+              "evidence_id": "ev-orion-cn-6",
+              "start": 38,
+              "end": 50
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-8",
+              "start": 38,
+              "end": 48
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接报表服务。",
+              "evidence_id": "ev-orion-cn-8",
+              "start": 50,
+              "end": 62
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是减少响应等待。",
+              "evidence_id": "ev-orion-cn-7",
+              "start": 38,
+              "end": 48
+            }
+          ]
+        },
+        "stale": [
+          "仅在十月期间生效。",
+          "仅限工作日使用。",
+          "原因是兼容旧客户端。",
+          "缓存服务再连接仪表盘。"
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Orion 项目缓存报表结果。",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存报表结果。",
+              "evidence_id": "ev-orion-cn-9",
+              "start": 38,
+              "end": 53
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目缓存报表结果。",
+              "evidence_id": "ev-orion-cn-9",
+              "start": 38,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在十一月期间生效。",
+              "evidence_id": "ev-orion-cn-6",
+              "start": 38,
+              "end": 50
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "请求先进入缓存服务。",
+              "evidence_id": "ev-orion-cn-8",
+              "start": 38,
+              "end": 48
+            },
+            {
+              "field": "path",
+              "text": "缓存服务再连接报表服务。",
+              "evidence_id": "ev-orion-cn-8",
+              "start": 50,
+              "end": 62
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是减少响应等待。",
+              "evidence_id": "ev-orion-cn-7",
+              "start": 38,
+              "end": 48
+            }
+          ]
+        },
+        "stale": [
+          "仅在十月期间生效。",
+          "仅限工作日使用。",
+          "原因是兼容旧客户端。",
+          "缓存服务再连接仪表盘。",
+          "Orion 项目缓存查询结果。"
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Orion 项目保存归档结果。\n\nOrion applies to the next phase.\n\nOrion connects the archive to the reader.\n\nOrion requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目保存归档结果。",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 38,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Orion applies to the next phase.",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 55,
+              "end": 87
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orion connects the archive to the reader.",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 89,
+              "end": 130
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Orion requires durable records.",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 132,
+              "end": 163
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Orion 项目保存归档结果。",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 38,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Orion applies to the next phase.",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 55,
+              "end": 87
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Orion connects the archive to the reader.",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 89,
+              "end": 130
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Orion requires durable records.",
+              "evidence_id": "ev-orion-cn-10",
+              "start": 132,
+              "end": 163
+            }
+          ]
+        },
+        "stale": [
+          "仅在十月期间生效。",
+          "仅限工作日使用。",
+          "原因是兼容旧客户端。",
+          "缓存服务再连接仪表盘。",
+          "Orion 项目缓存查询结果。",
+          "Orion 项目缓存报表结果。",
+          "改为仅在十一月期间生效。",
+          "请求先进入缓存服务。",
+          "缓存服务再连接报表服务。",
+          "原因是减少响应等待。"
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Orion memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "仅在十月期间生效。",
+          "仅限工作日使用。",
+          "原因是兼容旧客户端。",
+          "缓存服务再连接仪表盘。",
+          "Orion 项目缓存查询结果。",
+          "Orion 项目缓存报表结果。",
+          "改为仅在十一月期间生效。",
+          "请求先进入缓存服务。",
+          "缓存服务再连接报表服务。",
+          "原因是减少响应等待。",
+          "Orion 项目保存归档结果。",
+          "Orion applies to the next phase.",
+          "Orion connects the archive to the reader.",
+          "Orion requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "vega-cn",
+    "query": "Vega",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Vega 将审阅任务交给蓝组。",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: 仅在试运行期间生效。",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在试运行期间生效。",
+              "evidence_id": "ev-vega-cn-2",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在试运行期间生效。",
+              "evidence_id": "ev-vega-cn-2",
+              "start": 17,
+              "end": 27
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: 原因是审阅人手有限。",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是审阅人手有限。",
+              "evidence_id": "ev-vega-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在试运行期间生效。",
+              "evidence_id": "ev-vega-cn-2",
+              "start": 17,
+              "end": 27
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是审阅人手有限。",
+              "evidence_id": "ev-vega-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: 文档先进入审阅队列。\n\n审阅队列再送交编辑。",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交编辑。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 29,
+              "end": 39
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在试运行期间生效。",
+              "evidence_id": "ev-vega-cn-2",
+              "start": 17,
+              "end": 27
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交编辑。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 29,
+              "end": 39
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是审阅人手有限。",
+              "evidence_id": "ev-vega-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: 仅限内部审阅人员。",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅限内部审阅人员。",
+              "evidence_id": "ev-vega-cn-5",
+              "start": 17,
+              "end": 26
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "仅在试运行期间生效。",
+              "evidence_id": "ev-vega-cn-2",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "constraint",
+              "text": "仅限内部审阅人员。",
+              "evidence_id": "ev-vega-cn-5",
+              "start": 17,
+              "end": 26
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交编辑。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 29,
+              "end": 39
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是审阅人手有限。",
+              "evidence_id": "ev-vega-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: 改为仅在正式发布期间生效。",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在正式发布期间生效。",
+              "evidence_id": "ev-vega-cn-6",
+              "start": 38,
+              "end": 51
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在正式发布期间生效。",
+              "evidence_id": "ev-vega-cn-6",
+              "start": 38,
+              "end": 51
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交编辑。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 29,
+              "end": 39
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是审阅人手有限。",
+              "evidence_id": "ev-vega-cn-3",
+              "start": 17,
+              "end": 27
+            }
+          ]
+        },
+        "stale": [
+          "仅在试运行期间生效。",
+          "仅限内部审阅人员。"
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: 原因是职责分工已经调整。",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是职责分工已经调整。",
+              "evidence_id": "ev-vega-cn-7",
+              "start": 38,
+              "end": 50
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在正式发布期间生效。",
+              "evidence_id": "ev-vega-cn-6",
+              "start": 38,
+              "end": 51
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 17,
+              "end": 27
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交编辑。",
+              "evidence_id": "ev-vega-cn-4",
+              "start": 29,
+              "end": 39
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是职责分工已经调整。",
+              "evidence_id": "ev-vega-cn-7",
+              "start": 38,
+              "end": 50
+            }
+          ]
+        },
+        "stale": [
+          "仅在试运行期间生效。",
+          "仅限内部审阅人员。",
+          "原因是审阅人手有限。"
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: 文档先进入审阅队列。\n\n审阅队列再送交发布人。",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-8",
+              "start": 38,
+              "end": 48
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交发布人。",
+              "evidence_id": "ev-vega-cn-8",
+              "start": 50,
+              "end": 61
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给蓝组。",
+              "evidence_id": "ev-vega-cn-1",
+              "start": 17,
+              "end": 32
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在正式发布期间生效。",
+              "evidence_id": "ev-vega-cn-6",
+              "start": 38,
+              "end": 51
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-8",
+              "start": 38,
+              "end": 48
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交发布人。",
+              "evidence_id": "ev-vega-cn-8",
+              "start": 50,
+              "end": 61
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是职责分工已经调整。",
+              "evidence_id": "ev-vega-cn-7",
+              "start": 38,
+              "end": 50
+            }
+          ]
+        },
+        "stale": [
+          "仅在试运行期间生效。",
+          "仅限内部审阅人员。",
+          "原因是审阅人手有限。",
+          "审阅队列再送交编辑。"
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Vega 将审阅任务交给绿组。",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给绿组。",
+              "evidence_id": "ev-vega-cn-9",
+              "start": 38,
+              "end": 53
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 将审阅任务交给绿组。",
+              "evidence_id": "ev-vega-cn-9",
+              "start": 38,
+              "end": 53
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "改为仅在正式发布期间生效。",
+              "evidence_id": "ev-vega-cn-6",
+              "start": 38,
+              "end": 51
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "文档先进入审阅队列。",
+              "evidence_id": "ev-vega-cn-8",
+              "start": 38,
+              "end": 48
+            },
+            {
+              "field": "path",
+              "text": "审阅队列再送交发布人。",
+              "evidence_id": "ev-vega-cn-8",
+              "start": 50,
+              "end": 61
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "原因是职责分工已经调整。",
+              "evidence_id": "ev-vega-cn-7",
+              "start": 38,
+              "end": 50
+            }
+          ]
+        },
+        "stale": [
+          "仅在试运行期间生效。",
+          "仅限内部审阅人员。",
+          "原因是审阅人手有限。",
+          "审阅队列再送交编辑。",
+          "Vega 将审阅任务交给蓝组。"
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Vega 发布已确认的摘要。\n\nVega applies to the next phase.\n\nVega connects the archive to the reader.\n\nVega requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 发布已确认的摘要。",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 38,
+              "end": 52
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Vega applies to the next phase.",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 54,
+              "end": 85
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Vega connects the archive to the reader.",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 87,
+              "end": 127
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Vega requires durable records.",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 129,
+              "end": 159
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Vega 发布已确认的摘要。",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 38,
+              "end": 52
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Vega applies to the next phase.",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 54,
+              "end": 85
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Vega connects the archive to the reader.",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 87,
+              "end": 127
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Vega requires durable records.",
+              "evidence_id": "ev-vega-cn-10",
+              "start": 129,
+              "end": 159
+            }
+          ]
+        },
+        "stale": [
+          "仅在试运行期间生效。",
+          "仅限内部审阅人员。",
+          "原因是审阅人手有限。",
+          "审阅队列再送交编辑。",
+          "Vega 将审阅任务交给蓝组。",
+          "Vega 将审阅任务交给绿组。",
+          "改为仅在正式发布期间生效。",
+          "文档先进入审阅队列。",
+          "审阅队列再送交发布人。",
+          "原因是职责分工已经调整。"
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Vega memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "仅在试运行期间生效。",
+          "仅限内部审阅人员。",
+          "原因是审阅人手有限。",
+          "审阅队列再送交编辑。",
+          "Vega 将审阅任务交给蓝组。",
+          "Vega 将审阅任务交给绿组。",
+          "改为仅在正式发布期间生效。",
+          "文档先进入审阅队列。",
+          "审阅队列再送交发布人。",
+          "原因是职责分工已经调整。",
+          "Vega 发布已确认的摘要。",
+          "Vega applies to the next phase.",
+          "Vega connects the archive to the reader.",
+          "Vega requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "museum-routing",
+    "query": "Museum",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Museum routes enquiries to Desk Blue.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: Only during the autumn exhibition.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the autumn exhibition.",
+              "evidence_id": "ev-museum-routing-2",
+              "start": 17,
+              "end": 51
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the autumn exhibition.",
+              "evidence_id": "ev-museum-routing-2",
+              "start": 17,
+              "end": 51
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: The reason is guide availability.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is guide availability.",
+              "evidence_id": "ev-museum-routing-3",
+              "start": 17,
+              "end": 50
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the autumn exhibition.",
+              "evidence_id": "ev-museum-routing-2",
+              "start": 17,
+              "end": 51
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is guide availability.",
+              "evidence_id": "ev-museum-routing-3",
+              "start": 17,
+              "end": 50
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: Enquiries reach the booking team.\n\nThe booking team informs the guide.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the guide.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 52,
+              "end": 87
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the autumn exhibition.",
+              "evidence_id": "ev-museum-routing-2",
+              "start": 17,
+              "end": 51
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the guide.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 52,
+              "end": 87
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is guide availability.",
+              "evidence_id": "ev-museum-routing-3",
+              "start": 17,
+              "end": 50
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: Only for school visits.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for school visits.",
+              "evidence_id": "ev-museum-routing-5",
+              "start": 17,
+              "end": 40
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the autumn exhibition.",
+              "evidence_id": "ev-museum-routing-2",
+              "start": 17,
+              "end": 51
+            },
+            {
+              "field": "constraint",
+              "text": "Only for school visits.",
+              "evidence_id": "ev-museum-routing-5",
+              "start": 17,
+              "end": 40
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the guide.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 52,
+              "end": 87
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is guide availability.",
+              "evidence_id": "ev-museum-routing-3",
+              "start": 17,
+              "end": 50
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Only during the winter exhibition.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the winter exhibition.",
+              "evidence_id": "ev-museum-routing-6",
+              "start": 38,
+              "end": 72
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the winter exhibition.",
+              "evidence_id": "ev-museum-routing-6",
+              "start": 38,
+              "end": 72
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the guide.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 52,
+              "end": 87
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is guide availability.",
+              "evidence_id": "ev-museum-routing-3",
+              "start": 17,
+              "end": 50
+            }
+          ]
+        },
+        "stale": [
+          "Only during the autumn exhibition.",
+          "Only for school visits."
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: The reason is a revised visitor schedule.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised visitor schedule.",
+              "evidence_id": "ev-museum-routing-7",
+              "start": 38,
+              "end": 79
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the winter exhibition.",
+              "evidence_id": "ev-museum-routing-6",
+              "start": 38,
+              "end": 72
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the guide.",
+              "evidence_id": "ev-museum-routing-4",
+              "start": 52,
+              "end": 87
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised visitor schedule.",
+              "evidence_id": "ev-museum-routing-7",
+              "start": 38,
+              "end": 79
+            }
+          ]
+        },
+        "stale": [
+          "Only during the autumn exhibition.",
+          "Only for school visits.",
+          "The reason is guide availability."
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Enquiries reach the booking team.\n\nThe booking team informs the education officer.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-8",
+              "start": 38,
+              "end": 71
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the education officer.",
+              "evidence_id": "ev-museum-routing-8",
+              "start": 73,
+              "end": 120
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Blue.",
+              "evidence_id": "ev-museum-routing-1",
+              "start": 17,
+              "end": 54
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the winter exhibition.",
+              "evidence_id": "ev-museum-routing-6",
+              "start": 38,
+              "end": 72
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-8",
+              "start": 38,
+              "end": 71
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the education officer.",
+              "evidence_id": "ev-museum-routing-8",
+              "start": 73,
+              "end": 120
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised visitor schedule.",
+              "evidence_id": "ev-museum-routing-7",
+              "start": 38,
+              "end": 79
+            }
+          ]
+        },
+        "stale": [
+          "Only during the autumn exhibition.",
+          "Only for school visits.",
+          "The reason is guide availability.",
+          "The booking team informs the guide."
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Museum routes enquiries to Desk Green.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Green.",
+              "evidence_id": "ev-museum-routing-9",
+              "start": 38,
+              "end": 76
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to Desk Green.",
+              "evidence_id": "ev-museum-routing-9",
+              "start": 38,
+              "end": 76
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the winter exhibition.",
+              "evidence_id": "ev-museum-routing-6",
+              "start": 38,
+              "end": 72
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Enquiries reach the booking team.",
+              "evidence_id": "ev-museum-routing-8",
+              "start": 38,
+              "end": 71
+            },
+            {
+              "field": "path",
+              "text": "The booking team informs the education officer.",
+              "evidence_id": "ev-museum-routing-8",
+              "start": 73,
+              "end": 120
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is a revised visitor schedule.",
+              "evidence_id": "ev-museum-routing-7",
+              "start": 38,
+              "end": 79
+            }
+          ]
+        },
+        "stale": [
+          "Only during the autumn exhibition.",
+          "Only for school visits.",
+          "The reason is guide availability.",
+          "The booking team informs the guide.",
+          "Museum routes enquiries to Desk Blue."
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Museum routes enquiries to the online helpdesk.\n\nMuseum applies to the next phase.\n\nMuseum connects the archive to the reader.\n\nMuseum requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to the online helpdesk.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 38,
+              "end": 85
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Museum applies to the next phase.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 87,
+              "end": 120
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Museum connects the archive to the reader.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 122,
+              "end": 164
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Museum requires durable records.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 166,
+              "end": 198
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Museum routes enquiries to the online helpdesk.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 38,
+              "end": 85
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Museum applies to the next phase.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 87,
+              "end": 120
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Museum connects the archive to the reader.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 122,
+              "end": 164
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Museum requires durable records.",
+              "evidence_id": "ev-museum-routing-10",
+              "start": 166,
+              "end": 198
+            }
+          ]
+        },
+        "stale": [
+          "Only during the autumn exhibition.",
+          "Only for school visits.",
+          "The reason is guide availability.",
+          "The booking team informs the guide.",
+          "Museum routes enquiries to Desk Blue.",
+          "Museum routes enquiries to Desk Green.",
+          "Only during the winter exhibition.",
+          "Enquiries reach the booking team.",
+          "The booking team informs the education officer.",
+          "The reason is a revised visitor schedule."
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Museum memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "Only during the autumn exhibition.",
+          "Only for school visits.",
+          "The reason is guide availability.",
+          "The booking team informs the guide.",
+          "Museum routes enquiries to Desk Blue.",
+          "Museum routes enquiries to Desk Green.",
+          "Only during the winter exhibition.",
+          "Enquiries reach the booking team.",
+          "The booking team informs the education officer.",
+          "The reason is a revised visitor schedule.",
+          "Museum routes enquiries to the online helpdesk.",
+          "Museum applies to the next phase.",
+          "Museum connects the archive to the reader.",
+          "Museum requires durable records."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lab-pipeline",
+    "query": "Lab",
+    "kept": [
+      {
+        "id": "stm-kestrel",
+        "spans": {
+          "fact": [
+            "Kestrel preserves archived notes."
+          ],
+          "constraint": [
+            "Only for annual reviews."
+          ],
+          "path": [
+            "The archive feeds the library."
+          ],
+          "causal": [
+            "The reason is record retention."
+          ]
+        }
+      },
+      {
+        "id": "stm-finch",
+        "spans": {
+          "fact": [
+            "Finch manages meeting invitations."
+          ],
+          "constraint": [
+            "Only for the design team."
+          ],
+          "path": [
+            "The calendar notifies the organiser."
+          ],
+          "causal": [
+            "The reason is coordinated attendance."
+          ]
+        }
+      }
+    ],
+    "turns": [
+      {
+        "turn": 1,
+        "action": "add",
+        "utterance": "Please remember: Lab schedules analyses on Cluster Blue.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 2,
+        "action": "append",
+        "utterance": "Please remember: Only during the calibration week.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the calibration week.",
+              "evidence_id": "ev-lab-pipeline-2",
+              "start": 17,
+              "end": 50
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the calibration week.",
+              "evidence_id": "ev-lab-pipeline-2",
+              "start": 17,
+              "end": 50
+            }
+          ],
+          "path": [],
+          "causal": []
+        },
+        "stale": []
+      },
+      {
+        "turn": 3,
+        "action": "append",
+        "utterance": "Please remember: The reason is instrument calibration.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is instrument calibration.",
+              "evidence_id": "ev-lab-pipeline-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the calibration week.",
+              "evidence_id": "ev-lab-pipeline-2",
+              "start": 17,
+              "end": 50
+            }
+          ],
+          "path": [],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is instrument calibration.",
+              "evidence_id": "ev-lab-pipeline-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 4,
+        "action": "append",
+        "utterance": "Please remember: Samples enter preprocessing.\n\nPreprocessing feeds the analysis queue.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 17,
+              "end": 45
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the analysis queue.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 47,
+              "end": 86
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the calibration week.",
+              "evidence_id": "ev-lab-pipeline-2",
+              "start": 17,
+              "end": 50
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 17,
+              "end": 45
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the analysis queue.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 47,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is instrument calibration.",
+              "evidence_id": "ev-lab-pipeline-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 5,
+        "action": "append",
+        "utterance": "Please remember: Only for validated samples.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only for validated samples.",
+              "evidence_id": "ev-lab-pipeline-5",
+              "start": 17,
+              "end": 44
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the calibration week.",
+              "evidence_id": "ev-lab-pipeline-2",
+              "start": 17,
+              "end": 50
+            },
+            {
+              "field": "constraint",
+              "text": "Only for validated samples.",
+              "evidence_id": "ev-lab-pipeline-5",
+              "start": 17,
+              "end": 44
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 17,
+              "end": 45
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the analysis queue.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 47,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is instrument calibration.",
+              "evidence_id": "ev-lab-pipeline-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": []
+      },
+      {
+        "turn": 6,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Only during the production week.",
+        "input": {
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the production week.",
+              "evidence_id": "ev-lab-pipeline-6",
+              "start": 38,
+              "end": 70
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "constraint"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the production week.",
+              "evidence_id": "ev-lab-pipeline-6",
+              "start": 38,
+              "end": 70
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 17,
+              "end": 45
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the analysis queue.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 47,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is instrument calibration.",
+              "evidence_id": "ev-lab-pipeline-3",
+              "start": 17,
+              "end": 54
+            }
+          ]
+        },
+        "stale": [
+          "Only during the calibration week.",
+          "Only for validated samples."
+        ]
+      },
+      {
+        "turn": 7,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: The reason is improved batch throughput.",
+        "input": {
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is improved batch throughput.",
+              "evidence_id": "ev-lab-pipeline-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the production week.",
+              "evidence_id": "ev-lab-pipeline-6",
+              "start": 38,
+              "end": 70
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 17,
+              "end": 45
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the analysis queue.",
+              "evidence_id": "ev-lab-pipeline-4",
+              "start": 47,
+              "end": 86
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is improved batch throughput.",
+              "evidence_id": "ev-lab-pipeline-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "stale": [
+          "Only during the calibration week.",
+          "Only for validated samples.",
+          "The reason is instrument calibration."
+        ]
+      },
+      {
+        "turn": 8,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Samples enter preprocessing.\n\nPreprocessing feeds the validation queue.",
+        "input": {
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-8",
+              "start": 38,
+              "end": 66
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the validation queue.",
+              "evidence_id": "ev-lab-pipeline-8",
+              "start": 68,
+              "end": 109
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "path"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Blue.",
+              "evidence_id": "ev-lab-pipeline-1",
+              "start": 17,
+              "end": 56
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the production week.",
+              "evidence_id": "ev-lab-pipeline-6",
+              "start": 38,
+              "end": 70
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-8",
+              "start": 38,
+              "end": 66
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the validation queue.",
+              "evidence_id": "ev-lab-pipeline-8",
+              "start": 68,
+              "end": 109
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is improved batch throughput.",
+              "evidence_id": "ev-lab-pipeline-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "stale": [
+          "Only during the calibration week.",
+          "Only for validated samples.",
+          "The reason is instrument calibration.",
+          "Preprocessing feeds the analysis queue."
+        ]
+      },
+      {
+        "turn": 9,
+        "action": "modify",
+        "utterance": "Replace the indicated dimension with: Lab schedules analyses on Cluster Green.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Green.",
+              "evidence_id": "ev-lab-pipeline-9",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab schedules analyses on Cluster Green.",
+              "evidence_id": "ev-lab-pipeline-9",
+              "start": 38,
+              "end": 78
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Only during the production week.",
+              "evidence_id": "ev-lab-pipeline-6",
+              "start": 38,
+              "end": 70
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Samples enter preprocessing.",
+              "evidence_id": "ev-lab-pipeline-8",
+              "start": 38,
+              "end": 66
+            },
+            {
+              "field": "path",
+              "text": "Preprocessing feeds the validation queue.",
+              "evidence_id": "ev-lab-pipeline-8",
+              "start": 68,
+              "end": 109
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "The reason is improved batch throughput.",
+              "evidence_id": "ev-lab-pipeline-7",
+              "start": 38,
+              "end": 78
+            }
+          ]
+        },
+        "stale": [
+          "Only during the calibration week.",
+          "Only for validated samples.",
+          "The reason is instrument calibration.",
+          "Preprocessing feeds the analysis queue.",
+          "Lab schedules analyses on Cluster Blue."
+        ]
+      },
+      {
+        "turn": 10,
+        "action": "supersede",
+        "utterance": "Use the following new memory instead: Lab stores completed analysis summaries.\n\nLab applies to the next phase.\n\nLab connects the archive to the reader.\n\nLab requires durable records.",
+        "input": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab stores completed analysis summaries.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 38,
+              "end": 78
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Lab applies to the next phase.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 80,
+              "end": 110
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Lab connects the archive to the reader.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 112,
+              "end": 151
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Lab requires durable records.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 153,
+              "end": 182
+            }
+          ]
+        },
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [
+            {
+              "field": "fact",
+              "text": "Lab stores completed analysis summaries.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 38,
+              "end": 78
+            }
+          ],
+          "constraint": [
+            {
+              "field": "constraint",
+              "text": "Lab applies to the next phase.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 80,
+              "end": 110
+            }
+          ],
+          "path": [
+            {
+              "field": "path",
+              "text": "Lab connects the archive to the reader.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 112,
+              "end": 151
+            }
+          ],
+          "causal": [
+            {
+              "field": "causal",
+              "text": "Lab requires durable records.",
+              "evidence_id": "ev-lab-pipeline-10",
+              "start": 153,
+              "end": 182
+            }
+          ]
+        },
+        "stale": [
+          "Only during the calibration week.",
+          "Only for validated samples.",
+          "The reason is instrument calibration.",
+          "Preprocessing feeds the analysis queue.",
+          "Lab schedules analyses on Cluster Blue.",
+          "Lab schedules analyses on Cluster Green.",
+          "Only during the production week.",
+          "Samples enter preprocessing.",
+          "Preprocessing feeds the validation queue.",
+          "The reason is improved batch throughput."
+        ]
+      },
+      {
+        "turn": 11,
+        "action": "delete",
+        "utterance": "Please delete the current Lab memory.",
+        "input": {},
+        "changed_dimensions": [
+          "fact",
+          "constraint",
+          "path",
+          "causal"
+        ],
+        "expected": {
+          "fact": [],
+          "constraint": [],
+          "path": [],
+          "causal": []
+        },
+        "stale": [
+          "Only during the calibration week.",
+          "Only for validated samples.",
+          "The reason is instrument calibration.",
+          "Preprocessing feeds the analysis queue.",
+          "Lab schedules analyses on Cluster Blue.",
+          "Lab schedules analyses on Cluster Green.",
+          "Only during the production week.",
+          "Samples enter preprocessing.",
+          "Preprocessing feeds the validation queue.",
+          "The reason is improved batch throughput.",
+          "Lab stores completed analysis summaries.",
+          "Lab applies to the next phase.",
+          "Lab connects the archive to the reader.",
+          "Lab requires durable records."
+        ]
+      }
+    ]
+  }
+]

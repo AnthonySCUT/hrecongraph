@@ -1,0 +1,445 @@
+[
+  {
+    "id": "fact-inline",
+    "dimension": "fact",
+    "question": "Which cache does Project Atlas use?",
+    "sources": [
+      {
+        "id": "ep-fact-inline",
+        "content": "Project Atlas uses Redis. The operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "fact-inline-edge-0",
+        "source": "ep-fact-inline",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "operator is Team Blue"
+    ],
+    "answer_pattern": "Project Atlas uses (?P<answer>\\w+)",
+    "expected_answer": "Redis"
+  },
+  {
+    "id": "fact-linked",
+    "dimension": "fact",
+    "question": "Who operates the cache?",
+    "sources": [
+      {
+        "id": "ep-fact-linked",
+        "content": "Project Atlas uses Redis.\n\nThe cache operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "fact-linked-edge-0",
+        "source": "ep-fact-linked",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [
+      {
+        "field": "fact",
+        "text": "The cache operator is Team Blue."
+      }
+    ],
+    "required": [
+      "Project Atlas uses Redis",
+      "The cache operator is Team Blue."
+    ],
+    "answer_pattern": "The cache operator is (?P<answer>[^.]+)",
+    "expected_answer": "Team Blue"
+  },
+  {
+    "id": "fact-unanchored",
+    "dimension": "fact",
+    "question": "Who operates the cache?",
+    "sources": [
+      {
+        "id": "ep-fact-unanchored",
+        "content": "Project Atlas uses Redis.\n\nThe cache operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "fact-unanchored-edge-0",
+        "source": "ep-fact-unanchored",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "The cache operator is Team Blue."
+    ],
+    "answer_pattern": "The cache operator is (?P<answer>[^.]+)",
+    "expected_answer": "Team Blue"
+  },
+  {
+    "id": "fact-paraphrase",
+    "dimension": "fact",
+    "question": "Which service does Atlas rely on?",
+    "sources": [
+      {
+        "id": "ep-fact-paraphrase",
+        "content": "Project Atlas relies on the Redis service.\n\nThe operator is Team Blue.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "fact-paraphrase-edge-0",
+        "source": "ep-fact-paraphrase",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas relies on the Redis service.",
+      "The operator is Team Blue."
+    ],
+    "answer_pattern": "relies on the (?P<answer>\\w+) service",
+    "expected_answer": "Redis"
+  },
+  {
+    "id": "constraint-inline",
+    "dimension": "constraint",
+    "question": "During which month is this setting active?",
+    "sources": [
+      {
+        "id": "ep-constraint-inline",
+        "content": "Project Atlas uses Redis only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "constraint-inline-edge-0",
+        "source": "ep-constraint-inline",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "only during October"
+    ],
+    "answer_pattern": "only during (?P<answer>\\w+)",
+    "expected_answer": "October"
+  },
+  {
+    "id": "constraint-linked",
+    "dimension": "constraint",
+    "question": "During which month is this setting active?",
+    "sources": [
+      {
+        "id": "ep-constraint-linked",
+        "content": "Project Atlas uses Redis.\n\nThis setting applies only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "constraint-linked-edge-0",
+        "source": "ep-constraint-linked",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [
+      {
+        "field": "condition",
+        "text": "This setting applies only during October."
+      }
+    ],
+    "required": [
+      "Project Atlas uses Redis",
+      "This setting applies only during October."
+    ],
+    "answer_pattern": "only during (?P<answer>\\w+)",
+    "expected_answer": "October"
+  },
+  {
+    "id": "constraint-unanchored",
+    "dimension": "constraint",
+    "question": "During which month is this setting active?",
+    "sources": [
+      {
+        "id": "ep-constraint-unanchored",
+        "content": "Project Atlas uses Redis.\n\nThis setting applies only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "constraint-unanchored-edge-0",
+        "source": "ep-constraint-unanchored",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "This setting applies only during October."
+    ],
+    "answer_pattern": "only during (?P<answer>\\w+)",
+    "expected_answer": "October"
+  },
+  {
+    "id": "constraint-paraphrase",
+    "dimension": "constraint",
+    "question": "During which month is this setting active?",
+    "sources": [
+      {
+        "id": "ep-constraint-paraphrase",
+        "content": "Project Atlas relies on Redis.\n\nThis setting applies only during October.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "constraint-paraphrase-edge-0",
+        "source": "ep-constraint-paraphrase",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas relies on Redis.",
+      "This setting applies only during October."
+    ],
+    "answer_pattern": "only during (?P<answer>\\w+)",
+    "expected_answer": "October"
+  },
+  {
+    "id": "path-inline",
+    "dimension": "path",
+    "question": "What does the cache serve?",
+    "sources": [
+      {
+        "id": "ep-path-inline",
+        "content": "Project Atlas uses Redis. Redis serves the cache. The cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "path-inline-edge-0",
+        "source": "ep-path-inline",
+        "text": "Project Atlas uses Redis"
+      },
+      {
+        "id": "path-inline-edge-1",
+        "source": "ep-path-inline",
+        "text": "Redis serves the cache"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Redis serves the cache",
+      "The cache serves the dashboard"
+    ],
+    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
+    "expected_answer": "dashboard"
+  },
+  {
+    "id": "path-linked",
+    "dimension": "path",
+    "question": "What does the cache serve?",
+    "sources": [
+      {
+        "id": "ep-path-linked",
+        "content": "Project Atlas uses Redis.\n\nRedis serves the cache.\n\nThe cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "path-linked-edge-0",
+        "source": "ep-path-linked",
+        "text": "Project Atlas uses Redis"
+      },
+      {
+        "id": "path-linked-edge-1",
+        "source": "ep-path-linked",
+        "text": "Redis serves the cache"
+      }
+    ],
+    "spans": [
+      {
+        "field": "path",
+        "text": "The cache serves the dashboard."
+      }
+    ],
+    "required": [
+      "Project Atlas uses Redis",
+      "Redis serves the cache",
+      "The cache serves the dashboard"
+    ],
+    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
+    "expected_answer": "dashboard"
+  },
+  {
+    "id": "path-unanchored",
+    "dimension": "path",
+    "question": "What does the cache serve?",
+    "sources": [
+      {
+        "id": "ep-path-unanchored",
+        "content": "Project Atlas uses Redis.\n\nRedis serves the cache.\n\nThe cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "path-unanchored-edge-0",
+        "source": "ep-path-unanchored",
+        "text": "Project Atlas uses Redis"
+      },
+      {
+        "id": "path-unanchored-edge-1",
+        "source": "ep-path-unanchored",
+        "text": "Redis serves the cache"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "Redis serves the cache",
+      "The cache serves the dashboard"
+    ],
+    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
+    "expected_answer": "dashboard"
+  },
+  {
+    "id": "path-paraphrase",
+    "dimension": "path",
+    "question": "What does the cache serve?",
+    "sources": [
+      {
+        "id": "ep-path-paraphrase",
+        "content": "Atlas relies on Redis.\n\nRedis serves the cache.\n\nThe cache serves the dashboard.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "path-paraphrase-edge-0",
+        "source": "ep-path-paraphrase",
+        "text": "Project Atlas uses Redis"
+      },
+      {
+        "id": "path-paraphrase-edge-1",
+        "source": "ep-path-paraphrase",
+        "text": "Redis serves the cache"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Atlas relies on Redis.",
+      "Redis serves the cache",
+      "The cache serves the dashboard"
+    ],
+    "answer_pattern": "The cache serves the (?P<answer>\\w+)",
+    "expected_answer": "dashboard"
+  },
+  {
+    "id": "causal-inline",
+    "dimension": "causal",
+    "question": "Why does Atlas use Redis?",
+    "sources": [
+      {
+        "id": "ep-causal-inline",
+        "content": "Project Atlas uses Redis because the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "causal-inline-edge-0",
+        "source": "ep-causal-inline",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "because the legacy client requires it"
+    ],
+    "answer_pattern": "because (?P<answer>[^.]+)",
+    "expected_answer": "the legacy client requires it"
+  },
+  {
+    "id": "causal-linked",
+    "dimension": "causal",
+    "question": "Why does Atlas use Redis?",
+    "sources": [
+      {
+        "id": "ep-causal-linked",
+        "content": "Project Atlas uses Redis.\n\nThe reason is that the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "causal-linked-edge-0",
+        "source": "ep-causal-linked",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [
+      {
+        "field": "cause",
+        "text": "The reason is that the legacy client requires it."
+      }
+    ],
+    "required": [
+      "Project Atlas uses Redis",
+      "The reason is that the legacy client requires it."
+    ],
+    "answer_pattern": "The reason is that (?P<answer>[^.]+)",
+    "expected_answer": "the legacy client requires it"
+  },
+  {
+    "id": "causal-unanchored",
+    "dimension": "causal",
+    "question": "Why does Atlas use Redis?",
+    "sources": [
+      {
+        "id": "ep-causal-unanchored",
+        "content": "Project Atlas uses Redis.\n\nThe reason is that the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "causal-unanchored-edge-0",
+        "source": "ep-causal-unanchored",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas uses Redis",
+      "The reason is that the legacy client requires it."
+    ],
+    "answer_pattern": "The reason is that (?P<answer>[^.]+)",
+    "expected_answer": "the legacy client requires it"
+  },
+  {
+    "id": "causal-paraphrase",
+    "dimension": "causal",
+    "question": "Why does Atlas use Redis?",
+    "sources": [
+      {
+        "id": "ep-causal-paraphrase",
+        "content": "Project Atlas relies on Redis.\n\nThe reason is that the legacy client requires it.\n\nThe office newsletter describes cafeteria menus, bicycle parking and weekend sports. These details concern office services."
+      }
+    ],
+    "facts": [
+      {
+        "id": "causal-paraphrase-edge-0",
+        "source": "ep-causal-paraphrase",
+        "text": "Project Atlas uses Redis"
+      }
+    ],
+    "spans": [],
+    "required": [
+      "Project Atlas relies on Redis.",
+      "The reason is that the legacy client requires it."
+    ],
+    "answer_pattern": "The reason is that (?P<answer>[^.]+)",
+    "expected_answer": "the legacy client requires it"
+  }
+]

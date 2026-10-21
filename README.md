@@ -1,6 +1,6 @@
 # H-ReConGraph
 
-基于 Graphiti 的三层图记忆研究原型。本仓库当前可安装代码对应 **05 阶段**。06–13 阶段的机制说明与实验结果见下方阶段页；对应代码迭代仍保存在逐代码审核工作副本。
+基于 Graphiti 的三层图记忆研究原型。本仓库代码已同步至 **13 阶段**，包含记忆束更新、四维证据绑定、证据裁剪及读取评测实现。阶段机制与结果见下方阶段页。
 
 ## 研究框架
 
@@ -77,10 +77,10 @@ print(context.context_text)
 
 ## 验证
 
-发布代码快照（05 阶段）指定回归：**107 passed**；逐代码审核工作副本（13 阶段）指定回归：**149 passed**。
+当前代码快照（13 阶段）指定回归：**149 passed**。
 
 ```powershell
-python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py -q -p no:cacheprovider
+python -m pytest tests/test_h_recongraph_memory.py tests/test_h_recongraph_graphiti_store.py tests/test_h_recongraph_retrieval.py tests/test_h_recongraph_longmemeval.py -q -p no:cacheprovider
 ```
 
 Graphiti 引擎代码基于 [getzep/graphiti](https://github.com/getzep/graphiti)，版本为 `0.29.2`。许可证为 Apache-2.0。

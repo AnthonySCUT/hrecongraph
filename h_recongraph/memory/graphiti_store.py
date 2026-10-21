@@ -3,6 +3,7 @@
 import json
 from typing import Any
 
+from graphiti_core.edges import EntityEdge
 from graphiti_core.nodes import EpisodeType, EpisodicNode
 from graphiti_core.utils.datetime_utils import utc_now
 from h_recongraph.schemas.memory_unit import UnifiedMemoryUnit
@@ -50,6 +51,28 @@ class GraphitiMemoryStore:
             )
             memory.metadata['graphiti_episode_id'] = episode.uuid
         return result
+
+    async def remove_memories(self, memories: list[UnifiedMemoryUnit]) -> None:
+        """Detach bundle sources while retaining edges supported by other sources."""
+        episode_ids = list(
+            dict.fromkeys(eid for memory in memories for eid in self.episode_ids(memory))
+        )
+        if not episode_ids:
+            return
+        driver = self.graphiti.driver
+        episodes = await EpisodicNode.get_by_uuids(driver, episode_ids)
+        edge_ids = list(dict.fromkeys(eid for episode in episodes for eid in episode.entity_edges))
+        edges = await EntityEdge.get_by_uuids(driver, edge_ids) if edge_ids else []
+        for edge in edges:
+            if not set(episode_ids).intersection(edge.episodes):
+                continue
+            edge.episodes = [eid for eid in edge.episodes if eid not in episode_ids]
+            if edge.episodes:
+                await edge.save(driver)
+            else:
+                await edge.delete(driver)
+        for episode in episodes:
+            await episode.delete(driver)
 
     async def search_memories(
         self,
@@ -134,6 +157,13 @@ class GraphitiMemoryStore:
         )
         snapshot['graphiti_episode_ids'] = self.episode_ids(memory)
         snapshot['graphiti_episode_id'] = memory.metadata.get('graphiti_episode_id')
+        snapshot.update(
+            {
+                key: memory.metadata[key]
+                for key in ('promoted_from', 'consolidated_from')
+                if key in memory.metadata
+            }
+        )
         envelope = {
             'h_recongraph': snapshot,
             'content': memory.raw_content,

@@ -1,0 +1,158 @@
+{
+  "fact-inline": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis. The operator is Team Blue."
+    }
+  ],
+  "fact-linked": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "fact",
+      "text": "The cache operator is Team Blue."
+    }
+  ],
+  "fact-unanchored": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "fact",
+      "text": "The cache operator is Team Blue."
+    }
+  ],
+  "fact-paraphrase": [
+    {
+      "field": "fact",
+      "text": "Project Atlas relies on the Redis service."
+    },
+    {
+      "field": "fact",
+      "text": "The operator is Team Blue."
+    }
+  ],
+  "constraint-inline": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis only during October."
+    }
+  ],
+  "constraint-linked": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "constraint",
+      "text": "This setting applies only during October."
+    }
+  ],
+  "constraint-unanchored": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "constraint",
+      "text": "This setting applies only during October."
+    }
+  ],
+  "constraint-paraphrase": [
+    {
+      "field": "fact",
+      "text": "Project Atlas relies on Redis."
+    },
+    {
+      "field": "constraint",
+      "text": "This setting applies only during October."
+    }
+  ],
+  "path-inline": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis. Redis serves the cache. The cache serves the dashboard."
+    }
+  ],
+  "path-linked": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "path",
+      "text": "Redis serves the cache."
+    },
+    {
+      "field": "path",
+      "text": "The cache serves the dashboard."
+    }
+  ],
+  "path-unanchored": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "path",
+      "text": "Redis serves the cache."
+    },
+    {
+      "field": "path",
+      "text": "The cache serves the dashboard."
+    }
+  ],
+  "path-paraphrase": [
+    {
+      "field": "fact",
+      "text": "Atlas relies on Redis."
+    },
+    {
+      "field": "path",
+      "text": "Redis serves the cache."
+    },
+    {
+      "field": "path",
+      "text": "The cache serves the dashboard."
+    }
+  ],
+  "causal-inline": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis because the legacy client requires it."
+    }
+  ],
+  "causal-linked": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "causal",
+      "text": "The reason is that the legacy client requires it."
+    }
+  ],
+  "causal-unanchored": [
+    {
+      "field": "fact",
+      "text": "Project Atlas uses Redis."
+    },
+    {
+      "field": "causal",
+      "text": "The reason is that the legacy client requires it."
+    }
+  ],
+  "causal-paraphrase": [
+    {
+      "field": "fact",
+      "text": "Project Atlas relies on Redis."
+    },
+    {
+      "field": "causal",
+      "text": "The reason is that the legacy client requires it."
+    }
+  ]
+}
